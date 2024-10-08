@@ -2,7 +2,9 @@ import { View, Text, Image, TouchableOpacity, handleLogin,handleCreateAccount, }
 import React from 'react';
 import { Link } from 'expo-router';
 
+
 export default function Landing() {
+  
   return (
     <View style={styles.container}>
       <Image
@@ -27,7 +29,7 @@ export default function Landing() {
     <Text style={styles.cooptagline2}>coop member.</Text>
 
     <TouchableOpacity style={styles.buttonLoginContainer}>
-          <Link href="/Login" style={styles.buttonLoginText}>Login</Link>
+    <Link style={styles.buttonLoginText} href={'./Login'}>Login</Link>
     </TouchableOpacity>
 
 <TouchableOpacity style={styles.buttonCreateContainer} onPress={handleCreateAccount}>
