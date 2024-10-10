@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'expo-router';
 
 
+
 export default function Landing() {
   
   return (
@@ -33,7 +34,7 @@ export default function Landing() {
     </TouchableOpacity>
 
 <TouchableOpacity style={styles.buttonCreateContainer} onPress={handleCreateAccount}>
-    <Link href="" style={styles.buttonCreateText}>Create Account</Link>
+    <Link href="./CreateAccount" style={styles.buttonCreateText}>Create Account</Link>
 </TouchableOpacity>
 
 </View>
