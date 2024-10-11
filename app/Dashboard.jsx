@@ -107,12 +107,34 @@ export default function Dashboard() {
                         source={require('./../assets/images/blue.png')}
                         style={styles.blue}>
                 </Image>
+                <Text style={styles.greenlegend}>Cash and Equivalents</Text>
+                <Text style={styles.redlegend}>Expenses</Text>
+                <Text style={styles.yellowlegend}>Receivables</Text>
+                <Text style={styles.bluelegend}>Fixed Assests</Text>
                 </View>
             </View>
 
-            {/* <View style={styles.navbar}>
-                    <Image style={styles.announcement}source={require('./../assets/images/megaphone.png')}></Image>
-            </View> */}
+            <View styles={styles.graph}>
+            <Text style={styles.linegraph}>Sample Graph here!</Text>
+            </View>
+
+            <View style={styles.navbar}>
+                    <TouchableOpacity>
+                        <Image style={styles.announcement}source={require('./../assets/images/megaphone.png')}></Image>
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image style={styles.funds}source={require('./../assets/images/dollar-bill.png')}></Image>
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image style={styles.dashboard}source={require('./../assets/images/dashboard.png')}></Image>
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image style={styles.loans}source={require('./../assets/images/personal.png')}></Image>
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image style={styles.history}source={require('./../assets/images/history.png')}></Image>
+                    </TouchableOpacity>
+            </View>
 
         </View>
     );
@@ -473,7 +495,6 @@ const styles = {
         height: 10, // Height
         left: 20, // Adjusted x coordinate for visibility
         top: -10, // Adjusted y coordinate for visibility
-        backgroundColor: '#0DDF3D', // Background color
     },
     red: {
         position: 'absolute',
@@ -481,7 +502,6 @@ const styles = {
         height: 10, // Height
         left: 20, // Adjusted x coordinate for visibility
         top: 10, // Adjusted y coordinate for visibility
-        backgroundColor: '#0DDF3D', // Background color
     }, 
     yellow: {
         position: 'absolute',
@@ -489,7 +509,6 @@ const styles = {
         height: 10, // Height
         left: 20, // Adjusted x coordinate for visibility
         top: 30, // Adjusted y coordinate for visibility
-        backgroundColor: '#0DDF3D', // Background color
     }, 
     blue: {
         position: 'absolute',
@@ -497,13 +516,132 @@ const styles = {
         height: 10, // Height
         left: 20, // Adjusted x coordinate for visibility
         top: 50 , // Adjusted y coordinate for visibility
-        backgroundColor: '#0DDF3D', // Background color
-    },                     
-    // navbar: {
-    //     width: 360,
-    //     height: 47,
-    //     backgroundColor: '#373F41', // Set the fill color here
-    //     alignItems: 'center', // Center content horizontally
-    //     justifyContent: 'center', // Center content vertically
-    // },
+    },  
+    greenlegend: {
+        position: 'absolute',
+        width: 122,
+        height: 17,
+        left: 41,
+        top: -13,
+        fontFamily: 'Poppins',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 11,
+        lineHeight: 16,
+        color: '#FFFFFF',
+      },   
+      redlegend: {
+        position: 'absolute',
+        width: 122,
+        height: 17,
+        left: 41,
+        top: 7,
+        fontFamily: 'Poppins',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 11,
+        lineHeight: 16,
+        color: '#FFFFFF',
+      }, 
+      yellowlegend: {
+        position: 'absolute',
+        width: 122,
+        height: 17,
+        left: 41,
+        top: 27,
+        fontFamily: 'Poppins',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 11,
+        lineHeight: 16,
+        color: '#FFFFFF',
+      },
+      bluelegend: {
+        position: 'absolute',
+        width: 122,
+        height: 17,
+        left: 41,
+        top: 47,
+        fontFamily: 'Poppins',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 11,
+        lineHeight: 16,
+        color: '#FFFFFF',
+      },
+      linegraph: {
+        position: 'absolute',
+        width: 148,
+        height: 24,
+        left: 100, // Center the text relative to the graph
+        top: 525,  // Adjust to position it above the graph
+        fontFamily: 'Poppins',
+        fontStyle: 'normal',
+        fontWeight: '800',
+        fontSize: 16,
+        lineHeight: 24,
+        textAlign: 'center',
+        color: '#F9A602',
+    },
+    navbar: {
+        position: 'absolute',
+        width: 360,
+        height: 47,
+        left: 0,
+        top: 719,
+        backgroundColor: '#373F41',
+        flexDirection: 'row', // Align items horizontally
+        justifyContent: 'space-around', // Space items evenly
+        alignItems: 'center', // Center items vertically
+        elevation: 5, // Optional: Add shadow effect for Android
+        shadowColor: '#000', // Optional: Shadow color for iOS
+        shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
+        shadowOpacity: 0.25, // Optional: Shadow opacity
+        shadowRadius: 3.5, // Optional: Shadow radius
+},
+announcement: {
+    width: 30,
+    height: 30,
+    tintColor: '#F9A602', // Tint color
+    flex: 0, // Equivalent to `flex: none`
+    order: 0, // Not applicable in React Native, but kept for reference
+    flexGrow: 0, // Ensures it does not grow
+    left: 5,
+},
+funds: {
+    width: 30,
+    height: 30,
+    tintColor: '#F9A602', // Tint color
+    flex: 0, // Equivalent to `flex: none`
+    order: 0, // Not applicable in React Native, but kept for reference
+    flexGrow: 0, // Ensures it does not grow
+    left: -5,
+},
+dashboard: {
+    width: 30,
+    height: 30,
+    tintColor: '#F9A602', // Tint color
+    flex: 0, // Equivalent to `flex: none`
+    order: 0, // Not applicable in React Native, but kept for reference
+    flexGrow: 0, // Ensures it does not grow
+    left: -5,
+},
+loans: {
+    width: 30,
+    height: 30,
+    tintColor: '#F9A602', // Tint color
+    flex: 0, // Equivalent to `flex: none`
+    order: 0, // Not applicable in React Native, but kept for reference
+    flexGrow: 0, // Ensures it does not grow
+    left: -5,
+},
+history: {
+    width: 30,
+    height: 30,
+    tintColor: '#F9A602', // Tint color
+    flex: 0, // Equivalent to `flex: none`
+    order: 0, // Not applicable in React Native, but kept for reference
+    flexGrow: 0, // Ensures it does not grow
+    left: -5,
+},
 };
