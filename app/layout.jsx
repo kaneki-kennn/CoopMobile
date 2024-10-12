@@ -23,6 +23,10 @@ export default function RootLayout() {
       <Stack.Screen name="Login"/>
       <Stack.Screen name="Dashboard"/>
       <Stack.Screen name="CreateAccount"/>
+      <Stack.Screen name="Loans"/>
+      <Stack.Screen name="Funds"/>
+      <Stack.Screen name="History"/>
+      <Stack.Screen name="Announcement"/>
     </Stack>
   );
 }

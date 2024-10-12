@@ -1,7 +1,10 @@
 import { View, Image, TouchableOpacity, Text } from 'react-native';
 import React from 'react';
+import { Link } from 'expo-router';
+import { useRouter } from 'expo-router'
 
 export default function Dashboard() {
+    const router = useRouter();
     const handleLogoClick = () => {
         alert("Coop clicked! The page will refresh."); // Replace with your refresh logic
     };
@@ -70,7 +73,7 @@ export default function Dashboard() {
                 <View style={styles.cbubal}>
                     <Text style={styles.cbubalancemoney}>500.00</Text>
                     <View style={styles.cbucontainer}>
-                        <Text style={styles.cbus}>Current Bank Util.</Text>
+                        <Text style={styles.cbus}>CBU</Text>
                     </View>
                 </View>
             </View>
@@ -119,19 +122,19 @@ export default function Dashboard() {
             </View>
 
             <View style={styles.navbar}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>router.push('Announcement')}>
                         <Image style={styles.announcement}source={require('./../assets/images/megaphone.png')}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>router.push('Funds')}>
                         <Image style={styles.funds}source={require('./../assets/images/dollar-bill.png')}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>router.push('Dashboard')}>
                         <Image style={styles.dashboard}source={require('./../assets/images/dashboard.png')}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>router.push('Loans')}>
                         <Image style={styles.loans}source={require('./../assets/images/personal.png')}></Image>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>router.push('History')}>
                         <Image style={styles.history}source={require('./../assets/images/history.png')}></Image>
                     </TouchableOpacity>
             </View>
@@ -620,7 +623,7 @@ funds: {
 dashboard: {
     width: 30,
     height: 30,
-    tintColor: '#F9A602', // Tint color
+    tintColor: '#FFFFFF', // Tint color
     flex: 0, // Equivalent to `flex: none`
     order: 0, // Not applicable in React Native, but kept for reference
     flexGrow: 0, // Ensures it does not grow
