@@ -1,11 +1,11 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
-
+import { AppState } from 'react-native';
 const supabaseUrl = 'https://wktdygngpenuvshfxnam.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdGR5Z25ncGVudXZzaGZ4bmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NzgwOTIsImV4cCI6MjA0NTA1NDA5Mn0.d7sxmS9PRJpz4k1UUEvpg0CIsXkD8UfnaB8dDndCgao';
+const supabaseServiceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdGR5Z25ncGVudXZzaGZ4bmFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTQ3ODA5MiwiZXhwIjoyMDQ1MDU0MDkyfQ.PrjUcS9drcHi-w2xTfzSu2QbyUjTgbaMXSxATjMzD5Y'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
@@ -13,3 +13,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
+
