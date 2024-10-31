@@ -2,10 +2,13 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
-const supabaseUrl = 'https://wktdygngpenuvshfxnam.supabase.co';
-const supabaseServiceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdGR5Z25ncGVudXZzaGZ4bmFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTQ3ODA5MiwiZXhwIjoyMDQ1MDU0MDkyfQ.PrjUcS9drcHi-w2xTfzSu2QbyUjTgbaMXSxATjMzD5Y'
 
-export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+const supabaseUrl = 'https://wktdygngpenuvshfxnam.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdGR5Z25ncGVudXZzaGZ4bmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NzgwOTIsImV4cCI6MjA0NTA1NDA5Mn0.d7sxmS9PRJpz4k1UUEvpg0CIsXkD8UfnaB8dDndCgao';
+const supabaseServiceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdGR5Z25ncGVudXZzaGZ4bmFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTQ3ODA5MiwiZXhwIjoyMDQ1MDU0MDkyfQ.PrjUcS9drcHi-w2xTfzSu2QbyUjTgbaMXSxATjMzD5Y';
+
+// Client for app-level usage
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
@@ -14,3 +17,83 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   },
 });
 
+// Client for migrations (admin operations)
+const adminAuthApi = new AuthAdminApi(supabaseUrl, supabaseServiceRoleKey);
+
+
+export async function migrateUsers() {
+  try {
+    console.log("Starting migration...");
+
+    const { data: users, error: fetchError } = await supabase
+      .from('Users')
+      .select('*');
+
+    if (fetchError) {
+      console.error('Error fetching users:', fetchError);
+      return;
+    }
+
+    console.log("Users fetched:", users);
+
+    for (const user of users) {
+      console.log(`Processing user: ${user.email}`);
+
+      // Use the adminAuthApi instance for admin functions
+      const { data: existingUser, error: userCheckError } = await adminAuthApi.getUserByEmail(user.email);
+
+      if (userCheckError) {
+        console.error(`Error checking user ${user.email}:`, userCheckError);
+        continue;
+      }
+
+      if (existingUser) {
+        console.log(`User already exists: ${user.email}`);
+        continue;
+      }
+
+      const { data: authData, error: authError } = await adminAuthApi.createUser({
+        email: user.email,
+        email_confirm: true,
+        password: user.hashed_password,
+      });
+
+      if (authError) {
+        console.error(`Error creating user ${user.email}:`, authError);
+        continue;
+      }
+
+      console.log(`User created in Supabase Auth: ${user.email}`);
+
+      const { error: updateError } = await supabase
+        .from('Users')
+        .update({ supabase_auth_id: authData.user.id })
+        .eq('user_id', user.user_id);
+
+      if (updateError) {
+        console.error(`Error updating user ${user.email} with Supabase Auth ID:`, updateError);
+      } else {
+        console.log(`User migrated: ${user.email}, Supabase Auth ID: ${authData.user.id}`);
+      }
+    }
+  } catch (error) {
+    console.error("Migration failed with an unexpected error:", error);
+  }
+}
+
+// async function testSupabaseConnection() {
+//     const { data, error } = await supabase
+//         .from('Users')
+//         .select('*')
+//         .limit(1);
+
+//     if (error) {
+//         console.error("Supabase connection error:", error);
+//     } else {
+//         console.log("Supabase connection successful:", data);
+//     }
+// }
+
+// Call both functions
+migrateUsers();
+// testSupabaseConnection();

@@ -28,22 +28,31 @@ export default function Login() {
     };
   }, []);
 
+  
+
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
     });
 
     console.log('Attempting to log in with:', { email, password });
 
-
     if (error) {
-        console.log('Login Error:', error); // Log the full error for more information
+        console.log('Login Error:', error);
+
+       
+        if (error.message.includes('Invalid login credentials')) {
+            console.log('User exists, but password is incorrect.');
+        } else if (error.message.includes('User not found')) {
+            console.log('User does not exist in Supabase Auth.');
+        }
+
         Alert.alert('Login Failed', error.message);
     } else {
-        console.log('Login successful!'); // Log successful login
-        router.push('Dashboard'); // Redirect to the dashboard after a successful login
+        console.log('Login successful!', data);
+        router.push('Dashboard'); 
     }
     setLoading(false);
 }
