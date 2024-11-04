@@ -2,14 +2,14 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { AppState, Alert, View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
-import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
+import bcrypt from 'bcryptjs';
 import { useRouter } from 'expo-router';
-import {supabase} from './supabase';
-
+import { supabase } from './supabase';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [user_id, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -28,34 +28,67 @@ export default function Login() {
     };
   }, []);
 
-  
-
-  async function signInWithEmail() {
+  async function signInWithUserId() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
+    try {
+        const { data: user, error } = await supabase
+            .from('Users')
+            .select('user_id, password, role') // Include 'role' in the selection
+            .eq('user_id', user_id) // Ensure `user_id` is properly defined or passed in
+            .single();
 
-    console.log('Attempting to log in with:', { email, password });
+        console.log('Fetched user data:', user); // Debugging line
 
-    if (error) {
-        console.log('Login Error:', error);
-
-       
-        if (error.message.includes('Invalid login credentials')) {
-            console.log('User exists, but password is incorrect.');
-        } else if (error.message.includes('User not found')) {
-            console.log('User does not exist in Supabase Auth.');
+        if (error || !user) {
+            console.error('User not found or error fetching user:', error);
+            Alert.alert('Login Failed', 'Invalid login credentials');
+            setLoading(false);
+            return;
         }
 
-        Alert.alert('Login Failed', error.message);
-    } else {
-        console.log('Login successful!', data);
-        router.push('Dashboard'); 
+        if (user.role.toLowerCase() !== 'regular') {
+            console.log('User does not have permission to log in.');
+            Alert.alert('Login Failed', 'Sorry, the current Mobile App is only accessible for regular users.');
+            setLoading(false);
+            return;
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) {
+            console.log('User exists, but password is incorrect.');
+            Alert.alert('Login Failed', 'Invalid login credentials');
+            setLoading(false);
+            return;
+        }
+
+        console.log('Password verified, creating session...', user.user_id);
+        console.log('Passing userId to router:', user.user_id);
+
+        Alert.alert('Login Successful');
+        if (user && user.user_id) {
+          console.log('User data:', user);
+          console.log('Passing userId to router:', user.user_id);
+          router.push(`/Dashboard?userId=${user.user_id}`);
+         } else {
+          console.warn('User data is missing or incomplete:', user);
+      }
+      
+      
+    } catch (e) {
+        console.error('Unexpected error:', e);
+        Alert.alert('Login Failed', 'An unexpected error occurred');
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
 }
+
+
+
+
+
+
+
+
 
 
   async function signUpWithEmail() {
@@ -91,8 +124,8 @@ export default function Login() {
             style={styles.inputBox}
             placeholder="Enter your Account ID"
             placeholderTextColor="#AAAAAA"
-            value={email} // Bind the input to the state
-            onChangeText={setEmail} // Update the state on input change
+            value={user_id} // Bind the input to the state
+            onChangeText={setUserId} // Update the state on input change
           />
         </View>
         <View style={styles.inputplace}>
@@ -107,7 +140,7 @@ export default function Login() {
           />
         </View>
         <TouchableOpacity
-          onPress={signInWithEmail} // Call signIn function on press
+          onPress={signInWithUserId} // Call signIn function on press
           style={styles.buttonLoginContainer}
           disabled={loading} // Disable button if loading
         >

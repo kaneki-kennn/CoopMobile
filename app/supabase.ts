@@ -17,9 +17,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Client for migrations (admin operations)
-const adminAuthApi = new AuthAdminApi(supabaseUrl, supabaseServiceRoleKey);
-
+// Client for admin operations
+const adminSupabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function migrateUsers() {
   try {
@@ -39,23 +38,30 @@ export async function migrateUsers() {
     for (const user of users) {
       console.log(`Processing user: ${user.email}`);
 
-      // Use the adminAuthApi instance for admin functions
-      const { data: existingUser, error: userCheckError } = await adminAuthApi.getUserByEmail(user.email);
+      // Use the admin API to list users and check structure
+      const { data: allUsers, error: userCheckError } = await adminSupabase.auth.admin.listUsers();
 
       if (userCheckError) {
-        console.error(`Error checking user ${user.email}:`, userCheckError);
+        console.error(`Error fetching users from Auth API:`, userCheckError);
         continue;
       }
+
+      if (!allUsers || !Array.isArray(allUsers.users)) {
+        console.error("Unexpected format of allUsers:", allUsers);
+        continue;
+      }
+
+      const existingUser = allUsers.users.find((authUser) => authUser.email === user.email);
 
       if (existingUser) {
         console.log(`User already exists: ${user.email}`);
         continue;
       }
 
-      const { data: authData, error: authError } = await adminAuthApi.createUser({
+      const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
         email: user.email,
         email_confirm: true,
-        password: user.hashed_password,
+        password: user.password, // Ensure the hashed password is suitable for your use case
       });
 
       if (authError) {
@@ -81,19 +87,4 @@ export async function migrateUsers() {
   }
 }
 
-// async function testSupabaseConnection() {
-//     const { data, error } = await supabase
-//         .from('Users')
-//         .select('*')
-//         .limit(1);
-
-//     if (error) {
-//         console.error("Supabase connection error:", error);
-//     } else {
-//         console.log("Supabase connection successful:", data);
-//     }
-// }
-
-// Call both functions
 migrateUsers();
-// testSupabaseConnection();

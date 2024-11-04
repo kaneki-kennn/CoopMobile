@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import Landing from './../components/Landing';
 import React from "react";
-import {supabase, migration} from './supabase';
+import {supabase} from './supabase';
 
 
 

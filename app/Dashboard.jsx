@@ -1,12 +1,64 @@
-import { View, Image, TouchableOpacity, Text } from 'react-native';
-import React from 'react';
-import { Link } from 'expo-router';
-import { useRouter } from 'expo-router'
+import { useEffect, useState } from 'react';
+import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { useRouter } from 'expo-router';
+import { supabase } from './supabase';
 
 export default function Dashboard() {
     const router = useRouter();
+    const [savings, setSavings] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        console.log('Router query on mount:', router.query);
+        const extractedUserId = router.query.userId; // Check if this is correctly defined
+        console.log('Extracted userId:', extractedUserId);
+        
+        if (extractedUserId) {
+            fetchSavings(extractedUserId);
+        } else {
+            console.warn('No userId found in query.');
+        }
+    }, [router.query]);
+
+    const fetchSavings = async (user_id) => {
+        setLoading(true);
+        setError(null);
+        console.log('Fetching savings for userId:', user_id);
+
+        try {
+            const { data, error } = await supabase
+                .from('Savings')
+                .select('amount')
+                .eq('user_id', user_id)
+                .single();
+
+            if (error) {
+                throw error;
+            }
+
+            console.log('Fetched data:', data);
+            if (data) {
+                setSavings(data.amount);
+            } else {
+                console.log('No savings found for this user.');
+                setSavings(0);
+            }
+        } catch (e) {
+            console.error('Error fetching savings:', e);
+            setError('Failed to fetch savings. Please try again later.');
+            Alert.alert('Error', 'Could not fetch savings data.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    
+
+    
     const handleLogoClick = () => {
-        alert("Coop clicked! The page will refresh."); // Replace with your refresh logic
+        Alert.alert("Coop clicked! The page will refresh.");
+        router.reload(); // Reloads the page if using Next.js
     };
 
     return (
@@ -62,7 +114,13 @@ export default function Dashboard() {
 
             <View style={styles.save}>
                 <View style={styles.savebal}>
-                    <Text style={styles.savebalancemoney}>500.00</Text>
+                    {loading ? (
+                        <Text style={styles.savebalancemoney}>Loading...</Text>
+                    ) : error ? (
+                        <Text style={{ color: 'red' }}>{error}</Text>
+                    ) : (
+                        <Text style={styles.savebalancemoney}>{savings !== null ? savings.toFixed(2) : 'No savings found'}</Text>
+                    )}
                     <View style={styles.savecontainer}>
                         <Text style={styles.savings}>Savings</Text>
                     </View>
@@ -80,65 +138,64 @@ export default function Dashboard() {
 
             <View style={styles.containeradvisory}>
                 <Image
-                        source={require('./../assets/images/megaphone.png')}
-                        style={styles.megaphone}>
-                </Image>
+                    source={require('./../assets/images/megaphone.png')}
+                    style={styles.megaphone}
+                />
                 <Text style={styles.coopad}>Cooperative Advisory</Text>
                 <Text style={styles.content}>There are no announcements...</Text>
                 <Image
-                        source={require('./../assets/images/chat.png')}
-                        style={styles.chat}>
-                </Image>
+                    source={require('./../assets/images/chat.png')}
+                    style={styles.chat}
+                />
             </View>
 
             <View style={styles.coopfunds}>
                 <Text style={styles.coopfnds}>2024 COOP FUNDS</Text>
                 <View style={styles.legend}>
-                <Image
+                    <Image
                         source={require('./../assets/images/green.png')}
-                        style={styles.green}>
-                </Image>
-                <Image
+                        style={styles.green}
+                    />
+                    <Image
                         source={require('./../assets/images/red.png')}
-                        style={styles.red}>
-                </Image>
-                <Image
+                        style={styles.red}
+                    />
+                    <Image
                         source={require('./../assets/images/yellow.png')}
-                        style={styles.yellow}>
-                </Image>
-                <Image
+                        style={styles.yellow}
+                    />
+                    <Image
                         source={require('./../assets/images/blue.png')}
-                        style={styles.blue}>
-                </Image>
-                <Text style={styles.greenlegend}>Cash and Equivalents</Text>
-                <Text style={styles.redlegend}>Expenses</Text>
-                <Text style={styles.yellowlegend}>Receivables</Text>
-                <Text style={styles.bluelegend}>Fixed Assests</Text>
+                        style={styles.blue}
+                    />
+                    <Text style={styles.greenlegend}>Cash and Equivalents</Text>
+                    <Text style={styles.redlegend}>Expenses</Text>
+                    <Text style={styles.yellowlegend}>Receivables</Text>
+                    <Text style={styles.bluelegend}>Fixed Assets</Text>
                 </View>
             </View>
 
-            <View styles={styles.graph}>
-            <Text style={styles.linegraph}>Sample Graph here!</Text>
+            <View style={styles.graph}>
+                <Text style={styles.linegraph}>Sample Graph here!</Text>
             </View>
 
             <View style={styles.navbar}>
-                    <TouchableOpacity onPress={()=>router.push('Announcement')}>
-                        <Image style={styles.announcement}source={require('./../assets/images/megaphone.png')}></Image>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>router.push('Funds')}>
-                        <Image style={styles.funds}source={require('./../assets/images/dollar-bill.png')}></Image>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>router.push('Dashboard')}>
-                        <Image style={styles.dashboard}source={require('./../assets/images/dashboard.png')}></Image>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>router.push('Loans')}>
-                        <Image style={styles.loans}source={require('./../assets/images/personal.png')}></Image>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>router.push('History')}>
-                        <Image style={styles.history}source={require('./../assets/images/history.png')}></Image>
-                    </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('Announcement')}>
+                    <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('Funds')}>
+                    <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('Dashboard')}>
+                    <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('Loans')}>
+                    <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('History')}>
+                    <Image style={styles.history} source={require('./../assets/images/history.png')} />
+                </TouchableOpacity>
             </View>
-
         </View>
     );
 }
