@@ -6,13 +6,17 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import bcrypt from 'bcryptjs';
 import { useRouter } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Login() {
   const [user_id, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const router = useRoute();
+  const navigation = useNavigation(); 
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
@@ -33,11 +37,11 @@ export default function Login() {
     try {
         const { data: user, error } = await supabase
             .from('Users')
-            .select('user_id, password, role') // Include 'role' in the selection
-            .eq('user_id', user_id) // Ensure `user_id` is properly defined or passed in
+            .select('user_id, password, role')
+            .eq('user_id', user_id)
             .single();
 
-        console.log('Fetched user data:', user); // Debugging line
+        console.log('Fetched user data:', user);
 
         if (error || !user) {
             console.error('User not found or error fetching user:', error);
@@ -47,7 +51,6 @@ export default function Login() {
         }
 
         if (user.role.toLowerCase() !== 'regular') {
-            console.log('User does not have permission to log in.');
             Alert.alert('Login Failed', 'Sorry, the current Mobile App is only accessible for regular users.');
             setLoading(false);
             return;
@@ -55,25 +58,19 @@ export default function Login() {
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
-            console.log('User exists, but password is incorrect.');
             Alert.alert('Login Failed', 'Invalid login credentials');
             setLoading(false);
             return;
         }
 
-        console.log('Password verified, creating session...', user.user_id);
-        console.log('Passing userId to router:', user.user_id);
-
         Alert.alert('Login Successful');
         if (user && user.user_id) {
-          console.log('User data:', user);
-          console.log('Passing userId to router:', user.user_id);
-          router.push(`/Dashboard?userId=${user.user_id}`);
-         } else {
-          console.warn('User data is missing or incomplete:', user);
-      }
-      
-      
+            console.log('Passing userId to Dashboard:', user.user_id);
+            navigation.navigate('Dashboard', { userId: user.user_id });
+        } else {
+            console.warn('User data is missing or incomplete:', user);
+        }
+
     } catch (e) {
         console.error('Unexpected error:', e);
         Alert.alert('Login Failed', 'An unexpected error occurred');

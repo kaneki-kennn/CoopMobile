@@ -1,64 +1,123 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
 
-export default function Dashboard() {
-    const router = useRouter();
-    const [savings, setSavings] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const Dashboard = () => {
+    const route = useRoute();
+    const { userId } = route.params || {}; 
+    const [savings, setSavings] = useState(null);
+    const [cbu, setCbu] = useState(null);
+    const [loadingSavings, setLoadingSavings] = useState(true); 
+    const [loadingCbu, setLoadingCbu] = useState(true);          
+    const [errorSavings, setErrorSavings] = useState(null);      
+    const [errorCbu, setErrorCbu] = useState(null);      
+    const [announcements,  setAnnouncements] = useState([]);
+    const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+    const [errorAnnouncements, setErrorAnnouncements] = useState(null);
 
-    useEffect(() => {
-        console.log('Router query on mount:', router.query);
-        const extractedUserId = router.query.userId; // Check if this is correctly defined
-        console.log('Extracted userId:', extractedUserId);
-        
-        if (extractedUserId) {
-            fetchSavings(extractedUserId);
-        } else {
-            console.warn('No userId found in query.');
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const fetchUserCbu = async () => {
+        setLoadingCbu(true);
+        setErrorCbu(null);
+    
+        try {
+            console.log('Fetching CBU for User ID:', userId); 
+            const { data, error } = await supabase
+                .from('Cbus') 
+                .select('amount') 
+                .eq('user_id', userId) 
+                .single(); 
+    
+            if (error) {
+                console.error('Error fetching CBU:', error);  
+                throw error;  
+            }
+    
+            console.log('Fetched CBU:', data); 
+            setCbu(data?.amount || 0);
+        } catch (err) {
+            console.error('Error fetching CBU:', err);  
+            setErrorCbu('Failed to fetch CBU.');
+        } finally {
+            setLoadingCbu(false);
         }
-    }, [router.query]);
+    };
+    
 
-    const fetchSavings = async (user_id) => {
-        setLoading(true);
-        setError(null);
-        console.log('Fetching savings for userId:', user_id);
+    const fetchUserSavings = async () => {
+        setLoadingSavings(true);
+        setErrorSavings(null);
 
         try {
             const { data, error } = await supabase
-                .from('Savings')
-                .select('amount')
-                .eq('user_id', user_id)
-                .single();
+                .from('Savings') 
+                .select('amount') 
+                .eq('user_id', userId) 
+                .single(); 
 
-            if (error) {
-                throw error;
-            }
+            if (error) throw error;
 
-            console.log('Fetched data:', data);
-            if (data) {
-                setSavings(data.amount);
-            } else {
-                console.log('No savings found for this user.');
-                setSavings(0);
-            }
-        } catch (e) {
-            console.error('Error fetching savings:', e);
-            setError('Failed to fetch savings. Please try again later.');
-            Alert.alert('Error', 'Could not fetch savings data.');
+            setSavings(data?.amount || 0);
+        } catch (err) {
+            setErrorSavings('Failed to fetch savings.');
         } finally {
-            setLoading(false);
+            setLoadingSavings(false);
         }
     };
 
+    useEffect(() => {
+        if (userId) {
+            console.log('Fetching savings and CBU for User ID:', userId);
+            fetchUserSavings();
+            fetchUserCbu();
+            fetchAnnouncements();
+        }
+    }, [userId, refreshKey]); 
+
+    useEffect(() => {
+        console.log('Updated savings and CBU:', savings, cbu); 
+    }, [savings, cbu]);
+
+    const fetchAnnouncements = async () => {
+        setLoadingAnnouncements(true);
+        setErrorAnnouncements(null);
+    
+        try {
+            const { data, error } = await supabase
+                .from('Contents')  // Table containing announcements
+                .select('content_title, content')  // Selecting the necessary columns
+                .order('createdAt', { ascending: false })  // Order by 'createdAt', latest first
+                .limit(1);  // Limit to 1 announcement (most recent)
+    
+            if (error) {
+                console.error('Error fetching Announcements:', error);
+                throw error;
+            }
+    
+            if (data && data.length > 0) {
+                setAnnouncements(data);  // Set fetched data if available
+            } else {
+                setAnnouncements([]);  // Set an empty array if no data
+            }
+    
+        } catch (err) {
+            setErrorAnnouncements('Failed to fetch announcements.');
+            console.error(err);  // Log the error for debugging
+        } finally {
+            setLoadingAnnouncements(false);  // Always stop loading, regardless of success or failure
+        }
+    };
     
 
-    
+    useEffect(() => {
+        console.log('announcements:', announcements);
+    }, [announcements]);
     const handleLogoClick = () => {
         Alert.alert("Coop clicked! The page will refresh.");
-        router.reload(); // Reloads the page if using Next.js
+        setRefreshKey(prevKey => prevKey + 1); 
     };
 
     return (
@@ -114,12 +173,14 @@ export default function Dashboard() {
 
             <View style={styles.save}>
                 <View style={styles.savebal}>
-                    {loading ? (
+                    {loadingSavings ? (
                         <Text style={styles.savebalancemoney}>Loading...</Text>
-                    ) : error ? (
-                        <Text style={{ color: 'red' }}>{error}</Text>
+                    ) : errorSavings ? (
+                        <Text style={{ color: 'red' }}>{errorSavings}</Text>
                     ) : (
-                        <Text style={styles.savebalancemoney}>{savings !== null ? savings.toFixed(2) : 'No savings found'}</Text>
+                        <Text style={styles.savebalancemoney}>
+                            {savings !== null && !isNaN(savings) ? savings.toFixed(2) : 'No savings found'}
+                        </Text>
                     )}
                     <View style={styles.savecontainer}>
                         <Text style={styles.savings}>Savings</Text>
@@ -129,12 +190,21 @@ export default function Dashboard() {
 
             <View style={styles.cbu}>
                 <View style={styles.cbubal}>
-                    <Text style={styles.cbubalancemoney}>500.00</Text>
+                    {loadingCbu ? (
+                        <Text style={styles.cbubalancemoney}>Loading...</Text>
+                    ) : errorCbu ? (
+                        <Text style={{ color: 'red' }}>{errorCbu}</Text>
+                    ) : (
+                        <Text style={styles.cbubalancemoney}>
+                            {cbu !== null && !isNaN(cbu) ? cbu.toFixed(2) : 'No CBU found'}
+                        </Text>
+                    )}
                     <View style={styles.cbucontainer}>
                         <Text style={styles.cbus}>CBU</Text>
                     </View>
                 </View>
             </View>
+
 
             <View style={styles.containeradvisory}>
                 <Image
@@ -142,7 +212,24 @@ export default function Dashboard() {
                     style={styles.megaphone}
                 />
                 <Text style={styles.coopad}>Cooperative Advisory</Text>
-                <Text style={styles.content}>There are no announcements...</Text>
+
+                {loadingAnnouncements ? (
+                    <Text style={styles.content}>Loading announcements...</Text>
+                ) : errorAnnouncements ? (
+                    <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
+                ) : announcements.length === 0 ? (
+                    <Text style={styles.content}>There are no announcements...</Text>
+                ) : (
+                    <View style={styles.announcement}>
+                        <Text style={styles.announcementTitle}>
+                            {announcements[0]?.content_title || 'No title available'}
+                        </Text>
+                        <Text style={styles.announcementContent}>
+                            {announcements[0]?.content || 'No content available'}
+                        </Text>
+                    </View>
+                )}
+
                 <Image
                     source={require('./../assets/images/chat.png')}
                     style={styles.chat}
@@ -216,7 +303,7 @@ const styles = {
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         marginTop: -40,
-        position: 'relative', // Ensure the header is positioned relatively
+        position: 'relative',
     },
     logo: {
         width: 150,
@@ -704,4 +791,9 @@ history: {
     flexGrow: 0, // Ensures it does not grow
     left: -5,
 },
+
+announcementTitle: {
+    color: '#fffff',
+}
 };
+export default Dashboard;
