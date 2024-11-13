@@ -1,13 +1,60 @@
-import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import { View, Image, Alert, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
+import { DataTable } from 'react-native-paper';
+import {supabase} from './supabase';
 
-export default function Announcement() {
-    const router = useRouter();
-    const handleLogoClick = () => {
-        alert("Coop clicked! The page will refresh."); // Replace with your refresh logic
+const Announcement = () => {
+    const route = useRoute();
+    const { userId } = route.params || {}; 
+    const [announcements, setAnnouncements] = useState([]);
+    const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+    const [errorAnnouncements, setErrorAnnouncements] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const fetchAnnouncements = async () => {
+        setLoadingAnnouncements(true);
+        setErrorAnnouncements(null);
+    
+        try {
+            const { data, error } = await supabase
+                .from('Contents') 
+                .select('content_title, content')  
+                .order('createdAt', { ascending: false });
+                
+            if (error) {
+                console.error('Error fetching Announcements:', error);
+                throw error;
+            }
+    
+            if (data && data.length > 0) {
+                setAnnouncements(data);  // Set fetched data if available
+            } else {
+                setAnnouncements([]);  // Set an empty array if no data
+            }
+    
+        } catch (err) {
+            setErrorAnnouncements('Failed to fetch announcements.');
+            console.error(err);  // Log the error for debugging
+        } finally {
+            setLoadingAnnouncements(false);  // Always stop loading, regardless of success or failure
+        }
     };
+
+    const handleLogoClick = () => {
+        Alert.alert("Coop clicked! The page will refresh.");
+        setRefreshKey((prevKey) => prevKey + 1);
+    };
+
+    useEffect(() => {
+        fetchAnnouncements();
+    }, [refreshKey]); 
+
+    useEffect(() => {
+        console.log('announcements:', announcements);
+    }, [announcements]);
 
 return (
     <View style={styles.container}>
@@ -47,7 +94,29 @@ return (
             </TouchableOpacity>
         </View>
 
-        <View style={styles.cooperativeadvisory}>
+        <View>
+            {loadingAnnouncements ? (
+                <Text>Loading announcements...</Text>
+            ) : errorAnnouncements ? (
+                <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
+            ) : announcements.length === 0 ? (
+                <Text style={styles.content}>There are no announcements...</Text>
+            ) : (
+                <View>
+                    <DataTable>
+                        {announcements.map((announcement, index) => (
+                            <DataTable.Row key={index}>
+                                <DataTable.Cell>
+                                    <Text style={styles.coopadText}>{announcement.content_title}</Text>
+                                    <Text style={styles.announcementText}>{announcement.content}</Text>
+                                </DataTable.Cell>
+                            </DataTable.Row>
+                        ))}
+                    </DataTable>
+                </View>
+            )}
+        </View>
+        {/* <View style={styles.cooperativeadvisory}>
             <Text style={styles.coopadText}>Cooperative Advisory</Text>
             <Text style={styles.announcementText}>The online transactions in September 12, 2024 is not available.</Text>
         </View>
@@ -61,7 +130,7 @@ return (
             <Text style={styles.coopadText3}>Cooperative Advisory</Text>
             <Text style={styles.announcementText3}>The online transactions in September 12, 2024 is not available.</Text>
         </View>
-       
+        */}
 
         <View style={styles.navbar}>
             <TouchableOpacity onPress={() => router.push('Announcement')}>
@@ -176,7 +245,7 @@ const styles = {
         fontSize: 13, // Font size
         lineHeight: 20, // Line height
         textAlign: 'center', // Center align the text
-        color: '#FFFFFF', // Text color
+        color: '#37341', // Text color
     },
     cooperativeadvisory2: {
         position: 'absolute',
@@ -313,4 +382,6 @@ const styles = {
         flexGrow: 0, // Ensures it does not grow
         left: -5,
     },
-    };
+};
+
+export default Announcement;

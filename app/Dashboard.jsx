@@ -3,9 +3,16 @@ import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image } from 'r
 import { useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Dashboard = () => {
+    const navigation = useNavigation(); 
+    const navigateWithUserId = (navigation, userId) => (route) => {
+        navigation.navigate(route, { userId });
+    };
     const route = useRoute();
+    const router = useRouter();
     const { userId } = route.params || {}; 
     const [savings, setSavings] = useState(null);
     const [cbu, setCbu] = useState(null);
@@ -16,6 +23,9 @@ const Dashboard = () => {
     const [announcements,  setAnnouncements] = useState([]);
     const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
     const [errorAnnouncements, setErrorAnnouncements] = useState(null);
+    const [loans, setLoans] = useState(0);
+    const [loadingLoans, setLoadingLoans] =useState(true);
+    const [errorLoans, setErrorLoans] =useState (null);
 
     const [refreshKey, setRefreshKey] = useState(0);
 
@@ -45,6 +55,39 @@ const Dashboard = () => {
             setLoadingCbu(false);
         }
     };
+
+    const fetchUserLoans = async () => {
+        setLoadingLoans(true);
+        setErrorLoans(null);
+    
+        try {
+            console.log('Fetching Loan Balance for User ID:', userId); 
+            const { data, error } = await supabase
+                .from('Loans') 
+                .select('loan_status, balance') 
+                .eq('user_id', userId) 
+                .maybeSingle();  // Using maybeSingle() to handle no data returned gracefully
+    
+            if (error) {
+                console.error('Error fetching Loans:', error);  
+                throw error;  
+            }
+    
+            console.log('Fetched Loans:', data); 
+            
+            // If no loan is found or if the loan balance is 0 or the loan status is not active, return 'No active loans'
+            if (!data || data.balance === 0 || data.loan_status !== 'active') {
+                setLoans('No active loans');
+            } else {
+                setLoans(data?.balance || 0); // Ensure loans is a valid number (0 if undefined or null)
+            }
+        } catch (err) {
+            console.error('Error fetching Loans:', err);  
+            setErrorLoans('Failed to fetch Loans.');
+        } finally {
+            setLoadingLoans(false);
+        }
+    }    
     
 
     const fetchUserSavings = async () => {
@@ -74,12 +117,20 @@ const Dashboard = () => {
             fetchUserSavings();
             fetchUserCbu();
             fetchAnnouncements();
+            fetchUserLoans ();
         }
     }, [userId, refreshKey]); 
 
+    
     useEffect(() => {
-        console.log('Updated savings and CBU:', savings, cbu); 
-    }, [savings, cbu]);
+        if (userId) {
+          navigateWithUserId();
+        }
+    }, [userId]); 
+
+    useEffect(() => {
+        console.log('Updated loan balance, savings and CBU:', loans, savings, cbu); 
+    }, [loans, savings, cbu]);
 
     const fetchAnnouncements = async () => {
         setLoadingAnnouncements(true);
@@ -164,7 +215,12 @@ const Dashboard = () => {
 
             <View style={styles.money}>
                 <View style={styles.loanbal}>
-                    <Text style={styles.loanbalancemoney}>50000.00</Text>
+                    <Text style={styles.loanbalancemoney}>
+                        {loans !== null && loans !== 'No active loans' && !isNaN(loans) 
+                            ? loans.toFixed(2) 
+                            : loans // If loans is 'No active loans', show the message instead of number
+                        }
+                    </Text>
                     <View style={styles.loancontainer}>
                         <Text style={styles.loanbalance}>Loan Balance</Text>
                     </View>
@@ -221,10 +277,10 @@ const Dashboard = () => {
                     <Text style={styles.content}>There are no announcements...</Text>
                 ) : (
                     <View style={styles.announcement}>
-                        <Text style={styles.announcementTitle}>
+                        <Text style={styles.content}>
                             {announcements[0]?.content_title || 'No title available'}
                         </Text>
-                        <Text style={styles.announcementContent}>
+                        <Text style={styles.content}>
                             {announcements[0]?.content || 'No content available'}
                         </Text>
                     </View>
@@ -267,19 +323,19 @@ const Dashboard = () => {
             </View>
 
             <View style={styles.navbar}>
-                <TouchableOpacity onPress={() => router.push('Announcement')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
                     <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Funds')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
                     <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Dashboard')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
                     <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Loans')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
                     <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('History')}>
+                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
                     <Image style={styles.history} source={require('./../assets/images/history.png')} />
                 </TouchableOpacity>
             </View>

@@ -1,17 +1,165 @@
-import { View, Image, TouchableOpacity, Text, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import { View, Image, Alert,  Button, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
+import { RadioButton } from 'react-native-paper';
+import UUID from 'react-native-uuid';
+import {supabase} from './supabase';
 
-export default function Dashboard() {
-    const router = useRouter();
+const Funds = () => {
+    const route = useRoute();
+    const { userId } = route.params || {}; 
+    if (!userId) {
+        console.log('User ID is not available in route params');
+    } else {
+        console.log('Logged-in user ID:', userId);
+    }
+    const [savings, setSavings] = useState(null);
+    const [cbu, setCbu] = useState(null);
+    const [loadingSavings, setLoadingSavings] = useState(true); 
+    const [loadingCbu, setLoadingCbu] = useState(true);          
+    const [errorSavings, setErrorSavings] = useState(null);      
+    const [errorCbu, setErrorCbu] = useState(null);   
+    const [refreshKey, setRefreshKey] = useState(0);
+    //ariel//
     const [selectedPaymentMode, setSelectedPaymentMode] = useState('');
-    const [amount, setAmount] = useState(''); // State for amount
+    const [amount, setAmount] = useState(''); 
+
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedAction, setSelectedAction] = useState(null);
+    const [savingsId, setSavingsId] = useState(null);  // Initialize savingsId
+
+
+
+    const fetchUserCbu = async () => {
+        setLoadingCbu(true);
+        setErrorCbu(null);
+    
+        try {
+            console.log('Fetching CBU for User ID:', userId); 
+            const { data, error } = await supabase
+                .from('Cbus') 
+                .select('amount') 
+                .eq('user_id', userId) 
+                .single(); 
+    
+            if (error) {
+                console.error('Error fetching CBU:', error);  
+                throw error;  
+            }
+    
+            console.log('Fetched CBU:', data); 
+            setCbu(data?.amount || 0);
+        } catch (err) {
+            console.error('Error fetching CBU:', err);  
+            setErrorCbu('Failed to fetch CBU.');
+        } finally {
+            setLoadingCbu(false);
+        }
+    };
+
+    const fetchUserSavings = async () => {
+        setLoadingSavings(true);
+        setErrorSavings(null);
+
+        try {
+            const { data, error } = await supabase
+                .from('Savings') 
+                .select('savings_id, amount') 
+                .eq('user_id', userId) 
+                .single(); 
+
+            if (error) throw error;
+
+            setSavings(data?.amount || 0);
+            setSavingsId(data?.savings_id);  // Save the savings_id
+        } catch (err) {
+            setErrorSavings('Failed to fetch savings.');
+        } finally {
+            setLoadingSavings(false);
+        }
+    };
+
+
+    useEffect(() => {
+        if (userId) {
+            console.log('Fetching savings and CBU for User ID:', userId);
+            fetchUserSavings();
+            fetchUserCbu();
+           
+        }
+    }, [userId, refreshKey]); 
+
+    useEffect(() => {
+        console.log('Updated savings and CBU:', savings, cbu); 
+    }, [savings, cbu]);
 
     const handleLogoClick = () => {
         alert("Coop clicked! The page will refresh.");
-        // Your refresh logic here
+       
     };
+
+    const handleSelect = (option) => {
+        setSelectedOption(option); 
+        console.log('Selected option:', option);
+    };
+
+    const handleActionSelect = (action) => {
+        setSelectedAction(action);
+        console.log('Selected action:', action); 
+    };
+
+       
+        const handleTransaction = async () => {
+            if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
+                console.error('Missing action, amount, payment mode, or selected option');
+                return;
+            }
+        
+            const transactionTable = selectedOption === 'savings' ? 'Savtransactions' : 'Cbutransactions';
+            let additionalData = {};
+        
+            // If savings is selected, add savings_id (assuming savings_id is the same as user_id)
+            if (selectedOption === 'savings') {
+                additionalData = { savings_id: savingsId };  // or fetch the actual savings_id if it differs
+            }
+        
+            try {
+                const transactionData = {
+                    savtransaction_id: UUID.v4(),
+                    user_id: userId,
+                    amount: parseFloat(amount),
+                    transaction_type: selectedAction,
+                    status: 'pending',
+                    mode: selectedPaymentMode,
+                    date_sent: new Date(),
+                    ...additionalData, // Spread the additional data (savings_id or cbu_id)
+                };
+        
+                console.log("Transaction request body:", transactionData);
+        
+                const { data, error } = await supabase
+                    .from(transactionTable)
+                    .insert([transactionData]);
+        
+                if (error) throw error;
+        
+                alert(`${selectedAction} request of ${amount} submitted for approval.`);
+        
+                // Reset selections
+                setSelectedAction(null);
+                setAmount('');
+            } catch (err) {
+                console.error("Transaction submission error:", err);
+                alert("Transaction request failed. Please try again.");
+            }
+        
+        
+    };
+    
+
+    
 
     return (
         <View style={styles.container}>
@@ -51,22 +199,72 @@ export default function Dashboard() {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.savings}>
-                <Text style={styles.savingsText}>Savings</Text>
-                <Text style={styles.savingsBal}>Php 500.00</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cbu}>
-                <Text style={styles.cbuText}>CBU</Text>
-                <Text style={styles.cbuBal}>Php 100.00</Text>
-            </TouchableOpacity>
+
+            <View style={styles.radioButtonContainer}>
+                <View style={styles.savings}>
+                        <TouchableOpacity onPress={() => handleSelect('savings')}>
+                            {loadingSavings ? (
+                                <Text style={styles.savingsText}>Loading...</Text>
+                            ) : errorSavings ? (
+                                <Text style={{ color: 'red' }}>{errorSavings}</Text>
+                            ) : (
+                                <>
+                                    <View  style={[styles.radioButton, selectedOption === 'savings' && styles.selectedRadio]}>
+                                        <Text style={styles.savingsText}>Savings</Text>
+                                        <Text style={styles.savingsBal}>
+                                            {savings !== null && !isNaN(savings) ? savings.toFixed(2) : 'No savings found'}
+                                        </Text>
+                                    </View>
+                                    
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+
+                <View style={styles.cbu}>
+                    <TouchableOpacity onPress={() => handleSelect('cbu')}>
+                        {loadingCbu? (
+                            <Text style={styles.cbuText}>Loading...</Text>
+                        ) : errorCbu ? (
+                            <Text style={{ color: 'red' }}>{errorCbu}</Text>
+                        ) : (
+                            <>
+                                <View style={[styles.radioButton, selectedOption === 'cbu' && styles.selectedRadio]}>
+                                    <Text style={styles.cbuText}>CBU</Text>
+                                    <Text style={styles.cbuBal}>
+                                        {cbu !== null && !isNaN(cbu) ? cbu.toFixed(2) : 'No cbu found'}
+                                    </Text>
+                                </View>
+                                
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+                
+            </View>
+           
+               
+
+
+
+
 
             <View style={styles.tabularform}>
-                <TouchableOpacity style={styles.deposit}>
-                    <Text style={styles.depositText}>Deposit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.withdraw}>
-                    <Text style={styles.withdrawText}>Withdraw</Text>
-                </TouchableOpacity>
+
+                <View style={styles.radioButtonContainer}>
+                        <TouchableOpacity
+                        style={[styles.deposit, selectedAction === 'deposit' && styles.selected]}
+                        onPress={() => handleActionSelect('deposit')}>
+                        <Text style={styles.depositText}>Deposit</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                        style={[styles.withdraw, selectedAction === 'withdraw' && styles.selected]}
+                        onPress={() => handleActionSelect('withdraw')}>
+                        <Text style={styles.withdrawText}>Withdraw</Text>
+                    </TouchableOpacity>
+                </View>
+                
                 <Text style={styles.choose}>Choose your amount</Text>
 
                 <View style={styles.buttonContainer}>
@@ -93,7 +291,7 @@ export default function Dashboard() {
                         </TouchableOpacity>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.confirm}>
+                <TouchableOpacity style={styles.confirm} onPress={handleTransaction}>
                     <Text style={styles.confirmText}>Confirm</Text>
                 </TouchableOpacity>
             </View>
@@ -505,4 +703,28 @@ history: {
     flexGrow: 0, // Ensures it does not grow
     left: -5,
 },
+
+radioButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+},
+
+radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#000',
+    marginRight: 8,
+},
+selectedRadio: {
+    backgroundColor: '#4CAF50', 
+},
+selected: {
+    backgroundColor: '#4CAF50',
+},
+
 };
+
+export default Funds;
