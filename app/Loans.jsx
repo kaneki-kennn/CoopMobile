@@ -1,26 +1,88 @@
 import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import { useRoute } from '@react-navigation/native';
+import { RadioButton } from 'react-native-paper';
+import UUID from 'react-native-uuid';
+import {supabase} from './supabase';
 
-export default function Loans() {
-    const router = useRouter();
+const Loans = () => {
+    const route = useRoute();
+    const { userId } = route.params || {}; 
     
-    // State for dropdowns and inputs
-    const [loanType, setLoanType] = useState("Personal");
+    const [loanType, setLoanType] = useState("regular");
     const [amount, setAmount] = useState("");
     const [interest, setInterest] = useState("");
-    const [loanTerms, setLoanTerms] = useState("6 Months");
-    const [monthlyPayment, setMonthlyPayment] = useState("");
+    const [loanTerms, setLoanTerms] = useState("6 months");
+    const [monthlyPayment, setMonthlyPayment] = useState(""); 
 
     const handleLogoClick = () => {
         alert("Coop clicked! The page will refresh.");
+       
     };
 
-    // Define the handleRowPress function
-    const handleRowPress = (index) => {
-        console.log(`Row ${index + 1} clicked`);
-        // You can add any additional logic here if needed
+   
+    const calculateMonthlyPayment = () => {
+        if (!amount || !interest || !loanTerms) return ""; 
+
+        const principal = parseFloat(amount);
+        const rate = parseFloat(interest) / 100 / 12;  
+        const terms = parseInt(loanTerms.split(" ")[0]); // Number of payments
+
+        if (isNaN(principal) || isNaN(rate) || isNaN(terms)) return ""; // Validate numbers
+
+        const calculatedPayment = (principal * rate * Math.pow(1 + rate, terms)) /
+            (Math.pow(1 + rate, terms) - 1);
+        
+        return calculatedPayment.toFixed(2); // Return formatted monthly payment
+    };
+
+    // Update monthlyPayment whenever amount, interest, or loanTerms changes
+    useEffect(() => {
+        const payment = calculateMonthlyPayment();
+        setMonthlyPayment(payment);
+    }, [amount, interest, loanTerms]);
+
+    const applyLoan = async () => {
+        if (!loanType || !amount || !interest || !loanTerms) {
+            console.error('Missing loan type, amount, interest, or loan terms');
+            return;
+        }
+
+        try {
+            const loanApplicationData = {
+                application_id: UUID.v4(),
+                user_id: userId,
+                application_status: 'pending',
+                loan_type: loanType,
+                interest: parseFloat(interest),
+                amount: parseFloat(amount),
+                monthly_payment: parseFloat(monthlyPayment),
+                loan_term: loanTerms,
+                number_of_payments: parseInt(loanTerms.split(" ")[0]),
+                date_sent: new Date(),
+            };
+
+            const { data, error } = await supabase
+                .from('Loan_applications')
+                .insert([loanApplicationData]);
+
+            if (error) throw error;
+
+            alert(`Loan application for ${amount} submitted for approval.`);
+            setLoanType("regular");
+            setAmount("");
+            setInterest("");
+            setLoanTerms("6 months");
+            setMonthlyPayment(""); // Reset monthly payment
+        } catch (err) {
+            console.error("Loan application submission error:", err);
+            alert("Loan application request failed. Please try again.");
+        }
+
+        
+    
     };
 
     return (
@@ -53,68 +115,63 @@ export default function Loans() {
             </View>
 
             <View style={styles.loaninfo}>
-                <View style={styles.loanguide}>
-                    <Text style={styles.loantype}>Loan Type</Text>
-                    <Text style={styles.amount}>Amount</Text>
-                    <Text style={styles.interest}>Interest</Text>
-                    <Text style={styles.loanterms}>Loan Terms</Text>
-                    <Text style={styles.monthlypayment}>Monthly Payment</Text>
-                </View>
-                <View style={styles.fillin}>
-                    {/* First Dropdown Menu */}
-                    <Picker
-                        selectedValue={loanType}
-                        style={styles.picker}
-                        onValueChange={(itemValue) => setLoanType(itemValue)}
-                    >
-                        <Picker.Item label="Personal" value="Personal" />
-                        <Picker.Item label="Home" value="Home" />
-                        <Picker.Item label="Car" value="Car" />
-                    </Picker>
+            <View style={styles.loanguide}>
+                <Text style={styles.loantype}>Loan Type</Text>
+                <Text style={styles.amount}>Amount</Text>
+                <Text style={styles.interest}>Interest</Text>
+                <Text style={styles.loanterms}>Loan Terms</Text>
+                <Text style={styles.monthlypayment}>Monthly Payment</Text>
+            </View>
+            <View style={styles.fillin}>
+                <Picker
+                    selectedValue={loanType}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setLoanType(itemValue)}
+                >
+                    <Picker.Item label="Regular" value="regular" />
+                    <Picker.Item label="Home" value="Home" />
+                    <Picker.Item label="Car" value="Car" />
+                </Picker>
 
-                    {/* Amount Input */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Amount"
-                        keyboardType="numeric"
-                        value={amount}
-                        onChangeText={setAmount}
-                    />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter Amount"
+                    keyboardType="numeric"
+                    value={amount}
+                    onChangeText={setAmount}
+                />
 
-                    {/* Interest Input */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Interest Rate"
-                        keyboardType="numeric"
-                        value={interest}
-                        onChangeText={setInterest}
-                    />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter Interest Rate"
+                    keyboardType="numeric"
+                    value={interest}
+                    onChangeText={setInterest}
+                />
 
-                    {/* Loan Terms Dropdown Menu */}
-                    <Picker
-                        selectedValue={loanTerms}
-                        style={styles.picker}
-                        onValueChange={(itemValue) => setLoanTerms(itemValue)}
-                    >
-                        <Picker.Item label="6 Months" value="6 Months" />
-                        <Picker.Item label="12 Months" value="12 Months" />
-                        <Picker.Item label="24 Months" value="24 Months" />
-                    </Picker>
+                <Picker
+                    selectedValue={loanTerms}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setLoanTerms(itemValue)}
+                >
+                    <Picker.Item label="6 Months" value="6 months" />
+                    <Picker.Item label="12 Months" value="12 months" />
+                    <Picker.Item label="24 Months" value="24 months" />
+                </Picker>
 
-                    {/* Monthly Payment Input */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Monthly Payment"
-                        keyboardType="numeric"
-                        value={monthlyPayment}
-                        onChangeText={setMonthlyPayment}
-                    />
-                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Monthly Payment"
+                    keyboardType="numeric"
+                    value={monthlyPayment}
+                    editable={false}  // Make monthly payment read-only
+                />
             </View>
 
-            <TouchableOpacity style={styles.applyloan}>
+            <TouchableOpacity style={styles.applyloan} onPress={applyLoan}>
                 <Text style={styles.aploan}>Apply Loan</Text>
             </TouchableOpacity>
+        </View>
 
             <View style={styles.table}>
                 {/* Header Row */}
@@ -293,11 +350,11 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     applyloan: {
-        position: 'absolute',
+       
         width: 95,
         height: 30,
         left: 129,
-        top: 350,
+        top: 150,
         backgroundColor: '#373F41',
         borderColor: '#FFFFFF',
         borderWidth: 1,
@@ -383,3 +440,5 @@ const styles = StyleSheet.create({
         tintColor: '#F9A602',
     },
 });
+
+export default Loans;

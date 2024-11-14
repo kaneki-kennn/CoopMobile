@@ -28,7 +28,8 @@ const Funds = () => {
 
     const [selectedOption, setSelectedOption] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
-    const [savingsId, setSavingsId] = useState(null);  // Initialize savingsId
+    const [savingsId, setSavingsId] = useState(null);
+    const [cbuId, setCbuId] = useState(null);  // Initialize savingsId
 
 
 
@@ -37,10 +38,10 @@ const Funds = () => {
         setErrorCbu(null);
     
         try {
-            console.log('Fetching CBU for User ID:', userId); 
+            // console.log('Fetching CBU for User ID:', userId); 
             const { data, error } = await supabase
                 .from('Cbus') 
-                .select('amount') 
+                .select('cbu_id, amount') 
                 .eq('user_id', userId) 
                 .single(); 
     
@@ -49,8 +50,9 @@ const Funds = () => {
                 throw error;  
             }
     
-            console.log('Fetched CBU:', data); 
+            // console.log('Fetched CBU:', data); 
             setCbu(data?.amount || 0);
+            setCbuId(data?.cbu_id);
         } catch (err) {
             console.error('Error fetching CBU:', err);  
             setErrorCbu('Failed to fetch CBU.');
@@ -111,51 +113,47 @@ const Funds = () => {
     };
 
        
-        const handleTransaction = async () => {
-            if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
-                console.error('Missing action, amount, payment mode, or selected option');
-                return;
-            }
+    const handleTransaction = async () => {
+        if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
+            console.error('Missing action, amount, payment mode, or selected option');
+            return;
+        }
+    
+        const transactionTable = selectedOption === 'savings' ? 'Savtransactions' : 'Cbutransactions';
+        const transactionIdKey = selectedOption === 'savings' ? 'savtransaction_id' : 'cbutransaction_id';
         
-            const transactionTable = selectedOption === 'savings' ? 'Savtransactions' : 'Cbutransactions';
-            let additionalData = {};
-        
-            // If savings is selected, add savings_id (assuming savings_id is the same as user_id)
-            if (selectedOption === 'savings') {
-                additionalData = { savings_id: savingsId };  // or fetch the actual savings_id if it differs
-            }
-        
-            try {
-                const transactionData = {
-                    savtransaction_id: UUID.v4(),
-                    user_id: userId,
-                    amount: parseFloat(amount),
-                    transaction_type: selectedAction,
-                    status: 'pending',
-                    mode: selectedPaymentMode,
-                    date_sent: new Date(),
-                    ...additionalData, // Spread the additional data (savings_id or cbu_id)
-                };
-        
-                console.log("Transaction request body:", transactionData);
-        
-                const { data, error } = await supabase
-                    .from(transactionTable)
-                    .insert([transactionData]);
-        
-                if (error) throw error;
-        
-                alert(`${selectedAction} request of ${amount} submitted for approval.`);
-        
-                // Reset selections
-                setSelectedAction(null);
-                setAmount('');
-            } catch (err) {
-                console.error("Transaction submission error:", err);
-                alert("Transaction request failed. Please try again.");
-            }
-        
-        
+        // Determine additional data based on selected option
+        const additionalData = selectedOption === 'savings' ? { savings_id: savingsId } : { cbu_id: cbuId };
+    
+        try {
+            const transactionData = {
+                [transactionIdKey]: UUID.v4(),  // Using dynamic key based on selected option
+                user_id: userId,
+                amount: parseFloat(amount),
+                transaction_type: selectedAction,
+                status: 'pending',
+                mode: selectedPaymentMode,
+                date_sent: new Date(),
+                ...additionalData,
+            };
+    
+            console.log("Transaction request body:", transactionData);
+    
+            const { data, error } = await supabase
+                .from(transactionTable)
+                .insert([transactionData]);
+    
+            if (error) throw error;
+    
+            alert(`${selectedAction} request of ${amount} submitted for approval.`);
+    
+            // Reset selections
+            setSelectedAction(null);
+            setAmount('');
+        } catch (err) {
+            console.error("Transaction submission error:", err);
+            alert("Transaction request failed. Please try again.");
+        }
     };
     
 
