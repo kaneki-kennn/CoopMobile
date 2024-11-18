@@ -1,8 +1,9 @@
-import { View, Text, Image, TouchableOpacity, handleLogin,handleCreateAccount, } from 'react-native';
+import { View, Text, Image, TouchableOpacity, handleLogin,handleCreateAccount, Dimensions, Platform } from 'react-native';
 import React from 'react';
 import { Link } from 'expo-router';
 
 
+const { width, height } = Dimensions.get('window');
 
 export default function Landing() {
   
@@ -13,14 +14,14 @@ export default function Landing() {
         style={styles.backgroundImage}
       />
       <View style={styles.textContainer}>
-        <Text style={styles.welcomeText}>Welcome</Text>
+        <Text style={styles.welcomeText} numberOfLines={1} adjustsFontSizeToFit>Welcome</Text>
       </View>
 
       <View style={styles.coopText}>
         <Text style={styles.ka}>KA-</Text>
         <Image 
           source={require('./../assets/images/COOP LOGO.png')} 
-          style={styles.coopLogo} // Ensure the logo uses the new style
+          style={styles.coopLogo} 
         />
         <Text style={styles.exclaim}>!</Text>
       </View>
@@ -42,7 +43,6 @@ export default function Landing() {
     </View>
   );
 }
-
 const styles = {
   container: {
     flex: 1,
@@ -50,26 +50,29 @@ const styles = {
     position: 'relative', 
   },
   backgroundImage: {
-    position: 'absolute',
+    position: 'relative',
     width: '100%',
     height: '100%',
     opacity: 0.3,
   },
   textContainer: {
     position: 'absolute',
-    top: 150, 
-    left: 0,
-    right: 0,
+    top: '10%',
+    left: '5%',
+    right: '5%',
     alignItems: 'center',
+    padding: 10,
   },
   welcomeText: {
-    fontFamily: 'Poppins',
     fontStyle: 'italic',
-    fontWeight: '800',
-    fontSize: 40,
-    lineHeight: 75, 
+    lineHeight: width * 0.12,  // Adjust line height dynamically
     color: '#FFFFFF',
-    margintop: '200'
+    marginTop: height * 0.1,  // Adjust margin dynamically based on screen height
+    flexWrap: 'wrap',  // Allow text to wrap
+    fontSize: width * 0.1,  // Responsive font size
+    textAlign: 'center',
+    fontWeight: 'bold',
+    paddingHorizontal: 10,  // Add horizontal padding to prevent text clipping
   },
   ka: {
     width: 95,
@@ -84,10 +87,13 @@ const styles = {
   coopText: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'absolute',
+    top: '0.01%',
+    left: '5%',
   },
   coopLogo: {
     position: 'absolute',
-    width: 150, // Reduced width for a smaller logo
+    width: 150, 
     height: 40, // Adjusted height to maintain aspect ratio
     left: 123,
     top: 260, // Increased top value to lower the logo
@@ -113,7 +119,6 @@ const styles = {
     position: 'absolute', // Ensure it remains at the specific position
     width: 282,
     height: 23,
-    fontFamily: 'Poppins',
     fontStyle: 'italic',
     fontStyle: 'italic',
     fontWeight: '800',
@@ -123,7 +128,6 @@ const styles = {
     color: '#FFFFFF',
 },
 cooptagline2: {
-    fontFamily: 'Poppins',
     fontStyle: 'italic',
     fontWeight: '800',
     fontSize: 16,

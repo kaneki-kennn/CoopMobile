@@ -1,7 +1,7 @@
 import { View, Image, Alert, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
 import { DataTable } from 'react-native-paper';
 import {supabase} from './supabase';
@@ -13,6 +13,10 @@ const Announcement = () => {
     const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
     const [errorAnnouncements, setErrorAnnouncements] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0);
+    const navigation = useNavigation();
+    const navigateWithUserId = (navigation, userId) => (route) => {
+        navigation.navigate(route, { userId });
+    };
 
     const fetchAnnouncements = async () => {
         setLoadingAnnouncements(true);
@@ -132,23 +136,23 @@ return (
         </View>
         */}
 
-        <View style={styles.navbar}>
-            <TouchableOpacity onPress={() => router.push('Announcement')}>
-                <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('Funds')}>
-                <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('Dashboard')}>
-                <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('Loans')}>
-                <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('History')}>
-                <Image style={styles.history} source={require('./../assets/images/history.png')} />
-            </TouchableOpacity>
-        </View>
+<View style={styles.navbar}>
+                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
+                    <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
+                    <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
+                    <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
+                    <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
+                    <Image style={styles.history} source={require('./../assets/images/history.png')} />
+                </TouchableOpacity>
+            </View>
     </View>
 );
 }
@@ -226,7 +230,6 @@ const styles = {
         height: 23, // Height of the text container
         left: 100, // Position from the left
         top: 20, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '700', // Font weight
         fontSize: 15, // Font size
@@ -239,7 +242,6 @@ const styles = {
         height: 40, // Height of the text container
         left: 30, // Position from the left
         top: 70, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '400', // Font weight
         fontSize: 13, // Font size
@@ -263,7 +265,6 @@ const styles = {
         height: 23, // Height of the text container
         left: 100, // Position from the left
         top: 20, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '700', // Font weight
         fontSize: 15, // Font size
@@ -276,7 +277,6 @@ const styles = {
         height: 40, // Height of the text container
         left: 30, // Position from the left
         top: 70, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '400', // Font weight
         fontSize: 13, // Font size
@@ -300,7 +300,6 @@ const styles = {
         height: 23, // Height of the text container
         left: 100, // Position from the left
         top: 20, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '700', // Font weight
         fontSize: 15, // Font size
@@ -313,7 +312,6 @@ const styles = {
         height: 40, // Height of the text container
         left: 30, // Position from the left
         top: 70, // Position from the top
-        fontFamily: 'Poppins', // Font family
         fontStyle: 'normal', // Font style
         fontWeight: '400', // Font weight
         fontSize: 13, // Font size

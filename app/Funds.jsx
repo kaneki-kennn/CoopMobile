@@ -6,8 +6,13 @@ import { useRoute } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import UUID from 'react-native-uuid';
 import {supabase} from './supabase';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Funds = () => {
+    const navigation = useNavigation(); 
+    const navigateWithUserId = (navigation, userId) => () => {
+        navigation.navigate(route, { userId });
     const route = useRoute();
     const { userId } = route.params || {}; 
     if (!userId) {
@@ -15,6 +20,7 @@ const Funds = () => {
     } else {
         console.log('Logged-in user ID:', userId);
     }
+}
     const [savings, setSavings] = useState(null);
     const [cbu, setCbu] = useState(null);
     const [loadingSavings, setLoadingSavings] = useState(true); 
@@ -294,25 +300,23 @@ const Funds = () => {
                 </TouchableOpacity>
             </View>
 
-
             <View style={styles.navbar}>
-                <TouchableOpacity onPress={() => router.push('Announcement')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
                     <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Funds')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
                     <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Dashboard')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
                     <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Loans')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
                     <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('History')}>
+                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
                     <Image style={styles.history} source={require('./../assets/images/history.png')} />
                 </TouchableOpacity>
             </View>
-
             <Text style={styles.desiredamount}>Enter your desired amount</Text>
             <View style={styles.dsrdamount}>
                 <View style={styles.inputContainer}>

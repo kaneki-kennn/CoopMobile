@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, } from 'react';
 import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
 import { useNavigation } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
+import { color } from '@rneui/themed/dist/config';
+
 
 
 const Dashboard = () => {
@@ -276,11 +279,11 @@ const Dashboard = () => {
                 ) : announcements.length === 0 ? (
                     <Text style={styles.content}>There are no announcements...</Text>
                 ) : (
-                    <View style={styles.announcement}>
-                        <Text style={styles.content}>
+                    <View style={styles.announce}>
+                        <Text style={styles.contenttitle}>
                             {announcements[0]?.content_title || 'No title available'}
                         </Text>
-                        <Text style={styles.content}>
+                        <Text style={styles.contnt}>
                             {announcements[0]?.content || 'No content available'}
                         </Text>
                     </View>
@@ -342,7 +345,7 @@ const Dashboard = () => {
         </View>
     );
 }
-
+const { width, height } = Dimensions.get('window'); 
 const styles = {
     container: {
         flex: 1,
@@ -414,7 +417,6 @@ const styles = {
     welcomemess: {
         fontSize: 30, // Font size
         color: '#373F41', // Text color
-        fontFamily: 'Poppins-Bold', // Ensure you have the Poppins font loaded
         fontWeight: 'bold', // You can keep this if needed
     },
       money: {
@@ -449,7 +451,6 @@ const styles = {
         height: 20,
         left: 14,
         top: 7,
-        fontFamily: 'Poppins', // Make sure you have this font available in your project
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 13,
@@ -463,7 +464,6 @@ const styles = {
         height: 17,
         left: 8,
         top: 2,
-        fontFamily: 'Poppins', // Ensure this font is available in your project
         fontStyle: 'normal',
         fontWeight: '500',
         fontSize: 11,
@@ -511,7 +511,6 @@ const styles = {
         height: 20,
         left: 14,
         top: 7,
-        fontFamily: 'Poppins', // Make sure you have this font available in your project
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 13,
@@ -525,7 +524,6 @@ const styles = {
         height: 17,
         left: 8,
         top: 2,
-        fontFamily: 'Poppins', // Ensure this font is available in your project
         fontStyle: 'normal',
         fontWeight: '500',
         fontSize: 11,
@@ -573,7 +571,6 @@ const styles = {
         height: 20,
         left: 14,
         top: 7,
-        fontFamily: 'Poppins', // Make sure you have this font available in your project
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 13,
@@ -587,7 +584,6 @@ const styles = {
         height: 17,
         left: 8,
         top: 2,
-        fontFamily: 'Poppins', // Ensure this font is available in your project
         fontStyle: 'normal',
         fontWeight: '500',
         fontSize: 11,
@@ -619,6 +615,30 @@ const styles = {
         borderRadius: 10, // Border radius
         overflow: 'hidden', // Ensures children stay within rounded corners
     },
+    contenttitle: {
+        width: '100%',  // Ensures the content title takes the full width of the parent container
+        paddingVertical: 10,  // Vertical padding inside the content title container
+        paddingHorizontal: 15,  // Horizontal padding for spacing inside
+        color: '#FFFFFF',  // White text color
+        fontSize: width * 0.04,  // Responsive font size based on screen width
+        fontWeight: 'bold',  // Bold text for emphasis
+        textAlign: 'left',  // Align the text to the left
+        marginVertical: 5,  // Vertical margin to separate from other content
+        left: '35%',
+        top: '30%',
+      },
+      contnt: {
+        width: '100%',  // Ensures the content takes full width of the parent container
+        color: '#FFFFFF',  // White text color
+        fontSize: width * 0.040,  // Responsive font size based on screen width
+        textAlign: 'left',  // Align the text to the left
+        lineHeight: 22,  // Line height for better readability
+        paddingHorizontal: 0,  // No horizontal padding, text starts from the left
+        marginVertical: 5,  // Vertical margin for spacing between content
+        left: '35%',
+        top: '10%',
+
+      },
     megaphone: {
         position: 'absolute',
         left: '5.83%',  // Percentage for left position
@@ -634,7 +654,6 @@ const styles = {
         height: 23, // Make sure height is set to show the text
         left: 90, // Adjusted left position for visibility
         top: 5, // Adjusted top position for visibility
-        fontFamily: 'Poppins', // Ensure Poppins is linked correctly
         fontWeight: '800',
         fontSize: 15,
         lineHeight: 22,
@@ -644,9 +663,8 @@ const styles = {
         position: 'absolute',
         width: 204,
         height: 19,
-        left: 73, // Adjusted left position for better visibility
+        left: '39%', // Adjusted left position for better visibility
         top: 60, // Adjusted top position to move it lower
-        fontFamily: 'Poppins', // Ensure Poppins is linked correctly
         fontWeight: '500',
         fontSize: 13,
         lineHeight: 19,
@@ -678,7 +696,6 @@ const styles = {
         height: 24, // Set height to 24px
         left: 75, // Set x coordinate
         top: 10, // Set y coordinate
-        fontFamily: 'Poppins', // Ensure Poppins is linked correctly
         fontWeight: '800', // Bold weight
         fontSize: 16, // Font size
         lineHeight: 24, // Line height
@@ -726,7 +743,6 @@ const styles = {
         height: 17,
         left: 41,
         top: -13,
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 11,
@@ -739,7 +755,6 @@ const styles = {
         height: 17,
         left: 41,
         top: 7,
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 11,
@@ -752,7 +767,6 @@ const styles = {
         height: 17,
         left: 41,
         top: 27,
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 11,
@@ -765,7 +779,6 @@ const styles = {
         height: 17,
         left: 41,
         top: 47,
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 11,
@@ -777,8 +790,7 @@ const styles = {
         width: 148,
         height: 24,
         left: 100, // Center the text relative to the graph
-        top: 525,  // Adjust to position it above the graph
-        fontFamily: 'Poppins',
+        top: 510,  // Adjust to position it above the graph
         fontStyle: 'normal',
         fontWeight: '800',
         fontSize: 16,
@@ -791,7 +803,7 @@ const styles = {
         width: 360,
         height: 47,
         left: 0,
-        top: 719,
+        top: 720,
         backgroundColor: '#373F41',
         flexDirection: 'row', // Align items horizontally
         justifyContent: 'space-around', // Space items evenly
@@ -802,54 +814,51 @@ const styles = {
         shadowOpacity: 0.25, // Optional: Shadow opacity
         shadowRadius: 3.5, // Optional: Shadow radius
 },
-announcement: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: 5,
-},
-funds: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-dashboard: {
-    width: 30,
-    height: 30,
-    tintColor: '#FFFFFF', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-loans: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-history: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
+    announcement: {
+        width: 30,
+        height: 30,
+        tintColor: '#F9A602', // Tint color
+        flex: 0, // Equivalent to `flex: none`
+        order: 0, // Not applicable in React Native, but kept for reference
+        flexGrow: 0, // Ensures it does not grow
+        left: 5,
+    },
+    funds: {
+        width: 30,
+        height: 30,
+        tintColor: '#F9A602', // Tint color
+        flex: 0, // Equivalent to `flex: none`
+        order: 0, // Not applicable in React Native, but kept for reference
+        flexGrow: 0, // Ensures it does not grow
+        left: -5,
+    },
+    dashboard: {
+        width: 30,
+        height: 30,
+        tintColor: '#FFFFFF', // Tint color
+        flex: 0, // Equivalent to `flex: none`
+        order: 0, // Not applicable in React Native, but kept for reference
+        flexGrow: 0, // Ensures it does not grow
+        left: -5,
+    },
+    loans: {
+        width: 30,
+        height: 30,
+        tintColor: '#F9A602', // Tint color
+        flex: 0, // Equivalent to `flex: none`
+        order: 0, // Not applicable in React Native, but kept for reference
+        flexGrow: 0, // Ensures it does not grow
+        left: -5,
+    },
+    history: {
+        width: 30,
+        height: 30,
+        tintColor: '#F9A602', // Tint color
+        flex: 0, // Equivalent to `flex: none`
+        order: 0, // Not applicable in React Native, but kept for reference
+        flexGrow: 0, // Ensures it does not grow
+        left: -5,
+    },
 
-announcementTitle: {
-    color: '#fffff',
-}
 };
 export default Dashboard;

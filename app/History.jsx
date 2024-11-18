@@ -4,6 +4,12 @@ import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 
 export default function History() {
+    const History = () => {
+        const navigation = useNavigation(); 
+        const navigateWithUserId = (navigation, userId) => (route) => {
+            navigation.navigate(route, { userId });
+        };
+
     const router = useRouter();
     const [selectedTimeFrame, setSelectedTimeFrame] = useState(''); // Initialize state for dropdown
     const dataRows = [
@@ -90,20 +96,20 @@ export default function History() {
             ))}
         </View>
 
-            <View style={styles.navbar}>
-                <TouchableOpacity onPress={() => router.push('Announcement')}>
+        <View style={styles.navbar}>
+                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
                     <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Funds')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
                     <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Dashboard')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
                     <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('Loans')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
                     <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('History')}>
+                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
                     <Image style={styles.history} source={require('./../assets/images/history.png')} />
                 </TouchableOpacity>
             </View>
@@ -292,5 +298,5 @@ history: {
     flexGrow: 0, // Ensures it does not grow
     left: -5,
 },
-};
-
+}
+}

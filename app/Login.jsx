@@ -169,7 +169,6 @@ const styles = {
     left: 0,
   },
   loginText: {
-    fontFamily: 'Poppins',
     fontWeight: '800',
     fontSize: 40,
     lineHeight: 500,
@@ -186,7 +185,6 @@ const styles = {
     top: -230,
   },
   line1Text: {
-    fontFamily: 'Poppins',
     fontSize: 16,
     fontStyle: 'italic',
     color: '#FFFFFF',
@@ -194,7 +192,6 @@ const styles = {
     marginLeft: 80,
   },
   line2Text: {
-    fontFamily: 'Poppins',
     fontSize: 16,
     fontStyle: 'italic',
     color: '#FFFFFF',
@@ -202,7 +199,6 @@ const styles = {
     marginLeft: 50,
   },
   line3Text: {
-    fontFamily: 'Poppins',
     fontSize: 16,
     fontStyle: 'italic',
     color: '#FFFFFF',
@@ -215,7 +211,6 @@ const styles = {
     padding: 10,
   },
   accountid: {
-    fontFamily: 'Poppins',
     fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 5,
@@ -236,7 +231,6 @@ const styles = {
     padding: 10,
   },
   password: {
-    fontFamily: 'Poppins',
     fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 5,
@@ -264,7 +258,6 @@ const styles = {
     top: -195
   },
   buttonLoginText: {
-    fontFamily: 'Poppins',
     fontSize: 20,
     color: '#F9A602',
   },
@@ -274,12 +267,10 @@ const styles = {
     top: -170,
   },
   makeaccount: {
-    fontFamily: 'Poppins',
     fontSize: 14,
     color: '#FFFFFF',
   },
   createaccount: {
-    fontFamily: 'Poppins',
     fontSize: 14,
     color: '#F9A602',
     textDecorationLine: 'underline',
