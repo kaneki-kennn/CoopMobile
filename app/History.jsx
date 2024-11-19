@@ -1,123 +1,139 @@
-import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
-
-export default function History() {
-    const History = () => {
-        const navigation = useNavigation(); 
-        const navigateWithUserId = (navigation, userId) => (route) => {
-            navigation.navigate(route, { userId });
-        };
-
-    const router = useRouter();
-    const [selectedTimeFrame, setSelectedTimeFrame] = useState(''); // Initialize state for dropdown
+import {
+    View,
+    Image,
+    TouchableOpacity,
+    Text,
+    StyleSheet,
+    Alert,
+  } from "react-native";
+  import React, { useState } from "react";
+  import { Picker } from "@react-native-picker/picker";
+  import { useRouter } from "expo-router";
+  
+  export default function History() {
+    const router = useRouter(); // Using `useRouter` for navigation
+    const [selectedTimeFrame, setSelectedTimeFrame] = useState(""); // State for dropdown
+  
     const dataRows = [
-        { id: '001', amount: 'Php 1000', type: 'Deposit', status: 'Completed', date: '2023-10-01' },
-        { id: '002', amount: 'Php 2000', type: 'Withdraw', status: 'Pending', date: '2023-10-02' },
-        // Add more rows as needed
+      { id: "001", amount: "Php 1000", type: "Deposit", status: "Completed", date: "2023-10-01" },
+      { id: "002", amount: "Php 2000", type: "Withdraw", status: "Pending", date: "2023-10-02" },
     ];
+  
     const handleLogoClick = () => {
-        alert("Coop clicked! The page will refresh."); // Replace with your refresh logic
+      Alert.alert("Coop clicked!", "The page will refresh."); // Replace with your refresh logic
     };
-
+  
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleLogoClick}>
-                    <Image
-                        source={require('./../assets/images/COOP LOGO.png')}
-                        style={styles.logo}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Bell clicked! Notifications.")}
-                    style={styles.bellContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/bell.png')}
-                        style={styles.bell}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Email clicked! Check your inbox.")}
-                    style={styles.emailContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/email.png')}
-                        style={styles.email}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Profile clicked! View your profile.")}
-                    style={styles.profileContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/profile.png')}
-                        style={styles.profile}
-                    />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.dropdownContainer}>
-                <Picker
-                    selectedValue={selectedTimeFrame}
-                    onValueChange={(itemValue) => setSelectedTimeFrame(itemValue)}
-                    style={styles.dropdown}
-                >
-                    <Picker.Item label="Select Time Frame" value="" />
-                    <Picker.Item label="Last hour" value="last_hour" />
-                    <Picker.Item label="Last 24 hours" value="last_24" />
-                    <Picker.Item label="Last 7 days" value="last_7" />
-                    <Picker.Item label="Last 4 weeks" value="last_4" />
-                    <Picker.Item label="All time" value="all_time" />
-                </Picker>
-            </View>
-
-            <View style={styles.table}>
-            {/* Header Row */}
-            <View style={styles.headerRow}>
-                <Text style={styles.headerCell}>Request ID</Text>
-                <Text style={styles.headerCell}>Amount</Text>
-                <Text style={styles.headerCell}>Type</Text>
-                <Text style={styles.headerCell}>Status</Text>
-                <Text style={styles.headerCell}>Date</Text>
-            </View>
-
-            {/* Data Rows */}
-            {dataRows.map((row, index) => (
-                <TouchableOpacity key={index} style={styles.dataRow}>
-                    <Text style={styles.dataCell}>{row.id}</Text>
-                    <Text style={styles.dataCell}>{row.amount}</Text>
-                    <Text style={styles.dataCell}>{row.type}</Text>
-                    <Text style={styles.dataCell}>{row.status}</Text>
-                    <Text style={styles.dataCell}>{row.date}</Text>
-                </TouchableOpacity>
-            ))}
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleLogoClick}>
+            <Image
+              source={require("./../assets/images/COOP LOGO.png")}
+              style={styles.logo}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Alert.alert("Bell clicked!", "Notifications.")}
+            style={styles.bellContainer}
+          >
+            <Image
+              source={require("./../assets/images/bell.png")}
+              style={styles.bell}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Alert.alert("Email clicked!", "Check your inbox.")}
+            style={styles.emailContainer}
+          >
+            <Image
+              source={require("./../assets/images/email.png")}
+              style={styles.email}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Alert.alert("Profile clicked!", "View your profile.")}
+            style={styles.profileContainer}
+          >
+            <Image
+              source={require("./../assets/images/profile.png")}
+              style={styles.profile}
+            />
+          </TouchableOpacity>
         </View>
-
+  
+        {/* Dropdown */}
+        <View style={styles.dropdownContainer}>
+          <Picker
+            selectedValue={selectedTimeFrame}
+            onValueChange={(itemValue) => setSelectedTimeFrame(itemValue)}
+            style={styles.dropdown}
+          >
+            <Picker.Item label="Select Time Frame" value="" />
+            <Picker.Item label="Last hour" value="last_hour" />
+            <Picker.Item label="Last 24 hours" value="last_24" />
+            <Picker.Item label="Last 7 days" value="last_7" />
+            <Picker.Item label="Last 4 weeks" value="last_4" />
+            <Picker.Item label="All time" value="all_time" />
+          </Picker>
+        </View>
+  
+        {/* Table */}
+        <View style={styles.table}>
+          <View style={styles.headerRow}>
+            <Text style={styles.headerCell}>Request ID</Text>
+            <Text style={styles.headerCell}>Amount</Text>
+            <Text style={styles.headerCell}>Type</Text>
+            <Text style={styles.headerCell}>Status</Text>
+            <Text style={styles.headerCell}>Date</Text>
+          </View>
+          {dataRows.map((row, index) => (
+            <TouchableOpacity key={index} style={styles.dataRow}>
+              <Text style={styles.dataCell}>{row.id}</Text>
+              <Text style={styles.dataCell}>{row.amount}</Text>
+              <Text style={styles.dataCell}>{row.type}</Text>
+              <Text style={styles.dataCell}>{row.status}</Text>
+              <Text style={styles.dataCell}>{row.date}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+  
+        {/* Navbar */}
         <View style={styles.navbar}>
-                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
-                    <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
-                    <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
-                    <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
-                    <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
-                    <Image style={styles.history} source={require('./../assets/images/history.png')} />
-                </TouchableOpacity>
-            </View>
+          <TouchableOpacity onPress={() => router.push("/Announcement")}>
+            <Image
+              style={styles.announcement}
+              source={require("./../assets/images/megaphone.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/Funds")}>
+            <Image
+              style={styles.funds}
+              source={require("./../assets/images/dollar-bill.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/Dashboard")}>
+            <Image
+              style={styles.dashboard}
+              source={require("./../assets/images/dashboard.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/Loans")}>
+            <Image
+              style={styles.loans}
+              source={require("./../assets/images/personal.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/History")}>
+            <Image
+              style={styles.history}
+              source={require("./../assets/images/history.png")}
+            />
+          </TouchableOpacity>
         </View>
+      </View>
     );
-}
-
-
+  }
 const styles = {
     container: {
         flex: 1,
@@ -215,7 +231,6 @@ const styles = {
     headerCell: {
         flex: 1, // Equal width for each column
         textAlign: 'center', // Center text
-        fontFamily: 'Poppins',
         fontWeight: '500',
         fontSize: 13,
         lineHeight: 20,
@@ -232,7 +247,6 @@ const styles = {
     dataCell: {
         flex: 1, // Equal width for each column
         textAlign: 'center', // Center text
-        fontFamily: 'Poppins',
         fontSize: 13,
         lineHeight: 20,
         color: '#000000', // Text color for data
@@ -298,5 +312,4 @@ history: {
     flexGrow: 0, // Ensures it does not grow
     left: -5,
 },
-}
 }

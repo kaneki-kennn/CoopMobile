@@ -1,273 +1,262 @@
-import { View, Image, Alert,  Button, TouchableOpacity, Text, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
-import { useRoute } from '@react-navigation/native';
-import { RadioButton } from 'react-native-paper';
-import UUID from 'react-native-uuid';
-import {supabase} from './supabase';
-import { useNavigation } from '@react-navigation/native';
-
-
-const Funds = () => {
-    const navigation = useNavigation(); 
-    const navigateWithUserId = (navigation, userId) => () => {
-        navigation.navigate(route, { userId });
+import {
+    View,
+    Image,
+    Alert,
+    TouchableOpacity,
+    Text,
+    StyleSheet,
+    TextInput,
+  } from "react-native";
+  import React, { useEffect, useState } from "react";
+  import { Picker } from "@react-native-picker/picker";
+  import { useRoute, useNavigation } from "@react-navigation/native";
+  import UUID from "react-native-uuid";
+  import { supabase } from "./supabase";
+  
+  const Funds = () => {
+    const navigation = useNavigation();
     const route = useRoute();
-    const { userId } = route.params || {}; 
+    const { userId } = route.params || {};
+  
     if (!userId) {
-        console.log('User ID is not available in route params');
+      console.log("User ID is not available in route params");
     } else {
-        console.log('Logged-in user ID:', userId);
+      console.log("Logged-in user ID:", userId);
     }
-}
+  
     const [savings, setSavings] = useState(null);
     const [cbu, setCbu] = useState(null);
-    const [loadingSavings, setLoadingSavings] = useState(true); 
-    const [loadingCbu, setLoadingCbu] = useState(true);          
-    const [errorSavings, setErrorSavings] = useState(null);      
-    const [errorCbu, setErrorCbu] = useState(null);   
+    const [loadingSavings, setLoadingSavings] = useState(true);
+    const [loadingCbu, setLoadingCbu] = useState(true);
+    const [errorSavings, setErrorSavings] = useState(null);
+    const [errorCbu, setErrorCbu] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0);
-    //ariel//
-    const [selectedPaymentMode, setSelectedPaymentMode] = useState('');
-    const [amount, setAmount] = useState(''); 
-
+  
+    const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
+    const [amount, setAmount] = useState("");
     const [selectedOption, setSelectedOption] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [savingsId, setSavingsId] = useState(null);
-    const [cbuId, setCbuId] = useState(null);  // Initialize savingsId
-
-
-
+    const [cbuId, setCbuId] = useState(null);
+  
     const fetchUserCbu = async () => {
-        setLoadingCbu(true);
-        setErrorCbu(null);
-    
-        try {
-            // console.log('Fetching CBU for User ID:', userId); 
-            const { data, error } = await supabase
-                .from('Cbus') 
-                .select('cbu_id, amount') 
-                .eq('user_id', userId) 
-                .single(); 
-    
-            if (error) {
-                console.error('Error fetching CBU:', error);  
-                throw error;  
-            }
-    
-            // console.log('Fetched CBU:', data); 
-            setCbu(data?.amount || 0);
-            setCbuId(data?.cbu_id);
-        } catch (err) {
-            console.error('Error fetching CBU:', err);  
-            setErrorCbu('Failed to fetch CBU.');
-        } finally {
-            setLoadingCbu(false);
-        }
+      setLoadingCbu(true);
+      setErrorCbu(null);
+  
+      try {
+        const { data, error } = await supabase
+          .from("Cbus")
+          .select("cbu_id, amount")
+          .eq("user_id", userId)
+          .single();
+  
+        if (error) throw error;
+  
+        setCbu(data?.amount || 0);
+        setCbuId(data?.cbu_id);
+      } catch (err) {
+        setErrorCbu("Failed to fetch CBU.");
+      } finally {
+        setLoadingCbu(false);
+      }
     };
-
+  
     const fetchUserSavings = async () => {
-        setLoadingSavings(true);
-        setErrorSavings(null);
-
-        try {
-            const { data, error } = await supabase
-                .from('Savings') 
-                .select('savings_id, amount') 
-                .eq('user_id', userId) 
-                .single(); 
-
-            if (error) throw error;
-
-            setSavings(data?.amount || 0);
-            setSavingsId(data?.savings_id);  // Save the savings_id
-        } catch (err) {
-            setErrorSavings('Failed to fetch savings.');
-        } finally {
-            setLoadingSavings(false);
-        }
+      setLoadingSavings(true);
+      setErrorSavings(null);
+  
+      try {
+        const { data, error } = await supabase
+          .from("Savings")
+          .select("savings_id, amount")
+          .eq("user_id", userId)
+          .single();
+  
+        if (error) throw error;
+  
+        setSavings(data?.amount || 0);
+        setSavingsId(data?.savings_id);
+      } catch (err) {
+        setErrorSavings("Failed to fetch savings.");
+      } finally {
+        setLoadingSavings(false);
+      }
     };
-
-
+  
     useEffect(() => {
-        if (userId) {
-            console.log('Fetching savings and CBU for User ID:', userId);
-            fetchUserSavings();
-            fetchUserCbu();
-           
-        }
-    }, [userId, refreshKey]); 
-
-    useEffect(() => {
-        console.log('Updated savings and CBU:', savings, cbu); 
-    }, [savings, cbu]);
-
-    const handleLogoClick = () => {
-        alert("Coop clicked! The page will refresh.");
-       
-    };
-
+      if (userId) {
+        console.log("Fetching savings and CBU for User ID:", userId);
+        fetchUserSavings();
+        fetchUserCbu();
+      }
+    }, [userId, refreshKey]);
+  
     const handleSelect = (option) => {
-        setSelectedOption(option); 
-        console.log('Selected option:', option);
+      setSelectedOption(option);
     };
-
+  
     const handleActionSelect = (action) => {
-        setSelectedAction(action);
-        console.log('Selected action:', action); 
+      setSelectedAction(action);
     };
-
-       
+  
     const handleTransaction = async () => {
-        if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
-            console.error('Missing action, amount, payment mode, or selected option');
-            return;
-        }
-    
-        const transactionTable = selectedOption === 'savings' ? 'Savtransactions' : 'Cbutransactions';
-        const transactionIdKey = selectedOption === 'savings' ? 'savtransaction_id' : 'cbutransaction_id';
-        
-        // Determine additional data based on selected option
-        const additionalData = selectedOption === 'savings' ? { savings_id: savingsId } : { cbu_id: cbuId };
-    
-        try {
-            const transactionData = {
-                [transactionIdKey]: UUID.v4(),  // Using dynamic key based on selected option
-                user_id: userId,
-                amount: parseFloat(amount),
-                transaction_type: selectedAction,
-                status: 'pending',
-                mode: selectedPaymentMode,
-                date_sent: new Date(),
-                ...additionalData,
-            };
-    
-            console.log("Transaction request body:", transactionData);
-    
-            const { data, error } = await supabase
-                .from(transactionTable)
-                .insert([transactionData]);
-    
-            if (error) throw error;
-    
-            alert(`${selectedAction} request of ${amount} submitted for approval.`);
-    
-            // Reset selections
-            setSelectedAction(null);
-            setAmount('');
-        } catch (err) {
-            console.error("Transaction submission error:", err);
-            alert("Transaction request failed. Please try again.");
-        }
+      if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
+        console.error(
+          "Missing action, amount, payment mode, or selected option"
+        );
+        return;
+      }
+  
+      const transactionTable =
+        selectedOption === "savings" ? "Savtransactions" : "Cbutransactions";
+      const transactionIdKey =
+        selectedOption === "savings" ? "savtransaction_id" : "cbutransaction_id";
+  
+      const additionalData =
+        selectedOption === "savings" ? { savings_id: savingsId } : { cbu_id: cbuId };
+  
+      try {
+        const transactionData = {
+          [transactionIdKey]: UUID.v4(),
+          user_id: userId,
+          amount: parseFloat(amount),
+          transaction_type: selectedAction,
+          status: "pending",
+          mode: selectedPaymentMode,
+          date_sent: new Date(),
+          ...additionalData,
+        };
+  
+        const { data, error } = await supabase
+          .from(transactionTable)
+          .insert([transactionData]);
+  
+        if (error) throw error;
+  
+        alert(`${selectedAction} request of ${amount} submitted for approval.`);
+        setSelectedAction(null);
+        setAmount("");
+      } catch (err) {
+        console.error("Transaction submission error:", err);
+        alert("Transaction request failed. Please try again.");
+      }
     };
-    
-
-    
-
+  
+    const handleLogoClick = () => {
+      alert("Coop clicked! The page will refresh.");
+    };
+  
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleLogoClick}>
-                    <Image
-                        source={require('./../assets/images/COOP LOGO.png')}
-                        style={styles.logo}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Bell clicked! Notifications.")}
-                    style={styles.bellContainer}
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleLogoClick}>
+            <Image
+              source={require("./../assets/images/COOP LOGO.png")}
+              style={styles.logo}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => alert("Bell clicked! Notifications.")}
+            style={styles.bellContainer}
+          >
+            <Image
+              source={require("./../assets/images/bell.png")}
+              style={styles.bell}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => alert("Email clicked! Check your inbox.")}
+            style={styles.emailContainer}
+          >
+            <Image
+              source={require("./../assets/images/email.png")}
+              style={styles.email}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => alert("Profile clicked! View your profile.")}
+            style={styles.profileContainer}
+          >
+            <Image
+              source={require("./../assets/images/profile.png")}
+              style={styles.profile}
+            />
+          </TouchableOpacity>
+        </View>
+  
+        <View style={styles.radioButtonContainer}>
+          <View style={styles.savings}>
+            <TouchableOpacity onPress={() => handleSelect("savings")}>
+              {loadingSavings ? (
+                <Text style={styles.savingsText}>Loading...</Text>
+              ) : errorSavings ? (
+                <Text style={{ color: "red" }}>{errorSavings}</Text>
+              ) : (
+                <View
+                  style={[
+                    styles.radioButton,
+                    selectedOption === "savings" && styles.selectedRadio,
+                  ]}
                 >
-                    <Image
-                        source={require('./../assets/images/bell.png')}
-                        style={styles.bell}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Email clicked! Check your inbox.")}
-                    style={styles.emailContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/email.png')}
-                        style={styles.email}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Profile clicked! View your profile.")}
-                    style={styles.profileContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/profile.png')}
-                        style={styles.profile}
-                    />
-                </TouchableOpacity>
-            </View>
-
-
-            <View style={styles.radioButtonContainer}>
-                <View style={styles.savings}>
-                        <TouchableOpacity onPress={() => handleSelect('savings')}>
-                            {loadingSavings ? (
-                                <Text style={styles.savingsText}>Loading...</Text>
-                            ) : errorSavings ? (
-                                <Text style={{ color: 'red' }}>{errorSavings}</Text>
-                            ) : (
-                                <>
-                                    <View  style={[styles.radioButton, selectedOption === 'savings' && styles.selectedRadio]}>
-                                        <Text style={styles.savingsText}>Savings</Text>
-                                        <Text style={styles.savingsBal}>
-                                            {savings !== null && !isNaN(savings) ? savings.toFixed(2) : 'No savings found'}
-                                        </Text>
-                                    </View>
-                                    
-                                </>
-                            )}
-                        </TouchableOpacity>
-                    </View>
-
-                <View style={styles.cbu}>
-                    <TouchableOpacity onPress={() => handleSelect('cbu')}>
-                        {loadingCbu? (
-                            <Text style={styles.cbuText}>Loading...</Text>
-                        ) : errorCbu ? (
-                            <Text style={{ color: 'red' }}>{errorCbu}</Text>
-                        ) : (
-                            <>
-                                <View style={[styles.radioButton, selectedOption === 'cbu' && styles.selectedRadio]}>
-                                    <Text style={styles.cbuText}>CBU</Text>
-                                    <Text style={styles.cbuBal}>
-                                        {cbu !== null && !isNaN(cbu) ? cbu.toFixed(2) : 'No cbu found'}
-                                    </Text>
-                                </View>
-                                
-                            </>
-                        )}
-                    </TouchableOpacity>
+                  <Text style={styles.savingsText}>Savings</Text>
+                  <Text style={styles.savingsBal}>
+                    {savings !== null && !isNaN(savings)
+                      ? savings.toFixed(2)
+                      : "No savings found"}
+                  </Text>
                 </View>
-                
-            </View>
-           
-               
-
-
-
-
-
-            <View style={styles.tabularform}>
-
-                <View style={styles.radioButtonContainer}>
-                        <TouchableOpacity
-                        style={[styles.deposit, selectedAction === 'deposit' && styles.selected]}
-                        onPress={() => handleActionSelect('deposit')}>
-                        <Text style={styles.depositText}>Deposit</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity
-                        style={[styles.withdraw, selectedAction === 'withdraw' && styles.selected]}
-                        onPress={() => handleActionSelect('withdraw')}>
-                        <Text style={styles.withdrawText}>Withdraw</Text>
-                    </TouchableOpacity>
+              )}
+            </TouchableOpacity>
+          </View>
+  
+          <View style={styles.cbu}>
+            <TouchableOpacity onPress={() => handleSelect("cbu")}>
+              {loadingCbu ? (
+                <Text style={styles.cbuText}>Loading...</Text>
+              ) : errorCbu ? (
+                <Text style={{ color: "red" }}>{errorCbu}</Text>
+              ) : (
+                <View
+                  style={[
+                    styles.radioButton,
+                    selectedOption === "cbu" && styles.selectedRadio,
+                  ]}
+                >
+                  <Text style={styles.cbuText}>CBU</Text>
+                  <Text style={styles.cbuBal}>
+                    {cbu !== null && !isNaN(cbu)
+                      ? cbu.toFixed(2)
+                      : "No CBU found"}
+                  </Text>
                 </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+  
+        <View style={styles.tabularform}>
+          <View style={styles.radioButtonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.deposit,
+                selectedAction === "deposit" && styles.selected,
+              ]}
+              onPress={() => handleActionSelect("deposit")}
+            >
+              <Text style={styles.depositText}>Deposit</Text>
+            </TouchableOpacity>
+  
+            <TouchableOpacity
+              style={[
+                styles.withdraw,
+                selectedAction === "withdraw" && styles.selected,
+              ]}
+              onPress={() => handleActionSelect("withdraw")}
+            >
+              <Text style={styles.withdrawText}>Withdraw</Text>
+            </TouchableOpacity>
+          </View>
+  
                 
                 <Text style={styles.choose}>Choose your amount</Text>
 
@@ -424,7 +413,6 @@ const styles = {
         height: 21,
         left: 10,
         top: 5,
-        fontFamily: 'Poppins', // Make sure this font is properly loaded
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 14,
@@ -437,7 +425,6 @@ const styles = {
         height: 24,
         left: 40,
         top: 20,
-        fontFamily: 'Poppins', // Ensure this font is loaded correctly
         fontStyle: 'normal',
         fontWeight: '700',
         fontSize: 16,
@@ -466,7 +453,6 @@ const styles = {
         height: 21,
         left: 10,
         top: 5,
-        fontFamily: 'Poppins', // Make sure this font is properly loaded
         fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 14,
@@ -479,7 +465,6 @@ const styles = {
         height: 24,
         left: 35,
         top: 20,
-        fontFamily: 'Poppins', // Ensure this font is loaded correctly
         fontStyle: 'normal',
         fontWeight: '700',
         fontSize: 16,
@@ -508,7 +493,6 @@ const styles = {
     },
     depositText: {
         color: '#373F41', // Change text color for visibility
-        fontFamily: 'Poppins', // Ensure font is loaded
         fontSize: 16,
         fontWeight: 'normal',
     },
@@ -525,7 +509,6 @@ const styles = {
     },
     withdrawText: {
         color: '#FFFFFF', // Change text color for visibility
-        fontFamily: 'Poppins', // Ensure font is loaded
         fontSize: 16,
         fontWeight: 'normal',
     },
@@ -535,7 +518,6 @@ const styles = {
         height: 18,
         left: 34,
         top: 65,
-        fontFamily: 'Poppins', // Ensure this font is loaded correctly
         fontStyle: 'normal',
         fontWeight: '300',
         fontSize: 12,
@@ -564,7 +546,6 @@ const styles = {
         marginHorizontal: 5, // Horizontal gap between buttons
     },
     buttonText: {
-        fontFamily: 'Poppins', // Ensure this font is loaded
         fontSize: 14, // Adjust font size as needed
         color: '#373F41', // Text color
     },
@@ -574,7 +555,6 @@ const styles = {
         height: 18,
         left: 35,
         top: 390, // Adjust top position as necessary
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '300',
         fontSize: 12,
@@ -617,7 +597,6 @@ const styles = {
         height: 18,
         left: 163, // Adjust as needed
         top: -20, // Adjust as needed
-        fontFamily: 'Poppins',
         fontStyle: 'normal',
         fontWeight: '300',
         fontSize: 12,

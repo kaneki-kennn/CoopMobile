@@ -1,19 +1,18 @@
 import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';  // <-- Add this import
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import UUID from 'react-native-uuid';
-import {supabase} from './supabase';
+import { supabase } from './supabase';
 
 const Loans = () => {
-    const navigation = useNavigation(); 
-    const navigateWithUserId = (navigation, userId) => () => {
-        navigation.navigate(route, { userId });
+    const navigation = useNavigation();  // Now this will work
     const route = useRoute();
     const { userId } = route.params || {}; 
-    
+
     const [loanType, setLoanType] = useState("regular");
     const [amount, setAmount] = useState("");
     const [interest, setInterest] = useState("");
@@ -22,11 +21,8 @@ const Loans = () => {
 
     const handleLogoClick = () => {
         alert("Coop clicked! The page will refresh.");
-    }
-       
     };
 
-   
     const calculateMonthlyPayment = () => {
         if (!amount || !interest || !loanTerms) return ""; 
 
@@ -84,9 +80,6 @@ const Loans = () => {
             console.error("Loan application submission error:", err);
             alert("Loan application request failed. Please try again.");
         }
-
-        
-    
     };
 
     return (
@@ -305,27 +298,22 @@ const styles = StyleSheet.create({
         top: 20,
     },
     loantype: {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 15,
         color: '#373F41',
     },
     amount: {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 15,
         color: '#373F41',
     },
     interest: {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 15,
         color: '#373F41',
     },
     loanterms: {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 15,
         color: '#373F41',
     },
     monthlypayment: {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 15,
         color: '#373F41',
     },
@@ -370,7 +358,6 @@ const styles = StyleSheet.create({
     aploan: {
         color: '#F9A602',
         fontSize: 14,
-        fontFamily: 'Poppins-SemiBold',
     },
     table: {
         position: 'absolute',
@@ -390,7 +377,6 @@ const styles = StyleSheet.create({
         flex: 1,
         color: '#F9A602',
         textAlign: 'center',
-        fontFamily: 'Poppins-SemiBold',
     },
     dataRow: {
         flexDirection: 'row',
@@ -404,7 +390,6 @@ const styles = StyleSheet.create({
         flex: 1,
         color: '#373F41',
         textAlign: 'center',
-        fontFamily: 'Poppins-Regular',
     },
     navbar: {
         position: 'absolute',
