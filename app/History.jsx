@@ -252,64 +252,65 @@ const styles = {
         color: '#000000', // Text color for data
     },
     navbar: {
-        position: 'absolute',
-        width: 360,
-        height: 47,
-        left: 0,
-        top: 720,
-        backgroundColor: '#373F41',
-        flexDirection: 'row', // Align items horizontally
-        justifyContent: 'space-around', // Space items evenly
-        alignItems: 'center', // Center items vertically
-        elevation: 5, // Optional: Add shadow effect for Android
-        shadowColor: '#000', // Optional: Shadow color for iOS
-        shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
-        shadowOpacity: 0.25, // Optional: Shadow opacity
-        shadowRadius: 3.5, // Optional: Shadow radius
+      position: 'absolute',
+      width: 360,
+      height: 47,
+      left: 0,
+      top: 720,
+      backgroundColor: '#373F41',
+      flexDirection: 'row', // Align items horizontally
+      justifyContent: 'space-around', // Space items evenly
+      alignItems: 'center', // Center items vertically
+      elevation: 5, // Optional: Add shadow effect for Android
+      shadowColor: '#000', // Optional: Shadow color for iOS
+      shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
+      shadowOpacity: 0.25, // Optional: Shadow opacity
+      shadowRadius: 3.5, // Optional: Shadow radius
 },
-announcement: {
+  announcement: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: 5,
+  },
+  funds: {
     width: 30,
     height: 30,
     tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: 5,
+    flex: 0, // Ensures it does not grow or shrink
+    order: 0, // Not applicable in React Native but can be kept for reference
+    flexGrow: 0, // Prevents the element from growing
+    left: 5, // Adjust the left position
 },
-funds: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-dashboard: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-loans: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-history: {
-    width: 30,
-    height: 30,
-    tintColor: '#FFFFFF', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-}
+  dashboard: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
+  loans: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
+  history: {
+      width: 30,
+      height: 30,
+      tintColor: '#FFFFFF', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
+
+};

@@ -273,7 +273,7 @@ const Dashboard = () => {
                 <Text style={styles.coopad}>Cooperative Advisory</Text>
 
                 {loadingAnnouncements ? (
-                    <Text style={styles.content}>Loading announcements...</Text>
+                    <Text style={styles.load}>Loading announcements...</Text>
                 ) : errorAnnouncements ? (
                     <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
                 ) : announcements.length === 0 ? (
@@ -670,6 +670,17 @@ const styles = {
         lineHeight: 19,
         color: '#FFFFFF', // Text color
     },
+    load: {
+        position: 'absolute',
+        width: 204,
+        height: 19,
+        left: '29%', // Adjusted left position for better visibility
+        top: 60, // Adjusted top position to move it lower
+        fontWeight: '500',
+        fontSize: 13,
+        lineHeight: 19,
+        color: '#FFFFFF', // Text color
+    },
     chat: {
         position: 'absolute',
         width: 25, // Set width to 50px
@@ -827,10 +838,10 @@ const styles = {
         width: 30,
         height: 30,
         tintColor: '#F9A602', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: -5,
+        flex: 0, // Ensures it does not grow or shrink
+        order: 0, // Not applicable in React Native but can be kept for reference
+        flexGrow: 0, // Prevents the element from growing
+        left: 5, // Adjust the left position
     },
     dashboard: {
         width: 30,

@@ -348,10 +348,10 @@ const styles = {
         width: 30,
         height: 30,
         tintColor: '#F9A602', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: -5,
+        flex: 0, // Ensures it does not grow or shrink
+        order: 0, // Not applicable in React Native but can be kept for reference
+        flexGrow: 0, // Prevents the element from growing
+        left: 5, // Adjust the left position
     },
     dashboard: {
         width: 30,
@@ -380,6 +380,5 @@ const styles = {
         flexGrow: 0, // Ensures it does not grow
         left: -5,
     },
-};
 
-export default Announcement;
+};export default Announcement;

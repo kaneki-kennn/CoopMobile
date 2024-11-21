@@ -12,6 +12,7 @@ import {
   import { useRoute, useNavigation } from "@react-navigation/native";
   import UUID from "react-native-uuid";
   import { supabase } from "./supabase";
+  import { Dimensions } from 'react-native';
   
   const Funds = () => {
     const navigation = useNavigation();
@@ -333,7 +334,7 @@ import {
     );
 }
 
-
+const { width, height } = Dimensions.get('window');
 const styles = {
     container: {
         flex: 1,
@@ -392,20 +393,20 @@ const styles = {
         top: 17,
     },
     savings: {
-        position: 'absolute',
-        width: 150,
-        height: 55,
-        left: 20,
-        top: 102,
-        backgroundColor: '#373F41',
-        borderWidth: 1,
-        borderColor: '#FFFFFF',
-        shadowColor: '#373F41',
-        shadowOffset: { width: 5, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        borderRadius: 10,
-        elevation: 5, // for Android shadow
+      position: 'absolute',
+      width: width * 0.4, // 40% of the screen width
+      height: height * 0.08, // 8% of the screen height
+      left: width * 0.05, // 5% from the left edge of the screen
+      top: height * 0.12, // 12% from the top edge of the screen
+      backgroundColor: '#373F41',
+      borderWidth: 1,
+      borderColor: '#FFFFFF',
+      shadowColor: '#373F41',
+      shadowOffset: { width: 5, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      borderRadius: 10,
+      elevation: 5, // for Android shadow
     },
     savingsText: {
         position: 'absolute',
@@ -432,20 +433,20 @@ const styles = {
         color: '#F9A602',
     },
     cbu: {
-        position: 'absolute',
-        width: 150,
-        height: 55,
-        left: 185,
-        top: 102,
-        backgroundColor: '#F9A602',
-        borderWidth: 1,
-        borderColor: '#FFFFFF',
-        shadowColor: '#373F41',
-        shadowOffset: { width: 5, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        borderRadius: 10,
-        elevation: 5, // for Android shadow
+      position: 'absolute',
+      width: width * 0.4, // 40% of the screen width
+      height: height * 0.08, // 8% of the screen height
+      left: width * 0.55, // 47% from the left edge of the screen (adjusted for positioning next to savings)
+      top: height * 0.12, // 12% from the top edge of the screen (same as savings for alignment)
+      backgroundColor: '#F9A602',
+      borderWidth: 1,
+      borderColor: '#FFFFFF',
+      shadowColor: '#373F41',
+      shadowOffset: { width: 5, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      borderRadius: 10,
+      elevation: 5, // for Android shadow
     },
     cbuText: {
         position: 'absolute',
@@ -549,24 +550,24 @@ const styles = {
         fontSize: 14, // Adjust font size as needed
         color: '#373F41', // Text color
     },
-    desiredamount: {
-        position: 'absolute',
-        width: 180, // Adjust width as necessary
-        height: 18,
-        left: 35,
-        top: 390, // Adjust top position as necessary
-        fontStyle: 'normal',
-        fontWeight: '300',
-        fontSize: 12,
-        lineHeight: 18,
-        color: '#777777',
-    },
-    inputContainer: {
-        flexDirection: 'row', // Aligns children in a row
-        alignItems: 'center', // Centers items vertically
-        top: 365,
-        left: 50,
-    },
+desiredamount: {
+  position: 'absolute',
+  width: width * 0.5, // 50% of the screen width (adjust as needed)
+  height: height * 0.02, // 2% of the screen height for font size
+  left: width * 0.10, // Move 2% from the left edge of the screen
+  top: height * 0.49, // 49% from the top (adjust as needed)
+  fontStyle: 'normal',
+  fontWeight: '300',
+  fontSize: width * 0.032, // 3.2% of screen width for font size (adjustable)
+  lineHeight: height * 0.03, // Adjust line height relative to the screen height
+  color: '#777777',
+},
+inputContainer: {
+  flexDirection: 'row', // Aligns children in a row
+  alignItems: 'center', // Centers items vertically
+  top: height * 0.45, // 38% of the screen height (adjustable)
+  left: width * 0.12, // 12% from the left edge (adjustable)
+},
     numberInput: {
         boxSizing: 'border-box',
         width: 127,
@@ -581,16 +582,18 @@ const styles = {
         left: -10,
     },
     dropdown: {
-        position: 'absolute', // Absolute positioning
-        width: 130,
-        height: 30,
-        left: 137, // Adjust as needed
-        top: -1, // Adjust as needed
-        backgroundColor: '#FFFFFF',
-        borderColor: '#373F41',
-        borderWidth: 0.5,
-        borderRadius: 5,
+      position: 'absolute', // Absolute positioning
+      width: width * 0.4, // 40% of the screen width (adjust as needed)
+      height: height * 0.05, // 5% of the screen height for dropdown height (adjustable)
+      left: width * 0.40, // 40% from the left edge of the screen (adjustable)
+      top: height * 0.01, // Adjusted to move the dropdown higher (1% from the top)
+      backgroundColor: '#FFFFFF',
+      borderColor: '#373F41',
+      borderWidth: 0.5,
+      borderRadius: 30, // Increased border radius for rounder corners
     },
+     
+    
     mode: {
         position: 'absolute',
         width: 105,
@@ -624,66 +627,66 @@ const styles = {
         textTransform: 'uppercase', // Added text transformation
     },
     navbar: {
-        position: 'absolute',
-        width: 360,
-        height: 47,
-        left: 0,
-        top: 719,
-        backgroundColor: '#373F41',
-        flexDirection: 'row', // Align items horizontally
-        justifyContent: 'space-around', // Space items evenly
-        alignItems: 'center', // Center items vertically
-        elevation: 5, // Optional: Add shadow effect for Android
-        shadowColor: '#000', // Optional: Shadow color for iOS
-        shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
-        shadowOpacity: 0.25, // Optional: Shadow opacity
-        shadowRadius: 3.5, // Optional: Shadow radius
+      position: 'absolute',
+      width: 360,
+      height: 47,
+      left: 0,
+      top: 720,
+      backgroundColor: '#373F41',
+      flexDirection: 'row', // Align items horizontally
+      justifyContent: 'space-around', // Space items evenly
+      alignItems: 'center', // Center items vertically
+      elevation: 5, // Optional: Add shadow effect for Android
+      shadowColor: '#000', // Optional: Shadow color for iOS
+      shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
+      shadowOpacity: 0.25, // Optional: Shadow opacity
+      shadowRadius: 3.5, // Optional: Shadow radius
 },
-announcement: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: 5,
-},
-funds: {
+  announcement: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: 5,
+  },
+  funds: {
     width: 30,
     height: 30,
     tintColor: '#FFFFFF', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
+    flex: 0, // Ensures it does not grow or shrink
+    order: 0, // Not applicable in React Native but can be kept for reference
+    flexGrow: 0, // Prevents the element from growing
+    left: 5, // Adjust the left position
 },
-dashboard: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-loans: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
-history: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Equivalent to `flex: none`
-    order: 0, // Not applicable in React Native, but kept for reference
-    flexGrow: 0, // Ensures it does not grow
-    left: -5,
-},
+  dashboard: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
+  loans: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
+  history: {
+      width: 30,
+      height: 30,
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Equivalent to `flex: none`
+      order: 0, // Not applicable in React Native, but kept for reference
+      flexGrow: 0, // Ensures it does not grow
+      left: -5,
+  },
 
 radioButtonContainer: {
     flexDirection: 'row',
@@ -700,8 +703,23 @@ radioButton: {
     marginRight: 8,
 },
 selectedRadio: {
-    backgroundColor: '#4CAF50', 
+  position: 'absolute',
+  width: width * 0.4, // 40% of the screen width (or adjust as needed)
+  height: height * 0.08, // 8% of the screen height
+  left: width * -0.00, // 2% from the left edge of the screen
+  top: height * 0.00, // Moved higher (5% from the top, adjust as needed)
+  backgroundColor: '#4CAF50', // Green color for the selected radio button
+  borderWidth: 1,
+  borderColor: '#FFFFFF',
+  shadowColor: '#373F41',
+  shadowOffset: { width: 5, height: 6 },
+  shadowOpacity: 0.25,
+  shadowRadius: 5,
+  borderRadius: 10,
+  elevation: 5, // for Android shadow
 },
+
+
 selected: {
     backgroundColor: '#4CAF50',
 },
