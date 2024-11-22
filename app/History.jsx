@@ -9,6 +9,7 @@ import {
   import React, { useState } from "react";
   import { Picker } from "@react-native-picker/picker";
   import { useRouter } from "expo-router";
+  import { Dimensions } from 'react-native';
   
   export default function History() {
     const router = useRouter(); // Using `useRouter` for navigation
@@ -134,6 +135,8 @@ import {
       </View>
     );
   }
+
+  const { width, height } = Dimensions.get('window');
 const styles = {
     container: {
         flex: 1,
@@ -253,64 +256,52 @@ const styles = {
     },
     navbar: {
       position: 'absolute',
-      width: 360,
-      height: 47,
+      width: width, // Full screen width
+      height: height * 0.06, // 6% of screen height
       left: 0,
-      top: 720,
+      top: height - height * 0.06, // Positioned at the very bottom of the screen
       backgroundColor: '#373F41',
       flexDirection: 'row', // Align items horizontally
       justifyContent: 'space-around', // Space items evenly
       alignItems: 'center', // Center items vertically
-      elevation: 5, // Optional: Add shadow effect for Android
-      shadowColor: '#000', // Optional: Shadow color for iOS
-      shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
-      shadowOpacity: 0.25, // Optional: Shadow opacity
-      shadowRadius: 3.5, // Optional: Shadow radius
-},
+      elevation: 5, // Shadow effect for Android
+      shadowColor: '#000', // Shadow color for iOS
+      shadowOffset: { width: 0, height: 2 }, // Shadow offset
+      shadowOpacity: 0.25, // Sha
+  },    
   announcement: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: 5,
-  },
+      flex: 0, // Does not grow or shrink
+      left: width * 0.02, // 2% of the screen width for padding from the left
+  },    
   funds: {
-    width: 30,
-    height: 30,
-    tintColor: '#F9A602', // Tint color
-    flex: 0, // Ensures it does not grow or shrink
-    order: 0, // Not applicable in React Native but can be kept for reference
-    flexGrow: 0, // Prevents the element from growing
-    left: 5, // Adjust the left position
-},
+      width: width * 0.09, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
+      tintColor: '#F9A602', // Tint color
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * 0.00, // 2% of the screen width for padding from the left
+  },    
   dashboard: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.01, // Negative padding for a slight inward adjustment
+  },    
   loans: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.01, // Adjust position slightly left
+  },     
   history: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 7% of the screen width for a consistent size
+      height: height * 0.035, // 3.5% of the screen height
       tintColor: '#FFFFFF', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
-
-};
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.015, // Slight inward adjustment for alignment
+  },  
+}

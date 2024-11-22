@@ -1,57 +1,92 @@
-import { View, Text, Image, TouchableOpacity, handleLogin,handleCreateAccount, TextInput } from 'react-native';
-import React from 'react';
-import { Link } from 'expo-router'; 
+import { View, Text, Image, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import React, { useState } from 'react'; // Import useState
+import { Link } from 'expo-router';
 
 export default function CreateAccount() {
+    const [passwordVisible, setPasswordVisible] = useState(false); // Toggle for password visibility
+    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password visibility
+
     return (
         <View style={styles.container}>
-             <Image
-                    source={require('./../assets/images/young-couple-paying-with-credit-card-online.jpg')}
-                    style={styles.backgroundImage}
+            <Image
+                source={require('./../assets/images/young-couple-paying-with-credit-card-online.jpg')}
+                style={styles.backgroundImage}
+            />
+            <View style={styles.textContainer}>
+                <Text style={styles.createaccount}>Create Account</Text>
+            </View>
+            <View style={styles.comment}>
+                <Text style={styles.commentline1}>
+                    Enter your personal information and
+                </Text>
+                <Text style={styles.commentline2}>
+                    start your journey with us.
+                </Text>
+            </View>
+            <View style={styles.inputarea}>
+                <Text style={styles.accountid}>Account ID</Text>
+                <TextInput
+                    style={styles.inputBox}
+                    placeholder="Enter your Account ID"
+                    placeholderTextColor="#AAAAAA"
                 />
-        <View style={styles.textContainer}>
-        <Text style={styles.createaccount}>Create Account</Text>
-      </View>
-      <View style={styles.comment}>
-      <Text style={styles.commentline1}>Enter your personal informations and</Text>
-    <Text style={styles.commentline2}>start your journey with us.</Text>
-      </View>
-      <View style={styles.inputarea}>
-                    <Text style={styles.accountid}>Account ID</Text>
-                    <TextInput 
-                        style={styles.inputBox} 
-                        placeholder="Enter your Account ID"
-                        placeholderTextColor="#AAAAAA"
-                    />
-                </View>
+                {/* Password Input */}
                 <View style={styles.inputplace}>
                     <Text style={styles.firstpassword}>Enter your Password</Text>
-                    <TextInput 
-                        style={styles.inputcontain} 
-                        placeholder="Enter your Password"
-                        placeholderTextColor="#AAAAAA"
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.inputcontain}
+                            placeholder="Enter your Password"
+                            placeholderTextColor="#AAAAAA"
+                            secureTextEntry={!passwordVisible} // Toggle visibility
+                        />
+                        <TouchableOpacity
+                            onPress={() => setPasswordVisible(!passwordVisible)}
+                            style={styles.eyeIcon}
+                        >
+                            <Text style={styles.eyeText1}>
+                                {passwordVisible ? 'Hide' : 'Show'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+                {/* Confirm Password Input */}
                 <View style={styles.input}>
                     <Text style={styles.confirmpassword}>Confirm Password</Text>
-                    <TextInput 
-                        style={styles.inputcont} 
-                        placeholder="Confirm your Password"
-                        placeholderTextColor="#AAAAAA"
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.inputcont}
+                            placeholder="Confirm your Password"
+                            placeholderTextColor="#AAAAAA"
+                            secureTextEntry={!confirmPasswordVisible} // Toggle visibility
+                        />
+                        <TouchableOpacity
+                            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                            style={styles.eyeIcon}
+                        >
+                            <Text style={styles.eyeText2}>
+                                {confirmPasswordVisible ? 'Hide' : 'Show'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <TouchableOpacity style={styles.buttonCreateAccountContainer}>
-                 <Link style={styles.buttonCreateAccountText} href={'./Login'}>Create Account</Link>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                onPress={()=>router.push('Login')}
-                style={styles.hasaccount }>
-                    <Text style={styles.account}>Already have an account?</Text><Link href={'./Login'} style={styles.login}>Log in</Link>
-                </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.buttonCreateAccountContainer}>
+                <Link style={styles.buttonCreateAccountText} href={'./Login'}>
+                    Create Account
+                </Link>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.hasaccount}>
+                <Text style={styles.account}>Already have an account? </Text>
+                <Link href={'./Login'} style={styles.login}>
+                    Log in
+                </Link>
+            </TouchableOpacity>
         </View>
-    )
-
+    );
 }
+
+const { width, height } = Dimensions.get('window');
 
 const styles = {
   container: {
@@ -61,141 +96,151 @@ const styles = {
   },
   backgroundImage: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
+    width: width, // Full width of the screen
+    height: height, // Full height of the screen
     opacity: 0.3,
+    top: 0,  // Keep it aligned to the top
+    left: 0,  // Keep it aligned to the left
   },
   textContainer: {
-    // Add any necessary styles for the container
-    alignItems: 'center', // Center the text horizontally
-    marginVertical: 20, // Optional: add some vertical margin
+    alignItems: 'center',  // Center the text horizontally
+    marginVertical: height * 0.05,  // 5% vertical margin, responsive to screen height
+    paddingHorizontal: width * 0.05, // 5% horizontal padding, responsive to screen width
+    width: '90%',  // Allow the container to take 90% of the screen width, ensuring it adjusts on different devices
 },
 createaccount: {
-    fontFamily: 'Poppins-SemiBold', // Ensure you have the correct font loaded
-    fontSize: 36, // Size 36
-    color: '#FFFFFF', // FFFFFF
-    top: 20
+    fontSize: width * 0.08,  // Make font size responsive based on screen width (8% of screen width)
+    color: '#FFFFFF',  // White color
+    top: height * 0.05,  // 5% from the top of the screen, responsive to screen height
+    left: width * 0.05,  // Horizontally position it based on screen width
 },
 comment: {
-    alignItems: 'center',
-    marginVertical: 50,
+    alignItems: 'center',  // Center the content horizontally
+    marginVertical: height * 0.08,  // 8% vertical margin, responsive to screen height
+    marginTop: height * 0.04,  // Adjust margin based on screen height
 },
 commentline1: {
-    fontFamily: 'Poppins-Italic', // Ensure you have the correct font loaded
-    fontSize: 14, // Font size 14
-    color: '#FFFFFF', // White color
-    marginBottom: 5, // Optional: add space between lines
+    fontSize: width * 0.05,  // Font size responsive based on screen width (4% of screen width)
+    color: '#FFFFFF',  // White color
+    marginBottom: height * 0.01,  // 1% space below the text, responsive to screen height
     fontStyle: 'italic',
 },
 commentline2: {
-    fontFamily: 'Poppins-Italic', // Ensure you have the correct font loaded
-    fontSize: 14, // Font size 14
-    color: '#FFFFFF', // White color
+    fontSize: width * 0.05,  // Font size responsive based on screen width (4% of screen width)
+    color: '#FFFFFF',  // White color
     fontStyle: 'italic',
 },
 inputarea: {
-    top: 1,
-    left: 65,
-    padding: 10,
+    top: height * 0.01,  // 1% from the top of the screen, responsive to screen height
+    left: width * 0.15,  // 15% from the left of the screen, responsive to screen width
+    padding: width * 0.03,  // Padding responsive to screen width (3% of screen width)
 },
 accountid: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    color: '#FFFFFF', // FFFFFF
-    marginBottom: 5, // Space between text and input
+    fontSize: width * 0.04,  // Font size responsive based on screen width (4% of screen width)
+    color: '#FFFFFF',  // White color
+    marginBottom: height * 0.015,  // Space between text and input, responsive to screen height (1.5%)
 },
 inputBox: {
-    height: 40, // Desired height
-    width: 225,  // Desired width
-    borderColor: '#373F41', // Stroke color
-    borderWidth: 1, // Add border width to make stroke visible
-    borderRadius: 5, // Optional: to give rounded corners
-    paddingHorizontal: 10, // Optional: add padding inside the input
-    color: '#000000', // Input text color
-    backgroundColor: '#D9D9D9', // Change this to the desired background color
+    height: height * 0.05,  // 5% of screen height for responsive height
+    width: width * 0.6,  // 60% of screen width for responsive width
+    borderColor: '#373F41',  // Stroke color
+    borderWidth: 1,  // Border width
+    borderRadius: 5,  // Rounded corners
+    paddingHorizontal: width * 0.03,  // Horizontal padding based on screen width (3% of screen width)
+    color: '#000000',  // Input text color
+    backgroundColor: '#D9D9D9',  // Background color
 },
 placeholder: {
-    color: '#D9D9D9', // Placeholder color
+    color: '#D9D9D9',  // Placeholder color
 },
+
 inputplace: {
-    top: 5,
-    left: 65,
-    padding: 10,
+    top: height * 0.01,  // 1% from the top of the screen, responsive to screen height
+    left: width * -0.03,  // 15% from the left of the screen, responsive to screen width
+    padding: width * 0.03,  // Padding responsive to screen width (3% of screen width)
 },
 firstpassword: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    color: '#FFFFFF', // FFFFFF
-    marginBottom: 5, // Space between text and input
+    fontSize: width * 0.04,  // Font size responsive based on screen width (4% of screen width)
+    color: '#FFFFFF',  // White color for the text
+    marginBottom: height * 0.015,  // 1.5% of screen height for space between text and input
 },
 inputcontain: {
-    height: 40, // Desired height
-    width: 225,  // Desired width
-    borderColor: '#373F41', // Stroke color
-    borderWidth: 1, // Add border width to make stroke visible
-    borderRadius: 5, // Optional: to give rounded corners
-    paddingHorizontal: 10, // Optional: add padding inside the input
-    color: '#000000', // Input text color
-    backgroundColor: '#D9D9D9', // Change this to the desired background color
+    height: height * 0.05,  // 5% of screen height for responsive height
+    width: width * 0.6,  // 60% of screen width for responsive width
+    borderColor: '#373F41',  // Border stroke color
+    borderWidth: 1,  // Border width
+    borderRadius: 5,  // Rounded corners
+    paddingHorizontal: width * 0.03,  // Horizontal padding responsive to screen width (3% of screen width)
+    color: '#000000',  // Text color for input
+    backgroundColor: '#D9D9D9',  // Background color of the input
 },
 placeholder: {
-    color: '#D9D9D9', // Placeholder color
+    color: '#D9D9D9',  // Placeholder color
 },
 input: {
-    top: 5,
-    left: 65,
-    padding: 10,
+    top: height * 0.01,  // 1% of the screen height for responsive positioning
+    left: width * -0.03,  // 15% of the screen width for left position
+    padding: width * 0.03,  // 3% of screen width for padding inside the input
 },
-confirmpassword: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    color: '#FFFFFF', // FFFFFF
-    marginBottom: 5, // Space between text and input
+confirmpassword:{
+    fontSize: width * 0.04,  // Font size responsive based on screen width (4% of screen width)
+    color: '#FFFFFF',  // White color for the text
+    marginBottom: height * 0.015,  // 1.5% of the screen height for space between text and input
 },
 inputcont: {
-    height: 40, // Desired height
-    width: 225,  // Desired width
-    borderColor: '#373F41', // Stroke color
-    borderWidth: 1, // Add border width to make stroke visible
-    borderRadius: 5, // Optional: to give rounded corners
-    paddingHorizontal: 10, // Optional: add padding inside the input
-    color: '#000000', // Input text color
-    backgroundColor: '#D9D9D9', // Change this to the desired background color
+    height: height * 0.05,  // 5% of screen height for responsive height
+    width: width * 0.6,  // 60% of the screen width for responsive width
+    borderColor: '#373F41',  // Border stroke color
+    borderWidth: 1,  // Border width
+    borderRadius: 5,  // Rounded corners
+    paddingHorizontal: width * 0.03,  // Horizontal padding responsive to screen width (3% of screen width)
+    color: '#000000',  // Input text color
+    backgroundColor: '#D9D9D9',  // Background color of the input
 },
 placeholder: {
     color: '#D9D9D9', // Placeholder color
 },
+eyeText1: {
+    color: '#F9A602',
+    fontSize: width * 0.04, // Adjust font size for responsiveness
+    top: height * -0.04,  // 1% of the screen height for responsive positioning
+    left: width * 0.62,  // Center horizontally
+  },
+  eyeText2: {
+    color: '#F9A602',
+    fontSize: width * 0.04, // Adjust font size for responsiveness
+    top: height * -0.04,  // 1% of the screen height for responsive positioning
+    left: width * 0.62,  // Center horizontally
+  },
 buttonCreateAccountContainer: {
-    width: 170,
-    height: 42,
-    backgroundColor: '#373F41', // Fill color
-    borderColor: '#FFFFFF', // Stroke color
-    borderWidth: 1, // Border width to make stroke visible
-    borderRadius: 5, // Optional: rounded corners
-    justifyContent: 'center', // Center text vertically
-    alignItems: 'center', // Center text horizontally
-    left: 100,
-    top: 20
+        width: width * 0.4,  // 60% of the screen width for responsive width
+        height: height * 0.04,  // 6% of screen height for responsive height
+        backgroundColor: '#373F41',  // Fill color
+        borderColor: '#FFFFFF',  // Stroke color
+        borderWidth: 1,  // Border width
+        borderRadius: 5,  // Rounded corners
+        justifyContent: 'center',  // Center text vertically
+        alignItems: 'center',  // Center text horizontally
+        left: width * 0.27,  // 20% from the left of the screen, ensuring it's centered on most devices
+        top: height * 0.02,  // 5% from the top of the screen
 },
 buttonCreateAccountText: {
-    fontFamily: 'Poppins', // Font family
-    fontSize: 20, // Font size
-    color: '#F9A602', // Text color
+    fontSize: width * 0.05,  // Font size responsive to screen width (5% of screen width)
+    color: '#F9A602',  // Text color
 },
 hasaccount: {
-    marginTop: 20, // Adjust this value to move it higher or lower
-    alignItems: 'center', // Center items horizontally
-    top: 50,
+    marginTop: height * 0.03,  // 3% of screen height for margin space
+    alignItems: 'center',  // Center items horizontally
+    top: height * 0.02,  // 10% from the top of the screen
+    left: width * -0.03,
 },
 account: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    color: '#FFFFFF', // FFFFFF
+    fontSize: width * 0.040,  // Font size responsive to screen width (3.5% of screen width)
+    color: '#FFFFFF',  // White color for text
 },
 login: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    color: '#F9A602', // F9A602
-    textDecorationLine: 'underline', // Underline the text
+    fontSize: width * 0.040,  // Font size responsive to screen width (3.5% of screen width)
+    color: '#F9A602',  // Yellow color for text
+    textDecorationLine: 'underline',  // Underline the text
 },
 }

@@ -6,6 +6,7 @@ import {
     Text,
     StyleSheet,
     TextInput,
+    ActivityIndicator,
   } from "react-native";
   import React, { useEffect, useState } from "react";
   import { Picker } from "@react-native-picker/picker";
@@ -185,55 +186,58 @@ import {
           </TouchableOpacity>
         </View>
   
-        <View style={styles.radioButtonContainer}>
+          <View style={styles.radioButtonContainer}>
           <View style={styles.savings}>
-            <TouchableOpacity onPress={() => handleSelect("savings")}>
-              {loadingSavings ? (
-                <Text style={styles.savingsText}>Loading...</Text>
-              ) : errorSavings ? (
-                <Text style={{ color: "red" }}>{errorSavings}</Text>
-              ) : (
-                <View
-                  style={[
-                    styles.radioButton,
-                    selectedOption === "savings" && styles.selectedRadio,
-                  ]}
-                >
-                  <Text style={styles.savingsText}>Savings</Text>
-                  <Text style={styles.savingsBal}>
-                    {savings !== null && !isNaN(savings)
-                      ? savings.toFixed(2)
-                      : "No savings found"}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-  
-          <View style={styles.cbu}>
-            <TouchableOpacity onPress={() => handleSelect("cbu")}>
-              {loadingCbu ? (
-                <Text style={styles.cbuText}>Loading...</Text>
-              ) : errorCbu ? (
-                <Text style={{ color: "red" }}>{errorCbu}</Text>
-              ) : (
-                <View
-                  style={[
-                    styles.radioButton,
-                    selectedOption === "cbu" && styles.selectedRadio,
-                  ]}
-                >
-                  <Text style={styles.cbuText}>CBU</Text>
-                  <Text style={styles.cbuBal}>
-                    {cbu !== null && !isNaN(cbu)
-                      ? cbu.toFixed(2)
-                      : "No CBU found"}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+  <TouchableOpacity onPress={() => handleSelect("savings")}>
+    {loadingSavings ? (
+      <ActivityIndicator size="small" color="#F9A602" style={styles.spinner} />
+    ) : errorSavings ? (
+      <Text style={{ color: "red" }}>{errorSavings}</Text>
+    ) : (
+      <View
+        style={[
+          styles.radioButton,
+          selectedOption === "savings" && styles.selectedRadio,
+        ]}
+      >
+        <Text style={styles.savingsText}>Savings</Text>
+        <Text style={styles.savingsBal}>
+          {savings !== null && !isNaN(savings)
+            ? `${savings.toFixed(2)}`
+            : "No savings found"}
+        </Text>
+      </View>
+    )}
+  </TouchableOpacity>
+</View>
+
+
+  <View style={styles.cbu}>
+  <TouchableOpacity onPress={() => handleSelect("cbu")}>
+    {loadingCbu ? (
+      <ActivityIndicator size="small" color="#373F41" style={styles.activityIndicator2} />
+    ) : errorCbu ? (
+      <Text style={{ color: "red" }}>{errorCbu}</Text>
+    ) : (
+      <View
+        style={[
+          styles.radioButton,
+          selectedOption === "cbu" && styles.selectedRadio,
+        ]}
+      >
+        <Text style={styles.cbuText}>CBU</Text>
+        <Text style={styles.cbuBal}>
+          {cbu !== null && !isNaN(cbu)
+            ? `${cbu.toFixed(2)}`
+            : "No CBU found"}
+        </Text>
+      </View>
+    )}
+  </TouchableOpacity>
+</View>
+
+</View>
+
   
         <View style={styles.tabularform}>
           <View style={styles.radioButtonContainer}>
@@ -432,6 +436,14 @@ const styles = {
         lineHeight: 24,
         color: '#F9A602',
     },
+      activityIndicator2: {
+        alignSelf: "center", // Ensure it is centered
+        marginTop: 17, // You can adjust the top margin if needed
+      },
+      spinner: {
+        alignSelf: "center", // Center the spinner horizontally
+        marginTop: 17, // Adjust margin top if necessary
+      },
     cbu: {
       position: 'absolute',
       width: width * 0.4, // 40% of the screen width
@@ -593,7 +605,6 @@ inputContainer: {
       borderRadius: 30, // Increased border radius for rounder corners
     },
      
-    
     mode: {
         position: 'absolute',
         width: 105,
@@ -628,102 +639,53 @@ inputContainer: {
     },
     navbar: {
       position: 'absolute',
-      width: 360,
-      height: 47,
+      width: width, // Full screen width
+      height: height * 0.06, // 6% of screen height
       left: 0,
-      top: 720,
+      top: height - height * 0.06, // Positioned at the very bottom of the screen
       backgroundColor: '#373F41',
       flexDirection: 'row', // Align items horizontally
       justifyContent: 'space-around', // Space items evenly
       alignItems: 'center', // Center items vertically
-      elevation: 5, // Optional: Add shadow effect for Android
-      shadowColor: '#000', // Optional: Shadow color for iOS
-      shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
-      shadowOpacity: 0.25, // Optional: Shadow opacity
-      shadowRadius: 3.5, // Optional: Shadow radius
-},
+      elevation: 5, // Shadow effect for Android
+      shadowColor: '#000', // Shadow color for iOS
+      shadowOffset: { width: 0, height: 2 }, // Shadow offset
+      shadowOpacity: 0.25, // Sha
+  },    
   announcement: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: 5,
-  },
+      flex: 0, // Does not grow or shrink
+      left: width * 0.02, // 2% of the screen width for padding from the left
+  },    
   funds: {
-    width: 30,
-    height: 30,
-    tintColor: '#FFFFFF', // Tint color
-    flex: 0, // Ensures it does not grow or shrink
-    order: 0, // Not applicable in React Native but can be kept for reference
-    flexGrow: 0, // Prevents the element from growing
-    left: 5, // Adjust the left position
-},
+      width: width * 0.09, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
+      tintColor: '#FFFFFF', // Tint color
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * 0.00, // 2% of the screen width for padding from the left
+  },    
   dashboard: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.01, // Negative padding for a slight inward adjustment
+  },    
   loans: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 8% of the screen width
+      height: height * 0.04, // 4% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.01, // Adjust position slightly left
+  },     
   history: {
-      width: 30,
-      height: 30,
+      width: width * 0.08, // 7% of the screen width for a consistent size
+      height: height * 0.035, // 3.5% of the screen height
       tintColor: '#F9A602', // Tint color
-      flex: 0, // Equivalent to `flex: none`
-      order: 0, // Not applicable in React Native, but kept for reference
-      flexGrow: 0, // Ensures it does not grow
-      left: -5,
-  },
-
-radioButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-},
-
-radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#000',
-    marginRight: 8,
-},
-selectedRadio: {
-  position: 'absolute',
-  width: width * 0.4, // 40% of the screen width (or adjust as needed)
-  height: height * 0.08, // 8% of the screen height
-  left: width * -0.00, // 2% from the left edge of the screen
-  top: height * 0.00, // Moved higher (5% from the top, adjust as needed)
-  backgroundColor: '#4CAF50', // Green color for the selected radio button
-  borderWidth: 1,
-  borderColor: '#FFFFFF',
-  shadowColor: '#373F41',
-  shadowOffset: { width: 5, height: 6 },
-  shadowOpacity: 0.25,
-  shadowRadius: 5,
-  borderRadius: 10,
-  elevation: 5, // for Android shadow
-},
-
-
-selected: {
-    backgroundColor: '#4CAF50',
-},
-
-};
-
+      flex: 0, // Ensures it does not grow or shrink
+      left: width * -0.015, // Slight inward adjustment for alignment
+  },  
+}
 export default Funds;

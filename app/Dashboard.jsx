@@ -217,83 +217,75 @@ const Dashboard = () => {
             </View>
 
             <View style={styles.money}>
-                <View style={styles.loanbal}>
-                    <Text style={styles.loanbalancemoney}>
-                        {loans !== null && loans !== 'No active loans' && !isNaN(loans) 
-                            ? loans.toFixed(2) 
-                            : loans // If loans is 'No active loans', show the message instead of number
-                        }
-                    </Text>
-                    <View style={styles.loancontainer}>
-                        <Text style={styles.loanbalance}>Loan Balance</Text>
-                    </View>
-                </View>
+        <View style={styles.loanbal}>
+            {loadingLoans ? (
+                <ActivityIndicator size="small" color="#F9A602" />
+            ) : loans !== null && loans !== 'No active loans' && !isNaN(loans) ? (
+                <Text style={styles.loanbalancemoney}>{loans.toFixed(2)}</Text>
+            ) : (
+                <Text style={styles.loanbalancemoney}>{loans}</Text>
+            )}
+            <View style={styles.loancontainer}>
+                <Text style={styles.loanbalance}>Loan Balance</Text>
             </View>
+        </View>
+    </View>
 
-            <View style={styles.save}>
-                <View style={styles.savebal}>
-                    {loadingSavings ? (
-                        <Text style={styles.savebalancemoney}>Loading...</Text>
-                    ) : errorSavings ? (
-                        <Text style={{ color: 'red' }}>{errorSavings}</Text>
-                    ) : (
-                        <Text style={styles.savebalancemoney}>
-                            {savings !== null && !isNaN(savings) ? savings.toFixed(2) : 'No savings found'}
-                        </Text>
-                    )}
-                    <View style={styles.savecontainer}>
-                        <Text style={styles.savings}>Savings</Text>
-                    </View>
-                </View>
+    <View style={styles.save}>
+        <View style={styles.savebal}>
+            {loadingSavings ? (
+                <ActivityIndicator size="small" color="#F9A602" />
+            ) : errorSavings ? (
+                <Text style={{ color: 'red' }}>{errorSavings}</Text>
+            ) : (
+                <Text style={styles.savebalancemoney}>
+                    {savings !== null && !isNaN(savings) ? savings.toFixed(2) : 'No savings found'}
+                </Text>
+            )}
+            <View style={styles.savecontainer}>
+                <Text style={styles.savings}>Savings</Text>
             </View>
+        </View>
+    </View>
 
-            <View style={styles.cbu}>
-                <View style={styles.cbubal}>
-                    {loadingCbu ? (
-                        <Text style={styles.cbubalancemoney}>Loading...</Text>
-                    ) : errorCbu ? (
-                        <Text style={{ color: 'red' }}>{errorCbu}</Text>
-                    ) : (
-                        <Text style={styles.cbubalancemoney}>
-                            {cbu !== null && !isNaN(cbu) ? cbu.toFixed(2) : 'No CBU found'}
-                        </Text>
-                    )}
-                    <View style={styles.cbucontainer}>
-                        <Text style={styles.cbus}>CBU</Text>
-                    </View>
-                </View>
+    <View style={styles.cbu}>
+        <View style={styles.cbubal}>
+            {loadingCbu ? (
+                <ActivityIndicator size="small" color="#F9A602" />
+            ) : errorCbu ? (
+                <Text style={{ color: 'red' }}>{errorCbu}</Text>
+            ) : (
+                <Text style={styles.cbubalancemoney}>
+                    {cbu !== null && !isNaN(cbu) ? cbu.toFixed(2) : 'No CBU found'}
+                </Text>
+            )}
+            <View style={styles.cbucontainer}>
+                <Text style={styles.cbus}>CBU</Text>
             </View>
+        </View>
+    </View>
 
+    <View style={styles.containeradvisory}>
+    <Image source={require('./../assets/images/megaphone.png')} style={styles.megaphone} />
+    <Text style={styles.coopad}>Cooperative Advisory</Text>
 
-            <View style={styles.containeradvisory}>
-                <Image
-                    source={require('./../assets/images/megaphone.png')}
-                    style={styles.megaphone}
-                />
-                <Text style={styles.coopad}>Cooperative Advisory</Text>
-
-                {loadingAnnouncements ? (
-                    <Text style={styles.load}>Loading announcements...</Text>
-                ) : errorAnnouncements ? (
-                    <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
-                ) : announcements.length === 0 ? (
-                    <Text style={styles.content}>There are no announcements...</Text>
-                ) : (
-                    <View style={styles.announce}>
-                        <Text style={styles.contenttitle}>
-                            {announcements[0]?.content_title || 'No title available'}
-                        </Text>
-                        <Text style={styles.contnt}>
-                            {announcements[0]?.content || 'No content available'}
-                        </Text>
-                    </View>
-                )}
-
-                <Image
-                    source={require('./../assets/images/chat.png')}
-                    style={styles.chat}
-                />
-            </View>
+    {loadingAnnouncements ? (
+        <ActivityIndicator 
+            size="small" 
+            color="#F9A602" 
+            style={styles.loadingAnimation} // Apply a custom style to move the animation
+        />
+    ) : errorAnnouncements ? (
+        <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
+    ) : announcements.length === 0 ? (
+        <Text style={styles.content}>There are no announcements...</Text>
+    ) : (
+        <View style={styles.announce}>
+            <Text style={styles.contenttitle}>{announcements[0]?.content_title || 'No title available'}</Text>
+            <Text style={styles.contnt}>{announcements[0]?.content || 'No content available'}</Text>
+        </View>
+    )}
+</View>
 
             <View style={styles.coopfunds}>
                 <Text style={styles.coopfnds}>2024 COOP FUNDS</Text>
@@ -353,8 +345,8 @@ const styles = {
         position: 'relative',
     },
     header: {
-        width: 360,
-        height: 75,
+        width: width * 2, // 95% of the screen width
+        height: height * 0.1, // 10% of the screen height
         backgroundColor: '#FFFFFF',
         elevation: 4,
         shadowColor: '#000',
@@ -362,108 +354,105 @@ const styles = {
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         marginTop: -40,
+        left: width * -0.01,  // Center horizontally
         position: 'relative',
     },
     logo: {
-        width: 150,
-        height: 29,
-        top: 10,
+        width: width * 0.3, // 40% of the screen width
+        height: height * 0.05, // 5% of the screen height
         resizeMode: 'contain',
-        marginTop: 15,
+        left: width * 0.05,  // Center horizontally
+        marginTop: 20,
     },
     bell: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     email: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     profile: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         top: 10,
     },
     bellContainer: {
         position: 'absolute',
-        left: 235,
-        top: 17,
+        left: width * 0.70, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     emailContainer: {
         position: 'absolute',
-        left: 275,
-        top: 17,
+        left: width * 0.80, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     profileContainer: {
         position: 'absolute',
-        left: 320,
-        top: 17,
+        left: width * 0.90, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     welcome: {
         position: 'absolute', // Position it absolutely
-        left: 30, // x coordinate
-        top: 50,   // y coordinate
-        width: 303,
-        height: 86,
+        left: width * 0.08, // 8% from the left of the screen
+        top: height * 0.08, // Adjusted to 15% from the top of the screen (move it lower)
+        width: width * 0.85, // 85% of the screen width
+        height: height * 0.10, // 10% of the screen height
         backgroundColor: '#F9A602', // Fill color
         alignItems: 'center', // Center text horizontally
         justifyContent: 'center', // Center text vertically
         borderRadius: 10, // Add border radius for rounded corners
     },
     welcomemess: {
-        fontSize: 30, // Font size
+        fontSize: height * 0.04, // Font size is 4% of the screen height
         color: '#373F41', // Text color
         fontWeight: 'bold', // You can keep this if needed
     },
-      money: {
-        display: 'flex', // React Native uses flex by default, so you can omit this
-        flexDirection: 'row',
-        alignItems: 'center',
+    money: {
+        flexDirection: 'row', // Row layout for the children
+        alignItems: 'center',  // Center align items vertically
+        justifyContent: 'space-between', // Distribute space between items (optional, can be adjusted)
         padding: 0,
-        gap: 18, // Note: Gap is not supported in React Native. You can use margin for spacing
-        width: 303,
-        height: 51,
-        flex: 0, // Equivalent to `flex: none`
-        order: 1, // This is not supported in React Native
-        flexGrow: 0, // React Native does not require this as it is managed automatically
-        top: 120,
-        left: 30,
+        width: width * 0.85, // 85% of the screen width for better responsiveness
+        height: height * 0.08, // Adjusted height to be responsive
+        top: height * 0.16,  // Move down based on screen height
+        left: width * 0.08, // Adjust left based on screen width
     },
     loanbal: {
         position: 'absolute',
-        width: 89,
-        height: 51,
-        left: 0,
-        top: 0,
+        width: width * 0.25,  // 24% of the screen width for responsiveness
+        height: height * 0.07, // 7% of the screen height for responsiveness
+        left: width * 0.01,    // 5% from the left of the screen for better alignment
+        top: height * 0,    // Adjusted top for dynamic placement
         backgroundColor: '#F3F3F3', // Background color
         borderWidth: 1,
         borderColor: '#FFFFFF', // Border color
         borderRadius: 5, // Border radius
-        boxSizing: 'border-box', // Not applicable in React Native, width and height include padding
     },
     loanbalancemoney: {
         position: 'absolute',
-        width: 63,
-        height: 20,
-        left: 14,
-        top: 7,
+        width: width * 0.18, // 18% of screen width
+        height: height * 0.025, // 2.5% of screen height
+        left: width * 0.04, // 4% from the left for dynamic positioning
+        top: height * -0.00, // Adjusted to position it properly based on screen height
         fontStyle: 'normal',
         fontWeight: '600',
-        fontSize: 13,
-        lineHeight: 20, // Line height should ideally match the height of the text
-        textAlign: 'center', // Center the text
+        fontSize: width * 0.035, // Font size is proportional to screen width (3.5% of screen width)
+        lineHeight: height * 0.03, // Line height adjusted for better vertical alignment
+        textAlign: 'center', // Center the text horizontally
         color: '#373F41', // Text color
     },
     loanbalance: {
         position: 'absolute',
-        width: 75,
+        width: 'auto', // Allow the width to adjust based on the content
         height: 17,
-        left: 8,
-        top: 2,
+        top: 2, // Position it at the top of the parent container
+        left: '60%', // Position it horizontally in the center
+        transform: [{ translateX: -37.5 }], // Offset to center based on width (adjust this value if needed)
         fontStyle: 'normal',
         fontWeight: '500',
         fontSize: 11,
@@ -471,230 +460,217 @@ const styles = {
         textAlign: 'center', // Center the text
         textTransform: 'capitalize', // Capitalize text
         color: '#F9A602', // Text color
-        zIndex: 3, // Set the stacking order
-    },
+        zIndex: 3, // Ensure it's on top
+    },    
     loancontainer: {
         position: 'absolute',
-        width: 87,
-        height: 20,
-        left: 0,
-        top: 30,
+        width: '99%',  // Use percentage to adjust the width relative to the parent container
+        height: 23,
+        left: '1%',  // Use percentage to adjust the left position based on the parent container's width
+        top: '50%',    // Use percentage for top positioning to be relative to the screen's height
         backgroundColor: '#373F41', // Background color
         borderBottomLeftRadius: 5, // Adjust the radius as needed
         borderBottomRightRadius: 5, // Adjust the radius as needed
-    },
+    },    
     save: {
-        width: 89, // Width in pixels
-        height: 51, // Height in pixels
-        position: 'absolute', // Assuming you want it positioned absolutely
-        top: 155, // Y coordinate
-        left: 137, // X coordinate
-        zIndex: 1, // Stacking order
-        alignItems: 'center', // Center content vertically
-        flexDirection: 'row', // Align items in a row
+        width: width * 0.30, // 30% of the screen width
+        height: height * 0.07, // 8% of the screen height
+        position: 'absolute',
+        top: height * 0.21, // 25% of the screen height
+        left: width * 0.38, // 35% of the screen width
+        zIndex: 1,
+        alignItems: 'center',
+        flexDirection: 'row',
     },
     savebal: {
         position: 'absolute',
-        width: 89,
-        height: 51,
-        left: 0,
+        width: '100%', // Take up the full width of its parent container
+        height: '60%', // Take up the full height of its parent container
+        left: -9,
         top: 0,
-        backgroundColor: '#F3F3F3', // Background color
+        backgroundColor: '#F3F3F3',
         borderWidth: 1,
-        borderColor: '#FFFFFF', // Border color
-        borderRadius: 5, // Border radius
-        boxSizing: 'border-box', // Not applicable in React Native, width and height include padding
+        borderColor: '#FFFFFF',
+        borderRadius: 5,
     },
     savebalancemoney: {
         position: 'absolute',
-        width: 63,
-        height: 20,
-        left: 14,
-        top: 7,
+        width: width * 0.25, // 25% of the screen width
+        height: height * 0.04, // Adjusted to 4% of screen height to make the text proportionate
+        left: width * 0.02, // 5% from the left of the screen
+        top: height * -0.01, // 1% from the top of the savebal container
         fontStyle: 'normal',
         fontWeight: '600',
-        fontSize: 13,
-        lineHeight: 20, // Line height should ideally match the height of the text
-        textAlign: 'center', // Center the text
-        color: '#373F41', // Text color
+        fontSize: width * 0.035, // Font size as 3.5% of screen width
+        lineHeight: height * 0.05, // Line height should ideally match the height of the text container
+        textAlign: 'center',
+        color: '#373F41',
     },
     savings: {
         position: 'absolute',
-        width: 75,
-        height: 17,
-        left: 8,
-        top: 2,
+        width: width * 0.2, // 20% of the screen width
+        height: height * 0.03, // 3% of the screen height
+        left: width * 0.05, // 3% from the left of the screen
+        top: height * -0.01, // 2% from the top of the container
         fontStyle: 'normal',
-        fontWeight: '500',
-        fontSize: 11,
-        lineHeight: 16,
-        textAlign: 'center', // Center the text
+        fontWeight: '600',
+        fontSize: width * 0.03, // Font size as 3% of screen width
+        lineHeight: height * 0.05, // Line height should be proportional to height
+        textAlign: 'center',
         textTransform: 'capitalize', // Capitalize text
         color: '#F9A602', // Text color
         zIndex: 3, // Set the stacking order
     },
     savecontainer: {
         position: 'absolute',
-        width: 87,
-        height: 20,
-        left: 0,
-        top: 30,
-        backgroundColor: '#373F41', // Background color
-        borderBottomLeftRadius: 5, // Adjust the radius as needed
-        borderBottomRightRadius: 5, // Adjust the radius as needed
+        width: width * 0.30, // 23% of the screen width
+        height: height * 0.03, // 4% of the screen height
+        left: width * 0.00, // 2% from the left
+        top: height * 0.03, // 5% from the top of the parent container
+        backgroundColor: '#373F41',
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
     },
     cbu: {
-        width: 89, // Width in pixels
-        height: 51, // Height in pixels
-        position: 'absolute', // Assuming you want it positioned absolutely
-        top: 155, // Y coordinate
-        left: 245, // X coordinate
-        zIndex: 1, // Stacking order
-        alignItems: 'center', // Center content vertically
-        flexDirection: 'row', // Align items in a row
+        width: width * 0.25, // 25% of the screen width
+        height: height * 0.07, // 8% of the screen height
+        position: 'absolute',
+        top: height * 0.2, // 30% of the screen height from the top
+        left: width * 0.7, // 60% of the screen width from the left
+        zIndex: 1,
+        alignItems: 'center',
+        flexDirection: 'row',
     },
     cbubal: {
         position: 'absolute',
-        width: 89,
-        height: 51,
-        left: 0,
-        top: 0,
-        backgroundColor: '#F3F3F3', // Background color
+        width: '100%', // Take up the full width of its parent container
+        height: '70%', // Take up the full height of its parent container
+        left: -7,
+        top: 7,
+        backgroundColor: '#F3F3F3',
         borderWidth: 1,
-        borderColor: '#FFFFFF', // Border color
-        borderRadius: 5, // Border radius
-        boxSizing: 'border-box', // Not applicable in React Native, width and height include padding
+        borderColor: '#FFFFFF',
+        borderRadius: 5,
     },
     cbubalancemoney: {
         position: 'absolute',
-        width: 63,
-        height: 20,
-        left: 14,
-        top: 7,
+        width: width * 0.3, // 70% of the screen width
+        height: height * 0.04, // Increase the height slightly for better visibility
+        left: width * -0.03, // Center the text horizontally within the container
+        top: height * -0.01, // Position text within the container
         fontStyle: 'normal',
         fontWeight: '600',
-        fontSize: 13,
-        lineHeight: 20, // Line height should ideally match the height of the text
-        textAlign: 'center', // Center the text
-        color: '#373F41', // Text color
-    },
+        fontSize: width * 0.03, // Increase the font size for better visibility
+        lineHeight: height * 0.05, // Adjust line height to match the new font size
+        textAlign: 'center',
+        color: '#373F41',
+        zIndex: 10, // Ensure it's above other elements
+    },    
     cbus: {
         position: 'absolute',
-        width: 75,
-        height: 17,
-        left: 8,
-        top: 2,
+        width: width * 0.25, // 25% of the screen width
+        height: height * 0.03, // 3% of the screen height
+        left: width * -0.00, // Center the text horizontally within the container
+        top: height * 0.00, // Position the text within the container
         fontStyle: 'normal',
         fontWeight: '500',
-        fontSize: 11,
-        lineHeight: 16,
-        textAlign: 'center', // Center the text
-        textTransform: 'capitalize', // Capitalize text
-        color: '#F9A602', // Text color
-        zIndex: 3, // Set the stacking order
+        fontSize: width * 0.03, // Font size as 3% of screen width
+        lineHeight: height * 0.03, // Line height proportional to the screen height
+        textAlign: 'center',
+        textTransform: 'capitalize',
+        color: '#F9A602',
+        zIndex: 3,
     },
     cbucontainer: {
         position: 'absolute',
-        width: 87,
-        height: 20,
+        width: '100%', // Full width of the parent container
+        height: height * 0.03, // 5% of the screen height
         left: 0,
-        top: 30,
-        backgroundColor: '#373F41', // Background color
-        borderBottomLeftRadius: 5, // Adjust the radius as needed
-        borderBottomRightRadius: 5, // Adjust the radius as needed
+        top: height * 0.03, // Position the container a bit lower
+        backgroundColor: '#373F41',
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
     },
+    loadingAnimation: {
+        marginTop: 77,  // Adjust this value to move it down or up
+        marginLeft: 5,  // Adjust this to move it left or right
+        alignSelf: 'center', // Optionally center it horizontally
+    },    
     containeradvisory: {
         position: 'absolute', // Positioning
-        width: 303, // Width in pixels
-        height: 131, // Height in pixels
-        left: 30, // X coordinate
-        top: 230, // Y coordinate
+        width: width * 0.9, // 90% of the screen width
+        height: height * 0.20, // 25% of the screen height
+        left: width * 0.06, // 5% from the left of the screen
+        top: height * 0.3, // 20% from the top of the screen
         backgroundColor: '#373F41', // Background color
         borderColor: '#FFFFFF', // Border color
         borderWidth: 2, // Border width
         borderRadius: 10, // Border radius
         overflow: 'hidden', // Ensures children stay within rounded corners
-    },
-    contenttitle: {
-        width: '100%',  // Ensures the content title takes the full width of the parent container
-        paddingVertical: 10,  // Vertical padding inside the content title container
-        paddingHorizontal: 15,  // Horizontal padding for spacing inside
-        color: '#FFFFFF',  // White text color
-        fontSize: width * 0.04,  // Responsive font size based on screen width
-        fontWeight: 'bold',  // Bold text for emphasis
-        textAlign: 'left',  // Align the text to the left
-        marginVertical: 5,  // Vertical margin to separate from other content
-        left: '35%',
-        top: '30%',
       },
-      contnt: {
-        width: '100%',  // Ensures the content takes full width of the parent container
+      contenttitle: {
+        width: width * 0.80,  // 80% of screen width for responsiveness
+        paddingVertical: height * 0.02,  // 2% of screen height for vertical padding
+        paddingHorizontal: width * 0.04,  // 4% of screen width for horizontal padding
         color: '#FFFFFF',  // White text color
-        fontSize: width * 0.040,  // Responsive font size based on screen width
-        textAlign: 'left',  // Align the text to the left
-        lineHeight: 22,  // Line height for better readability
-        paddingHorizontal: 0,  // No horizontal padding, text starts from the left
-        marginVertical: 5,  // Vertical margin for spacing between content
-        left: '35%',
-        top: '10%',
-
-      },
-    megaphone: {
+        fontSize: width * 0.04,  // Font size based on screen width (4% of the width)
+        fontWeight: 'bold',  // Bold text
+        textAlign: 'left',  // Align text to the left
+        marginVertical: height * 0.02,  // 2% of screen height for margin
         position: 'absolute',
-        left: '5.83%',  // Percentage for left position
-        top: 5,   // Percentage for top position
-        width: 25, // Set a width (adjust as necessary)
-        height: 25, // Set a height (adjust as necessary)
-        tintColor: '#F9A602', // Background color
-        resizeMode: 'contain', // Ensures the image maintains aspect ratio
-    },
+        left: width * 0.23,  // 10% from the left of the container (relative to the screen width)
+        top: height * 0.03,  // 5% from the top of the container (relative to the screen height)
+        zIndex: 2,  // Ensure it is above other content
+    },     
+      contnt: {
+        width: '100%',  // Full width of the container
+        color: '#FFFFFF',  // White text color
+        fontSize: width * 0.035,  // Responsive font size based on screen width
+        textAlign: 'left',  // Align text to the left
+        lineHeight: height * 0.03,  // Line height based on screen height
+        paddingHorizontal: width * 0.02,  // 2% of the screen width for padding
+        marginVertical: height * 0.01,  // 1% of the screen height for margin
+        position: 'absolute',
+        left: width * 0.3, // 5% from the left of the container
+        top: height * 0.1,  // 10% from the top of the container
+      },
+      megaphone: {
+        position: 'absolute',
+        left: width * 0.0583,  // 5.83% of the screen width for left position
+        top: height * -0.00,    // 2% of the screen height for top position
+        width: width * 0.10,   // 15% of the screen width for image width
+        height: height * 0.06, // 6% of the screen height for image height
+        tintColor: '#F9A602',  // Set the tint color
+        resizeMode: 'contain', // Ensure the image maintains its aspect ratio
+      },
     coopad: {
         position: 'absolute',
-        width: 171,
-        height: 23, // Make sure height is set to show the text
-        left: 90, // Adjusted left position for visibility
-        top: 5, // Adjusted top position for visibility
+        width: width * 0.45, // 45% of the screen width for responsiveness
+        height: height * 0.03, // 3% of the screen height for better visibility
+        left: width * 0.25, // 25% of the screen width from the left to center it
+        top: height * 0.01, // 2% of the screen height from the top
         fontWeight: '800',
-        fontSize: 15,
-        lineHeight: 22,
-        color: '#F9A602',
-    }, 
-    content: {
+        fontSize: width * 0.05, // 5% of the screen width for font size
+        lineHeight: height * 0.03, // Line height based on screen height
+        color: '#F9A602', // Text color
+      },
+      content: {
         position: 'absolute',
-        width: 204,
-        height: 19,
-        left: '39%', // Adjusted left position for better visibility
-        top: 60, // Adjusted top position to move it lower
+        width: width * 0.6, // 60% of the screen width
+        height: height * 0.03, // 3% of the screen height
+        left: width * 0.23,  // 39% of the screen width for centering the element
+        top: height * 0.1,   // 10% of the screen height for vertical positioning
         fontWeight: '500',
-        fontSize: 13,
-        lineHeight: 19,
-        color: '#FFFFFF', // Text color
-    },
-    load: {
-        position: 'absolute',
-        width: 204,
-        height: 19,
-        left: '29%', // Adjusted left position for better visibility
-        top: 60, // Adjusted top position to move it lower
-        fontWeight: '500',
-        fontSize: 13,
-        lineHeight: 19,
-        color: '#FFFFFF', // Text color
-    },
-    chat: {
-        position: 'absolute',
-        width: 25, // Set width to 50px
-        height: 25, // Set height to 28px
-        left: 260, // Set left position
-        top: 90, // Set top position
-        tintColor: '#F9A602',
-    },
-    coopfunds: {
-        position: 'absolute', // Positioning
-        width: 303, // Width in pixels
-        height: 275, // Height in pixels
-        left: 30, // X coordinate
-        top: 400, // Y coordinate
+        fontSize: width * 0.04, // Responsive font size (4% of screen width)
+        lineHeight: height * 0.03, // Line height should be proportional to the height
+        color: '#FFFFFF', // White text color
+      },
+      coopfunds: {
+        position: 'absolute',  // Positioning
+        width: width * 0.90,  // 85% of the screen width (responsive width)
+        height: height * 0.4, // 40% of the screen height (responsive height)
+        left: width * 0.06,  // 5% from the left edge of the screen
+        top: height * 0.52, // 45% from the top of the screen
         backgroundColor: '#373F41', // Background color
         borderColor: '#FFFFFF', // Border color
         borderWidth: 2, // Border width
@@ -703,22 +679,22 @@ const styles = {
     },
     coopfnds: {
         position: 'absolute',
-        width: 148, // Set width to 148px
-        height: 24, // Set height to 24px
-        left: 75, // Set x coordinate
-        top: 10, // Set y coordinate
+        width: width * 0.5, // 50% of the screen width (responsive width)
+        height: height * 0.04, // 4% of the screen height (responsive height)
+        left: width * 0.20,  // Centers the text horizontally (50% - 25% left margin)
+        top: height * 0.01, // 2% from the top of the container
         fontWeight: '800', // Bold weight
-        fontSize: 16, // Font size
-        lineHeight: 24, // Line height
+        fontSize: width * 0.05, // Font size based on screen width (5% of the width)
+        lineHeight: height * 0.04, // Line height based on screen height
         textAlign: 'center', // Center text
         color: '#F9A602', // Text color
     },
     legend: {
-        position: 'absolute', // Allows you to position it anywhere
-        width: 3, // Width of the legend
-        height: 10, // Height of the legend
-        left: 0, // Aligns it to the left side
-        top: 50, // Adjust this value to position vertically
+        position: 'absolute', // Positioning
+        width: width * 0.01, // 1% of screen width
+        height: height * 0.02, // 2% of screen height
+        left: width * 0.02, // 2% from the left of the container
+        top: height * 0.07, // 25% from the top of the container
     },
     green: {
         position: 'absolute',
@@ -798,78 +774,67 @@ const styles = {
       },
       linegraph: {
         position: 'absolute',
-        width: 148,
-        height: 24,
-        left: 100, // Center the text relative to the graph
-        top: 510,  // Adjust to position it above the graph
+        width: width * 0.4, // 40% of screen width for responsiveness
+        height: height * 0.04, // 4% of screen height
+        left: width * 0.3, // 30% from the left to center the text
+        top: height * 0.6, // 60% from the top to position above the graph
         fontStyle: 'normal',
         fontWeight: '800',
-        fontSize: 16,
-        lineHeight: 24,
+        fontSize: width * 0.04, // Font size responsive to screen width
+        lineHeight: height * 0.05, // Line height responsive to screen height
         textAlign: 'center',
-        color: '#F9A602',
-    },
+        color: '#F9A602', // Maintain the original text color
+    },    
     navbar: {
         position: 'absolute',
-        width: 360,
-        height: 47,
+        width: width, // Full screen width
+        height: height * 0.06, // 6% of screen height
         left: 0,
-        top: 720,
+        top: height - height * 0.06, // Positioned at the very bottom of the screen
         backgroundColor: '#373F41',
         flexDirection: 'row', // Align items horizontally
         justifyContent: 'space-around', // Space items evenly
         alignItems: 'center', // Center items vertically
-        elevation: 5, // Optional: Add shadow effect for Android
-        shadowColor: '#000', // Optional: Shadow color for iOS
-        shadowOffset: { width: 0, height: 2 }, // Optional: Shadow offset
-        shadowOpacity: 0.25, // Optional: Shadow opacity
-        shadowRadius: 3.5, // Optional: Shadow radius
-},
+        elevation: 5, // Shadow effect for Android
+        shadowColor: '#000', // Shadow color for iOS
+        shadowOffset: { width: 0, height: 2 }, // Shadow offset
+        shadowOpacity: 0.25, // Sha
+    },    
     announcement: {
-        width: 30,
-        height: 30,
+        width: width * 0.08, // 8% of the screen width
+        height: height * 0.04, // 4% of the screen height
         tintColor: '#F9A602', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: 5,
-    },
+        flex: 0, // Does not grow or shrink
+        left: width * 0.02, // 2% of the screen width for padding from the left
+    },    
     funds: {
-        width: 30,
-        height: 30,
+        width: width * 0.09, // 8% of the screen width
+        height: height * 0.04, // 4% of the screen height
         tintColor: '#F9A602', // Tint color
         flex: 0, // Ensures it does not grow or shrink
-        order: 0, // Not applicable in React Native but can be kept for reference
-        flexGrow: 0, // Prevents the element from growing
-        left: 5, // Adjust the left position
-    },
+        left: width * 0.00, // 2% of the screen width for padding from the left
+    },    
     dashboard: {
-        width: 30,
-        height: 30,
+        width: width * 0.08, // 8% of the screen width
+        height: height * 0.04, // 4% of the screen height
         tintColor: '#FFFFFF', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: -5,
-    },
+        flex: 0, // Ensures it does not grow or shrink
+        left: width * -0.01, // Negative padding for a slight inward adjustment
+    },    
     loans: {
-        width: 30,
-        height: 30,
+        width: width * 0.08, // 8% of the screen width
+        height: height * 0.04, // 4% of the screen height
         tintColor: '#F9A602', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: -5,
-    },
+        flex: 0, // Ensures it does not grow or shrink
+        left: width * -0.01, // Adjust position slightly left
+    },     
     history: {
-        width: 30,
-        height: 30,
+        width: width * 0.08, // 7% of the screen width for a consistent size
+        height: height * 0.035, // 3.5% of the screen height
         tintColor: '#F9A602', // Tint color
-        flex: 0, // Equivalent to `flex: none`
-        order: 0, // Not applicable in React Native, but kept for reference
-        flexGrow: 0, // Ensures it does not grow
-        left: -5,
-    },
+        flex: 0, // Ensures it does not grow or shrink
+        left: width * -0.015, // Slight inward adjustment for alignment
+    },    
 
 };
 export default Dashboard;
