@@ -618,7 +618,7 @@ const styles = {
         textAlign: 'left',  // Align text to the left
         marginVertical: height * 0.02,  // 2% of screen height for margin
         position: 'absolute',
-        left: width * 0.23,  // 10% from the left of the container (relative to the screen width)
+        left: width * 0.27,  // 10% from the left of the container (relative to the screen width)
         top: height * 0.03,  // 5% from the top of the container (relative to the screen height)
         zIndex: 2,  // Ensure it is above other content
     },     
@@ -631,7 +631,7 @@ const styles = {
         paddingHorizontal: width * 0.02,  // 2% of the screen width for padding
         marginVertical: height * 0.01,  // 1% of the screen height for margin
         position: 'absolute',
-        left: width * 0.3, // 5% from the left of the container
+        left: width * 0.02, // 5% from the left of the container
         top: height * 0.1,  // 10% from the top of the container
       },
       megaphone: {

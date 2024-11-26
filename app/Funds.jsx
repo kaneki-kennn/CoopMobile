@@ -340,68 +340,69 @@ import {
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        position: 'relative',
-    },
-    header: {
-        width: 360,
-        height: 75,
-        backgroundColor: '#FFFFFF',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.5,
-        marginTop: -40,
-        position: 'relative', // Ensure the header is positioned relatively
-    },
-    logo: {
-        width: 150,
-        height: 29,
-        top: 10,
-        resizeMode: 'contain',
-        marginTop: 15,
-    },
-    bell: {
-        width: 22,
-        height: 23.46,
-        tintColor: '#373F41',
-        top: 10,
-    },
-    email: {
-        width: 22,
-        height: 23.46,
-        tintColor: '#373F41',
-        top: 10,
-    },
-    profile: {
-        width: 22,
-        height: 23.46,
-        top: 10,
-    },
-    bellContainer: {
-        position: 'absolute',
-        left: 235,
-        top: 17,
-    },
-    emailContainer: {
-        position: 'absolute',
-        left: 275,
-        top: 17,
-    },
-    profileContainer: {
-        position: 'absolute',
-        left: 320,
-        top: 17,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    position: 'relative',
+},
+header: {
+    width: width * 2, // 95% of the screen width
+    height: height * 0.1, // 10% of the screen height
+    backgroundColor: '#FFFFFF',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    marginTop: -40,
+    left: width * -0.01,  // Center horizontally
+    position: 'relative',
+},
+logo: {
+    width: width * 0.3, // 40% of the screen width
+    height: height * 0.05, // 5% of the screen height
+    resizeMode: 'contain',
+    left: width * 0.05,  // Center horizontally
+    marginTop: 20,
+},
+bell: {
+    width: width * 0.06, // 6% of the screen width
+    height: height * 0.03, // 7% of the screen height
+    tintColor: '#373F41',
+    top: 10,
+},
+email: {
+    width: width * 0.06, // 6% of the screen width
+    height: height * 0.03, // 7% of the screen height
+    tintColor: '#373F41',
+    top: 10,
+},
+profile: {
+    width: width * 0.06, // 6% of the screen width
+    height: height * 0.03, // 7% of the screen height
+    top: 10,
+},
+bellContainer: {
+    position: 'absolute',
+    left: width * 0.70, // Position dynamically based on screen width
+    top: height * 0.03, // 2% of the screen height
+},
+emailContainer: {
+    position: 'absolute',
+    left: width * 0.80, // Position dynamically based on screen width
+    top: height * 0.03, // 2% of the screen height
+},
+profileContainer: {
+    position: 'absolute',
+    left: width * 0.90, // Position dynamically based on screen width
+    top: height * 0.03, // 2% of the screen height
+},
     savings: {
       position: 'absolute',
       width: width * 0.4, // 40% of the screen width
       height: height * 0.08, // 8% of the screen height
       left: width * 0.05, // 5% from the left edge of the screen
-      top: height * 0.12, // 12% from the top edge of the screen
+      top: height * 0.05, // 12% from the top edge of the screen
       backgroundColor: '#373F41',
       borderWidth: 1,
       borderColor: '#FFFFFF',
@@ -413,43 +414,43 @@ const styles = {
       elevation: 5, // for Android shadow
     },
     savingsText: {
-        position: 'absolute',
-        width: 57,
-        height: 21,
-        left: 10,
-        top: 5,
-        fontStyle: 'normal',
-        fontWeight: '600',
-        fontSize: 14,
-        lineHeight: 21,
-        color: '#F9A602',
+      position: 'absolute',
+      width: width * 0.2, // 20% of screen width
+      height: height * 0.03, // 3% of screen height
+      left: width * 0.03, // 3% from the left of the screen
+      top: height * 0.01, // 2% from the top of the screen
+      fontStyle: 'normal',
+      fontWeight: '600',
+      fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
+      lineHeight: height * 0.03, // Line height scales with screen height (3% of screen height)
+      color: '#F9A602',
     },
     savingsBal: {
-        position: 'absolute',
-        width: 92,
-        height: 24,
-        left: 40,
-        top: 20,
-        fontStyle: 'normal',
-        fontWeight: '700',
-        fontSize: 16,
-        lineHeight: 24,
-        color: '#F9A602',
+      position: 'absolute',
+      width: width * 0.3, // 30% of screen width
+      height: height * 0.04, // 4% of screen height
+      left: width * 0.10, // 5% from the left of the screen
+      top: height * 0.03, // 8% from the top of the screen
+      fontStyle: 'normal',
+      fontWeight: '700',
+      fontSize: width * 0.05, // Font size scales with screen width (5% of screen width)
+      lineHeight: height * 0.04, // Line height scales with screen height (4% of screen height)
+      color: '#F9A602',
     },
-      activityIndicator2: {
-        alignSelf: "center", // Ensure it is centered
-        marginTop: 17, // You can adjust the top margin if needed
-      },
-      spinner: {
-        alignSelf: "center", // Center the spinner horizontally
-        marginTop: 17, // Adjust margin top if necessary
-      },
+    activityIndicator2: {
+      alignSelf: 'center', // Center the ActivityIndicator horizontally
+      marginTop: height * 0.02, // Adjust marginTop to be 2% of screen height
+    },
+    spinner: {
+      alignSelf: 'center', // Center the spinner horizontally
+      marginTop: height * 0.02, // Adjust marginTop to be 2% of screen height
+    },
     cbu: {
       position: 'absolute',
       width: width * 0.4, // 40% of the screen width
       height: height * 0.08, // 8% of the screen height
       left: width * 0.55, // 47% from the left edge of the screen (adjusted for positioning next to savings)
-      top: height * 0.12, // 12% from the top edge of the screen (same as savings for alignment)
+      top: height * 0.05, // 12% from the top edge of the screen (same as savings for alignment)
       backgroundColor: '#F9A602',
       borderWidth: 1,
       borderColor: '#FFFFFF',
@@ -461,143 +462,143 @@ const styles = {
       elevation: 5, // for Android shadow
     },
     cbuText: {
-        position: 'absolute',
-        width: 57,
-        height: 21,
-        left: 10,
-        top: 5,
-        fontStyle: 'normal',
-        fontWeight: '600',
-        fontSize: 14,
-        lineHeight: 21,
-        color: '#373F41',
+      position: 'absolute',
+      width: width * 0.15, // Adjust width to be 15% of screen width
+      height: height * 0.03, // Adjust height based on screen height
+      left: width * 0.03, // Adjust left position to be 2% of screen width
+      top: height * 0.01, // Adjust top position to be 2% of screen height
+      fontStyle: 'normal',
+      fontWeight: '600',
+      fontSize: width * 0.035, // Font size is 3.5% of screen width
+      lineHeight: width * 0.045, // Line height is 4.5% of screen width
+      color: '#373F41',
     },
     cbuBal: {
-        position: 'absolute',
-        width: 92,
-        height: 24,
-        left: 35,
-        top: 20,
-        fontStyle: 'normal',
-        fontWeight: '700',
-        fontSize: 16,
-        lineHeight: 24,
-        color: '#373F41',
+      position: 'absolute',
+      width: width * 0.25, // Adjust width to be 25% of screen width
+      height: height * 0.04, // Adjust height based on screen height
+      left: width * 0.10, // Adjust left position to be 10% of screen width
+      top: height * 0.04, // Adjust top position to be 5% of screen height
+      fontStyle: 'normal',
+      fontWeight: '700',
+      fontSize: width * 0.05, // Font size is 4% of screen width
+      lineHeight: width * 0.05, // Line height is 5% of screen width
+      color: '#373F41',
     },
     tabularform: {
-        position: 'absolute',
-        width: 327,
-        height: 259,
-        left: 16,
-        top: 200,
-        backgroundColor: '#D9D9D9', // Use backgroundColor in React Native
-        borderRadius: 10,
+      position: 'absolute',
+      width: width * 0.90, // 85% of the screen width
+      height: height * 0.50, // 35% of the screen height
+      left: width * 0.05, // 5% of the screen width from the left
+      top: height * 0.2, // 20% from the top of the screen
+      backgroundColor: '#D9D9D9',
+      borderRadius: 10,
     },
     deposit: {
-        position: 'absolute',
-        width: 127,
-        height: 30,
-        left: 20,
-        top: 20,
-        backgroundColor: '#F9A602',
-        borderRadius: 5,
-        justifyContent: 'center', // Center text vertically
-        alignItems: 'center', // Center text horizontally
+      position: 'absolute',
+      width: width * 0.35, // 35% of the screen width
+      height: height * 0.04, // 5% of the screen height
+      left: width * 0.05, // 5% from the left
+      top: height * 0.03, // 5% from the top of the container
+      backgroundColor: '#F9A602',
+      borderRadius: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     depositText: {
-        color: '#373F41', // Change text color for visibility
-        fontSize: 16,
-        fontWeight: 'normal',
+      color: '#373F41',
+      fontSize: width * 0.05, // Font size is 4% of the screen width
+      fontWeight: 'normal',
     },
     withdraw: {
-        position: 'absolute',
-        width: 127,
-        height: 30,
-        left: 180,
-        top: 20,
-        backgroundColor: '#373F41',
-        borderRadius: 5,
-        justifyContent: 'center', // Center text vertically
-        alignItems: 'center', // Center text horizontally
+      position: 'absolute',
+      width: width * 0.35, // 35% of the screen width
+      height: height * 0.04, // 5% of the screen height
+      left: width * 0.49, // Position the withdraw button 55% from the left
+      top: height * 0.03, // 5% from the top of the container
+      backgroundColor: '#373F41',
+      borderRadius: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     withdrawText: {
-        color: '#FFFFFF', // Change text color for visibility
-        fontSize: 16,
-        fontWeight: 'normal',
+      color: '#FFFFFF',
+      fontSize: width * 0.05, // Font size is 4% of the screen width
+      fontWeight: 'normal',
     },
     choose: {
-        position: 'absolute',
-        width: 127,
-        height: 18,
-        left: 34,
-        top: 65,
-        fontStyle: 'normal',
-        fontWeight: '300',
-        fontSize: 12,
-        lineHeight: 18,
-        color: '#777777',
+      position: 'absolute',
+      width: width * 0.3, // 30% of screen width for responsive size
+      height: height * 0.03, // 3% of screen height for text size
+      left: width * 0.06, // Position from the left, 10% of screen width
+      top: height * 0.08, // Position from the top, 7% of screen height
+      fontStyle: 'normal',
+      fontWeight: '400',
+      fontSize: width * 0.03, // Font size as 3% of screen width
+      lineHeight: height * 0.03, // Line height based on screen height
+      color: '#777777',
     },
     buttonContainer: {
-        position: 'absolute',
-        top: 100, // Position from the top as specified
-        left: 17, // Position from the left
+      position: 'absolute',
+      top: height * 0.12, // Position from the top, 12% of screen height
+      left: width * 0.05, // Position from the left, 5% of screen width
     },
     row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between', // Space buttons evenly
-        marginBottom: 10, // Space between rows
+      flexDirection: 'row',
+      justifyContent: 'space-between', // Space buttons evenly
+      marginBottom: height * 0.02, // Vertical margin based on screen height
     },
     inputbox: {
-        width: 87, // Width as specified
-        height: 30, // Height as specified
-        backgroundColor: '#FFFFFF',
-        borderColor: '#373F41',
-        borderWidth: 0.5, // Border thickness
-        borderRadius: 5,
-        justifyContent: 'center', // Center text vertically
-        alignItems: 'center', // Center text horizontally
-        marginHorizontal: 5, // Horizontal gap between buttons
+      width: width * 0.24, // 25% of screen width for responsive input width
+      height: height * 0.04, // 5% of screen height for input box height
+      left: width * -0.02,
+      backgroundColor: '#FFFFFF',
+      borderColor: '#373F41',
+      borderWidth: 0.5,
+      borderRadius: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginHorizontal: width * 0.02, // Horizontal margin based on screen width
     },
     buttonText: {
-        fontSize: 14, // Adjust font size as needed
-        color: '#373F41', // Text color
+      fontSize: width * 0.04, // Font size as 4% of screen width
+      color: '#373F41',
     },
-desiredamount: {
-  position: 'absolute',
-  width: width * 0.5, // 50% of the screen width (adjust as needed)
-  height: height * 0.02, // 2% of the screen height for font size
-  left: width * 0.10, // Move 2% from the left edge of the screen
-  top: height * 0.49, // 49% from the top (adjust as needed)
-  fontStyle: 'normal',
-  fontWeight: '300',
-  fontSize: width * 0.032, // 3.2% of screen width for font size (adjustable)
-  lineHeight: height * 0.03, // Adjust line height relative to the screen height
-  color: '#777777',
-},
+    desiredamount: {
+      position: 'absolute',
+      width: width * 0.5, // 50% of the screen width
+      height: height * 0.02, // 2% of the screen height for font size
+      left: width * 0.10, // 10% from the left edge of the screen
+      top: height * 0.45, // 49% from the top of the screen
+      fontStyle: 'normal',
+      fontWeight: '300',
+      fontSize: width * 0.03, // Font size is 3.2% of screen width (adjustable)
+      lineHeight: height * 0.03, // Line height scales with screen height
+      color: '#777777',
+    },
 inputContainer: {
   flexDirection: 'row', // Aligns children in a row
   alignItems: 'center', // Centers items vertically
   top: height * 0.45, // 38% of the screen height (adjustable)
   left: width * 0.12, // 12% from the left edge (adjustable)
 },
-    numberInput: {
-        boxSizing: 'border-box',
-        width: 127,
-        height: 30,
-        backgroundColor: '#FFFFFF',
-        borderColor: '#373F41',
-        borderWidth: 0.5,
-        borderRadius: 5,
-        marginRight: 10, // Space between input and dropdown
-        textAlign: 'center', // Center the text in the input
-        top: 15,
-        left: -10,
-    },
+numberInput: {
+  boxSizing: 'border-box',
+  width: width * 0.3, // 40% of the screen width
+  height: height * 0.06, // 5% of the screen height
+  backgroundColor: '#FFFFFF',
+  borderColor: '#373F41',
+  borderWidth: 0.5,
+  marginRight: width * 0.03, // Space between input and dropdown, adjustable
+  textAlign: 'center', // Center the text in the input
+  top: height * 0.01, // Adjust the top position
+  left: width * -0.02, // Adjust the left position, making it responsive
+},
     dropdown: {
       position: 'absolute', // Absolute positioning
       width: width * 0.4, // 40% of the screen width (adjust as needed)
       height: height * 0.05, // 5% of the screen height for dropdown height (adjustable)
-      left: width * 0.40, // 40% from the left edge of the screen (adjustable)
+      left: width * 0.38, // 40% from the left edge of the screen (adjustable)
       top: height * 0.01, // Adjusted to move the dropdown higher (1% from the top)
       backgroundColor: '#FFFFFF',
       borderColor: '#373F41',
@@ -606,37 +607,38 @@ inputContainer: {
     },
      
     mode: {
-        position: 'absolute',
-        width: 105,
-        height: 18,
-        left: 163, // Adjust as needed
-        top: -20, // Adjust as needed
-        fontStyle: 'normal',
-        fontWeight: '300',
-        fontSize: 12,
-        lineHeight: 18,
-        color: '#777777',
+      position: 'absolute',
+  width: width * 0.4, // 40% of the screen width (increased width for testing visibility)
+  height: height * 0.04, // 4% of the screen height (slightly increased height)
+  left: width * 0.47, // Adjusted to make sure it's within visible area
+  top: height * -0.05, // Adjust top position for better visibility
+  fontStyle: 'normal',
+  fontWeight: '300',
+  fontSize: width * 0.03, // Increased font size for better visibility
+  lineHeight: height * 0.05, // Line height adjusted
+  color: '#777777',
+  zIndex: 1, // Ensure it is above other elements
     },
     confirm: {
-        position: 'absolute',
-        width: 119,
-        height: 35,
-        left: 100, // Adjust as needed
-        top: 290, // Adjust as needed
-        backgroundColor: '#373F41',
-        borderColor: '#FFFFFF',
-        borderWidth: 1,
-        borderRadius: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    confirmText: {
-        color: '#F9A602', // Changed color
-        fontSize: 13, // Updated font size
-        fontWeight: '600', // Updated font weight
-        textAlign: 'center',
-        textTransform: 'uppercase', // Added text transformation
-    },
+      position: 'absolute',
+      width: width * 0.35, // 35% of screen width for the button
+      height: height * 0.06, // 6% of screen height for button height
+      left: width * 0.27, // Center the button horizontally (width * 0.32 gives a margin from the left)
+      top: height * 0.40, // Adjust top position based on screen height
+      backgroundColor: '#373F41',
+      borderColor: '#FFFFFF',
+      borderWidth: 1,
+      borderRadius: 4,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  confirmText: {
+    color: '#F9A602',
+    fontSize: width * 0.035, // Font size scales with screen width (3.5% of screen width)
+    fontWeight: '600',
+    textAlign: 'center',
+    textTransform: 'uppercase', // Makes the text uppercase
+},
     navbar: {
       position: 'absolute',
       width: width, // Full screen width

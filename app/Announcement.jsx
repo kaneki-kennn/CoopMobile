@@ -165,8 +165,8 @@ const styles = {
         position: 'relative',
     },
     header: {
-        width: 360,
-        height: 75,
+        width: width * 2, // 95% of the screen width
+        height: height * 0.1, // 10% of the screen height
         backgroundColor: '#FFFFFF',
         elevation: 4,
         shadowColor: '#000',
@@ -174,152 +174,71 @@ const styles = {
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         marginTop: -40,
-        position: 'relative', // Ensure the header is positioned relatively
+        left: width * -0.01,  // Center horizontally
+        position: 'relative',
     },
     logo: {
-        width: 150,
-        height: 29,
-        top: 10,
+        width: width * 0.3, // 40% of the screen width
+        height: height * 0.05, // 5% of the screen height
         resizeMode: 'contain',
-        marginTop: 15,
+        left: width * 0.05,  // Center horizontally
+        marginTop: 20,
     },
     bell: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     email: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     profile: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         top: 10,
     },
     bellContainer: {
         position: 'absolute',
-        left: 235,
-        top: 17,
+        left: width * 0.70, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     emailContainer: {
         position: 'absolute',
-        left: 275,
-        top: 17,
+        left: width * 0.80, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     profileContainer: {
         position: 'absolute',
-        left: 320,
-        top: 17,
+        left: width * 0.90, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
-    cooperativeadvisory: {
+      coopadText: {
         position: 'absolute',
-        width: 330, // Width of the rectangle
-        height: 161, // Height of the rectangle
-        left: 15, // Position from the left
-        top: 70, // Position from the top
-        backgroundColor: '#373F41', // Background color
-        borderRadius: 10, // Rounded corners
-        // You can add padding or margin if needed
-    },
-    coopadText: {
-        position: 'absolute',
-        width: 168, // Width of the text container
-        height: 23, // Height of the text container
-        left: 100, // Position from the left
-        top: 20, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '700', // Font weight
-        fontSize: 15, // Font size
-        lineHeight: 22, // Line height
-        color: '#F9A602', // Text color
-    },
-    announcementText: {
-        position: 'absolute',
-        width: 276, // Width of the text container
-        height: 40, // Height of the text container
-        left: 30, // Position from the left
-        top: 70, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '400', // Font weight
-        fontSize: 13, // Font size
-        lineHeight: 20, // Line height
-        textAlign: 'center', // Center align the text
-        color: '#37341', // Text color
-    },
-    cooperativeadvisory2: {
-        position: 'absolute',
-        width: 330, // Width of the rectangle
-        height: 161, // Height of the rectangle
-        left: 15, // Position from the left
-        top: 250, // Position from the top
-        backgroundColor: '#373F41', // Background color
-        borderRadius: 10, // Rounded corners
-        // You can add padding or margin if needed
-    },
-    coopadText2: {
-        position: 'absolute',
-        width: 168, // Width of the text container
-        height: 23, // Height of the text container
-        left: 100, // Position from the left
-        top: 20, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '700', // Font weight
-        fontSize: 15, // Font size
-        lineHeight: 22, // Line height
-        color: '#F9A602', // Text color
-    },
-    announcementText2: {
-        position: 'absolute',
-        width: 276, // Width of the text container
-        height: 40, // Height of the text container
-        left: 30, // Position from the left
-        top: 70, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '400', // Font weight
-        fontSize: 13, // Font size
-        lineHeight: 20, // Line height
-        textAlign: 'center', // Center align the text
-        color: '#FFFFFF', // Text color
-    },
-    cooperativeadvisory3: {
-        position: 'absolute',
-        width: 330, // Width of the rectangle
-        height: 161, // Height of the rectangle
-        left: 15, // Position from the left
-        top: 430, // Position from the top
-        backgroundColor: '#373F41', // Background color
-        borderRadius: 10, // Rounded corners
-        // You can add padding or margin if needed
-    },
-    coopadText3: {
-        position: 'absolute',
-        width: 168, // Width of the text container
-        height: 23, // Height of the text container
-        left: 100, // Position from the left
-        top: 20, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '700', // Font weight
-        fontSize: 15, // Font size
-        lineHeight: 22, // Line height
-        color: '#F9A602', // Text color
-    },
-    announcementText3: {
-        position: 'absolute',
-        width: 276, // Width of the text container
-        height: 40, // Height of the text container
-        left: 30, // Position from the left
-        top: 70, // Position from the top
-        fontStyle: 'normal', // Font style
-        fontWeight: '400', // Font weight
-        fontSize: 13, // Font size
-        lineHeight: 20, // Line height
-        textAlign: 'center', // Center align the text
-        color: '#FFFFFF', // Text color
-    },
+        width: width * 0.5, // 50% of the screen width
+        height: 'auto', // Allow content height to adjust
+        left: width * 0.25, // Center the text horizontally
+        top: height * 0.1, // 10% from the top of the parent container
+        fontStyle: 'normal',
+        fontWeight: '700',
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
+        lineHeight: width * 0.05, // Line height scales with screen width (5% of screen width)
+        textAlign: 'center', // Center the text within the container
+        color: '#F9A602',
+      },
+      announcementText: {
+        fontSize: width * 0.035, // Font size is 3.5% of screen width
+        color: '#373F41',
+        lineHeight: width * 0.05, // Line height is 5% of screen width
+        textAlign: 'left', // Align text to the left
+        marginVertical: height * 0.01, // Add vertical margin (1% of screen height)
+        marginLeft: width * 0.05, // Adjust the left margin (5% of screen width)
+        width: width * 0.9, // Ensure the text container takes up most of the screen width
+        // Remove textAlign: 'justify' to ensure it's left-aligned correctly
+      },
     navbar: {
         position: 'absolute',
         width: width, // Full screen width

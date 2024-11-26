@@ -221,8 +221,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     header: {
-        width: 360,
-        height: 75,
+        width: width * 2, // 95% of the screen width
+        height: height * 0.1, // 10% of the screen height
         backgroundColor: '#FFFFFF',
         elevation: 4,
         shadowColor: '#000',
@@ -230,124 +230,132 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         marginTop: -40,
+        left: width * -0.01,  // Center horizontally
         position: 'relative',
     },
     logo: {
-        width: 150,
-        height: 29,
-        top: 10,
+        width: width * 0.3, // 40% of the screen width
+        height: height * 0.05, // 5% of the screen height
         resizeMode: 'contain',
-        marginTop: 15,
+        left: width * 0.05,  // Center horizontally
+        marginTop: 20,
     },
     bell: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     email: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         tintColor: '#373F41',
         top: 10,
     },
     profile: {
-        width: 22,
-        height: 23.46,
+        width: width * 0.06, // 6% of the screen width
+        height: height * 0.03, // 7% of the screen height
         top: 10,
     },
     bellContainer: {
         position: 'absolute',
-        left: 235,
-        top: 17,
+        left: width * 0.70, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     emailContainer: {
         position: 'absolute',
-        left: 275,
-        top: 17,
+        left: width * 0.80, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     profileContainer: {
         position: 'absolute',
-        left: 320,
-        top: 17,
+        left: width * 0.90, // Position dynamically based on screen width
+        top: height * 0.03, // 2% of the screen height
     },
     loaninfo: {
         position: 'absolute',
-        width: 312,
-        height: 250,
-        left: 25,
-        top: 75,
+        width: width * 0.9, // 80% of the screen width
+        height: height * 0.35, // 35% of the screen height
+        left: width * 0.05, // 10% from the left
+        top: height * 0.1, // 10% from the top
         backgroundColor: '#F3F3F3',
         borderRadius: 10,
-        padding: 16,
+        padding: width * 0.04, // Padding scales with screen width (4% of screen width)
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
-    },
+    },    
     loanguide: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
         padding: 0,
-        gap: 27,
+        gap: height * 0.04, // Gap between elements scales with screen height (3% of screen height)
         position: 'absolute',
-        width: 73,
-        height: 176,
-        left: 25,
-        top: 20,
+        width: width * 0.2, // 20% of the screen width for the loanguide container
+        height: height * 0.4, // 30% of the screen height
+        left: width * 0.06, // 10% from the left edge
+        top: height * 0.03, // 5% from the top of the container
     },
+    
     loantype: {
-        fontSize: 15,
+        top: height * -0.01, // 5% from the top of the container
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
         color: '#373F41',
     },
+    
     amount: {
-        fontSize: 15,
+        top: height * -0.01, // 5% from the top of the container
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
         color: '#373F41',
     },
+    
     interest: {
-        fontSize: 15,
+        top: height * -0.01, // 5% from the top of the container
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
         color: '#373F41',
     },
+    
     loanterms: {
-        fontSize: 15,
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
         color: '#373F41',
     },
+    
     monthlypayment: {
-        fontSize: 15,
+        fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
         color: '#373F41',
     },
     fillin: {
-        marginTop: 20,
-        padding: 10,
+        marginTop: height * 0.02, // 2% of screen height for margin top
+        padding: width * 0.03, // 4% of screen width for padding
         borderRadius: 10,
-        width: 200,
-        height: 100,
-        top: -35,
-        left: 80,
-        marginTop: 10,
+        width: width * 0.6, // 60% of screen width for width
+        height: height * 0.2, // 20% of screen height for height
+        top: -height * 0.06, // Adjusted top position based on screen height
+        left: width * 0.2, // 20% from the left
     },
     picker: {
-        height: 0, // Adjusted height for the Picker
+        height: height * 0.04, // Set a more appropriate height for the Picker
         width: '100%',
-        marginBottom: 10, // Reduced margin for better spacing
+        marginBottom: height * 0.02, // Adjusted margin for spacing
     },
+    
     input: {
-        height: 30, // Adjusted height for the TextInput
+        height: height * 0.04, // Adjusted height based on screen height (5%)
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 10, // Reduced margin for better spacing
-        width: '100%',
+        paddingHorizontal: width * 0.04, // Horizontal padding relative to screen width
+        marginBottom: height * 0.02, // Adjusted margin for spacing
+        width: '100%', // Ensure input takes full width
     },
     applyloan: {
-       
-        width: 95,
-        height: 30,
-        left: 129,
-        top: 150,
+        width: width * 0.3, // 50% of screen width for apply button width
+        height: height * 0.05, // 6% of screen height for better button height
+        left: width * 0.25, // Centered horizontally on screen
+        top: height * 0.15, // Adjusted to avoid overlap, 60% from top of the screen
         backgroundColor: '#373F41',
         borderColor: '#FFFFFF',
         borderWidth: 1,
@@ -355,35 +363,37 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 4,
-    },
+        zIndex: 2, // Ensure it stays on top of other components
+    },    
     aploan: {
         color: '#F9A602',
-        fontSize: 14,
+        fontSize: width * 0.04, // Font size scales with screen width
     },
     table: {
         position: 'absolute',
-        width: 338,
-        left: 9,
-        top: 404,
+        width: width * 0.85, // 85% of screen width for the table width
+        left: width * 0.07, // 7% from the left edge of the screen
+        top: height * 0.6, // Start table from middle of the screen
         backgroundColor: '#FFFFFF',
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 10,
+        paddingVertical: height * 0.02, // Vertical padding based on screen height
+        paddingHorizontal: width * 0.03, // Horizontal padding based on screen width
         backgroundColor: '#373F41',
     },
     headerText: {
         flex: 1,
         color: '#F9A602',
         textAlign: 'center',
+        fontSize: width * 0.04, // Font size scales with screen width
     },
     dataRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 10,
+        paddingVertical: height * 0.02, // Vertical padding based on screen height
+        paddingHorizontal: width * 0.03, // Horizontal padding based on screen width
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
     },
@@ -391,6 +401,7 @@ const styles = StyleSheet.create({
         flex: 1,
         color: '#373F41',
         textAlign: 'center',
+        fontSize: width * 0.035, // Font size scales with screen width
     },
     navbar: {
         position: 'absolute',
