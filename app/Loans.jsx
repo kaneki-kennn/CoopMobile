@@ -1,10 +1,9 @@
-import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet, handleRowPress } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';  // <-- Add this import
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
-import { RadioButton } from 'react-native-paper';
 import UUID from 'react-native-uuid';
 import { supabase } from './supabase';
 import { Dimensions } from 'react-native';

@@ -1,5 +1,5 @@
 import { useEffect, useState, } from 'react';
-import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image, ScrollView} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
@@ -264,28 +264,42 @@ const Dashboard = () => {
             </View>
         </View>
     </View>
-
     <View style={styles.containeradvisory}>
-    <Image source={require('./../assets/images/megaphone.png')} style={styles.megaphone} />
-    <Text style={styles.coopad}>Cooperative Advisory</Text>
+  <Image source={require('./../assets/images/megaphone.png')} style={styles.megaphone} />
+  <Text style={styles.coopad}>Cooperative Advisory</Text>
 
-    {loadingAnnouncements ? (
-        <ActivityIndicator 
-            size="small" 
-            color="#F9A602" 
-            style={styles.loadingAnimation} // Apply a custom style to move the animation
-        />
-    ) : errorAnnouncements ? (
-        <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
-    ) : announcements.length === 0 ? (
-        <Text style={styles.content}>There are no announcements...</Text>
-    ) : (
+  {loadingAnnouncements ? (
+    <ActivityIndicator
+      size="small"
+      color="#F9A602"
+      style={styles.loadingAnimation}
+    />
+  ) : errorAnnouncements ? (
+    <Text style={{ color: 'red' }}>{errorAnnouncements}</Text>
+  ) : announcements.length === 0 ? (
+    <Text style={styles.content}>There are no announcements...</Text>
+  ) : (
+    <>
+      {/* Fixed content title */}
+      <Text style={styles.contenttitle}>
+        {announcements[0]?.content_title || 'No title available'}
+      </Text>
+      
+      {/* Scrollable announcement content */}
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContentContainer} // Optional for styling
+      >
         <View style={styles.announce}>
-            <Text style={styles.contenttitle}>{announcements[0]?.content_title || 'No title available'}</Text>
-            <Text style={styles.contnt}>{announcements[0]?.content || 'No content available'}</Text>
+          <Text style={styles.contnt}>
+            {announcements[0]?.content || 'No content available'}
+          </Text>
         </View>
-    )}
+      </ScrollView>
+    </>
+  )}
 </View>
+
 
             <View style={styles.coopfunds}>
                 <Text style={styles.coopfnds}>2024 COOP FUNDS</Text>
@@ -597,73 +611,61 @@ const styles = {
         alignSelf: 'center', // Optionally center it horizontally
     },    
     containeradvisory: {
-        position: 'absolute', // Positioning
-        width: width * 0.9, // 90% of the screen width
-        height: height * 0.20, // 25% of the screen height
-        left: width * 0.06, // 5% from the left of the screen
-        top: height * 0.3, // 20% from the top of the screen
-        backgroundColor: '#373F41', // Background color
-        borderColor: '#FFFFFF', // Border color
-        borderWidth: 2, // Border width
-        borderRadius: 10, // Border radius
-        overflow: 'hidden', // Ensures children stay within rounded corners
-      },
-      contenttitle: {
-        width: width * 0.80,  // 80% of screen width for responsiveness
-        paddingVertical: height * 0.02,  // 2% of screen height for vertical padding
-        paddingHorizontal: width * 0.04,  // 4% of screen width for horizontal padding
-        color: '#FFFFFF',  // White text color
-        fontSize: width * 0.04,  // Font size based on screen width (4% of the width)
-        fontWeight: 'bold',  // Bold text
-        textAlign: 'left',  // Align text to the left
-        marginVertical: height * 0.02,  // 2% of screen height for margin
-        position: 'absolute',
-        left: width * 0.27,  // 10% from the left of the container (relative to the screen width)
-        top: height * 0.03,  // 5% from the top of the container (relative to the screen height)
-        zIndex: 2,  // Ensure it is above other content
-    },     
-      contnt: {
-        width: '100%',  // Full width of the container
-        color: '#FFFFFF',  // White text color
-        fontSize: width * 0.035,  // Responsive font size based on screen width
-        textAlign: 'left',  // Align text to the left
-        lineHeight: height * 0.03,  // Line height based on screen height
-        paddingHorizontal: width * 0.02,  // 2% of the screen width for padding
-        marginVertical: height * 0.01,  // 1% of the screen height for margin
-        position: 'absolute',
-        left: width * 0.02, // 5% from the left of the container
-        top: height * 0.1,  // 10% from the top of the container
+        height: height * 0.22, // Fixed height for the container
+        width: width * 0.90, // 90% of the screen width
+        backgroundColor: '#373F41',
+        borderColor: '#FFFFFF',
+        borderWidth: 2,
+        borderRadius: 10,
+        overflow: 'hidden',
+        padding: width * 0.04, // 4% of the screen width for padding
+        marginHorizontal: width * 0.05, // Center horizontally with 5% margin
+        marginVertical: height * 0.02, // 2% of the screen height for vertical spacing
+        top: width * 0.3,
       },
       megaphone: {
-        position: 'absolute',
-        left: width * 0.0583,  // 5.83% of the screen width for left position
-        top: height * -0.00,    // 2% of the screen height for top position
-        width: width * 0.10,   // 15% of the screen width for image width
+        width: width * 0.12, // 12% of the screen width for image width
         height: height * 0.06, // 6% of the screen height for image height
-        tintColor: '#F9A602',  // Set the tint color
-        resizeMode: 'contain', // Ensure the image maintains its aspect ratio
-      },
-    coopad: {
+        marginBottom: height * 0.01, // 1% of screen height for spacing
+        tintColor: '#F9A602',
+        resizeMode: 'contain',
         position: 'absolute',
-        width: width * 0.45, // 45% of the screen width for responsiveness
-        height: height * 0.03, // 3% of the screen height for better visibility
-        left: width * 0.25, // 25% of the screen width from the left to center it
-        top: height * 0.01, // 2% of the screen height from the top
+        left: width * 0.05,
+        top: height * 0.01,
+      },
+      coopad: {
         fontWeight: '800',
         fontSize: width * 0.05, // 5% of the screen width for font size
-        lineHeight: height * 0.03, // Line height based on screen height
-        color: '#F9A602', // Text color
-      },
-      content: {
+        color: '#F9A602',
+        marginBottom: height * 0.01, // 1% of screen height for spacing
         position: 'absolute',
-        width: width * 0.6, // 60% of the screen width
-        height: height * 0.03, // 3% of the screen height
-        left: width * 0.23,  // 39% of the screen width for centering the element
-        top: height * 0.1,   // 10% of the screen height for vertical positioning
-        fontWeight: '500',
-        fontSize: width * 0.04, // Responsive font size (4% of screen width)
-        lineHeight: height * 0.03, // Line height should be proportional to the height
-        color: '#FFFFFF', // White text color
+        left: width * 0.25,
+        top: height * 0.01,
+      },
+      scrollContainer: {
+        marginTop: height * 0.02, // Below the title and megaphone
+        height: '80%', // Occupies 70% of the container's height for scrolling
+      },
+      scrollContentContainer: {
+        paddingBottom: height * 0.02, // Extra padding for the scroll content
+      },
+      announce: {
+        flexGrow: 1,
+      },
+      contenttitle: {
+        fontSize: width * 0.04, // 4% of the screen width for font size
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        marginBottom: height * 0.01, // 1% of screen height for spacing
+        top: height * 0.02,
+        left: width * 0.3, // Aligned within the container
+      },
+      contnt: {
+        fontSize: width * 0.04, // 4% of the screen width for font size
+        color: '#FFFFFF',
+        lineHeight: height * 0.03, // 3% of the screen height for line spacing
+        marginBottom: height * 0.01, // 1% of screen height for spacing
+        marginLeft: width * 0.02, // Proper left margin
       },
       coopfunds: {
         position: 'absolute',  // Positioning
@@ -777,7 +779,7 @@ const styles = {
         width: width * 0.4, // 40% of screen width for responsiveness
         height: height * 0.04, // 4% of screen height
         left: width * 0.3, // 30% from the left to center the text
-        top: height * 0.6, // 60% from the top to position above the graph
+        top: height * 0.4, // 60% from the top to position above the graph
         fontStyle: 'normal',
         fontWeight: '800',
         fontSize: width * 0.04, // Font size responsive to screen width

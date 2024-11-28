@@ -1,10 +1,8 @@
 import {
     View,
     Image,
-    Alert,
     TouchableOpacity,
     Text,
-    StyleSheet,
     TextInput,
     ActivityIndicator,
   } from "react-native";
@@ -40,6 +38,14 @@ import {
     const [selectedAction, setSelectedAction] = useState(null);
     const [savingsId, setSavingsId] = useState(null);
     const [cbuId, setCbuId] = useState(null);
+
+    const [loadingInterest, setLoadingInterest] = useState(false);
+const [errorInterest, setErrorInterest] = useState(null);
+const [interest, setInterest] = useState(null);
+
+const [loadingTotalRevenue, setLoadingTotalRevenue] = useState(false);
+const [errorTotalRevenue, setErrorTotalRevenue] = useState(null);
+const [totalRevenue, setTotalRevenue] = useState(null);
   
     const fetchUserCbu = async () => {
       setLoadingCbu(true);
@@ -109,7 +115,7 @@ import {
         return;
       }
   
-      const transactionTable =
+      const transactionee =
         selectedOption === "savings" ? "Savtransactions" : "Cbutransactions";
       const transactionIdKey =
         selectedOption === "savings" ? "savtransaction_id" : "cbutransaction_id";
@@ -191,9 +197,9 @@ import {
   <TouchableOpacity onPress={() => handleSelect("savings")}>
     {loadingSavings ? (
       <ActivityIndicator size="small" color="#F9A602" style={styles.spinner} />
-    ) : errorSavings ? (
+    ) : errorSavings ? ( 
       <Text style={{ color: "red" }}>{errorSavings}</Text>
-    ) : (
+    ) : ( 
       <View
         style={[
           styles.radioButton,
@@ -210,6 +216,8 @@ import {
     )}
   </TouchableOpacity>
 </View>
+
+
 
 
   <View style={styles.cbu}>
@@ -235,6 +243,54 @@ import {
     )}
   </TouchableOpacity>
 </View>
+
+<View style={styles.interest}>
+          <TouchableOpacity onPress={() => handleSelect("interest")}>
+            {loadingInterest ? (
+              <ActivityIndicator size="small" color="#FFA500" style={styles.spinner} />
+            ) : errorInterest ? (
+              <Text style={{ color: "red" }}>{errorInterest}</Text>
+            ) : (
+              <View
+                style={[
+                  styles.radioButton,
+                  selectedOption === "interest" && styles.selectedRadio,
+                ]}
+              >
+                <Text style={styles.interestText}>Interest</Text>
+                <Text style={styles.interestBal}>
+                  {interest !== null && !isNaN(interest)
+                    ? `${interest.toFixed(2)}`
+                    : "No interest found"}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+  
+        <View style={styles.totalRevenue}>
+          <TouchableOpacity onPress={() => handleSelect("totalRevenue")}>
+            {loadingTotalRevenue ? (
+              <ActivityIndicator size="small" color="#800080" style={styles.spinner} />
+            ) : errorTotalRevenue ? (
+              <Text style={{ color: "red" }}>{errorTotalRevenue}</Text>
+            ) : (
+              <View
+                style={[
+                  styles.radioButton,
+                  selectedOption === "totalRevenue" && styles.selectedRadio,
+                ]}
+              >
+                <Text style={styles.totalRevenueText}>Total Revenue</Text>
+                <Text style={styles.totalRevenueBal}>
+                  {totalRevenue !== null && !isNaN(totalRevenue)
+                    ? `${totalRevenue.toFixed(2)}`
+                    : "None"}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
 
 </View>
 
@@ -485,12 +541,93 @@ profileContainer: {
       lineHeight: width * 0.05, // Line height is 5% of screen width
       color: '#373F41',
     },
+    interest: {
+      position: 'absolute',
+      width: width * 0.4, // 40% of the screen width
+      height: height * 0.08, // 8% of the screen height
+      left: width * 0.55, // Positioned at 55% of screen width
+      top: height * 0.15, // Positioned at the same top margin as savings
+      backgroundColor: '#373F41', // Different background color for distinction
+      borderWidth: 1,
+      borderColor: '#FFFFFF',
+      shadowColor: '#373F41',
+      shadowOffset: { width: 5, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      borderRadius: 10,
+      elevation: 5, // For Android shadow
+    },
+    interestText: {
+      position: 'absolute',
+      width: width * 0.2, // 20% of screen width
+      height: height * 0.03, // 3% of screen height
+      left: width * 0.03, // 3% from the left of the container
+      top: height * 0.01, // 2% from the top of the container
+      fontStyle: 'normal',
+      fontWeight: '600',
+      fontSize: width * 0.04, // Scaled font size
+      lineHeight: height * 0.03, // Line height scales with screen height
+      color: '#F9A602', // Text color for contrast
+    },
+    interestBal: {
+      position: 'absolute',
+      width: width * 0.3, // 30% of screen width
+      height: height * 0.04, // 4% of screen height
+      left: width * 0.10, // 10% from the left of the container
+      top: height * 0.03, // 3% from the top of the container
+      fontStyle: 'normal',
+      fontWeight: '700',
+      fontSize: width * 0.05, // Scaled font size
+      lineHeight: height * 0.04, // Scaled line height
+      color: '#F9A602',
+    },
+    totalRevenue: {
+      position: 'absolute',
+      width: width * 0.4, // 40% of the screen width
+      height: height * 0.08, // 8% of the screen height
+      left: width * 0.05, // Positioned at 5% of screen width
+      top: height * 0.15, // Positioned below savings
+      backgroundColor: '#F9A602', // Different background color for distinction
+      borderWidth: 1,
+      borderColor: '#FFFFFF',
+      shadowColor: '#373F41',
+      shadowOffset: { width: 5, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      borderRadius: 10,
+      elevation: 5,
+    },
+    totalRevenueText: {
+      position: 'absolute',
+      width: width * 0.3, // 20% of screen width
+      height: height * 0.03, // 3% of screen height
+      left: width * 0.03, // 3% from the left of the container
+      top: height * 0.01, // 2% from the top of the container
+      fontStyle: 'normal',
+      fontWeight: '600',
+      fontSize: width * 0.04, // Scaled font size
+      lineHeight: height * 0.03, // Scaled line height
+      color: '#FFFFFF', // Text color for contrast
+    },
+    totalRevenueBal: {
+      position: 'absolute',
+      width: width * 0.5, // 30% of screen width
+      height: height * 0.04, // 4% of screen height
+      left: width * 0.14, // 10% from the left of the container
+      top: height * 0.03, // 3% from the top of the container
+      fontStyle: 'normal',
+      fontWeight: '700',
+      fontSize: width * 0.05, // Scaled font size
+      lineHeight: height * 0.04, // Scaled line height
+      color: '#FFFFFF',
+    },
+    
     tabularform: {
       position: 'absolute',
       width: width * 0.90, // 85% of the screen width
       height: height * 0.50, // 35% of the screen height
       left: width * 0.05, // 5% of the screen width from the left
-      top: height * 0.2, // 20% from the top of the screen
+      top: height * 0.3, // 20% from the top of the screen
       backgroundColor: '#D9D9D9',
       borderRadius: 10,
     },
@@ -569,7 +706,7 @@ profileContainer: {
       width: width * 0.5, // 50% of the screen width
       height: height * 0.02, // 2% of the screen height for font size
       left: width * 0.10, // 10% from the left edge of the screen
-      top: height * 0.45, // 49% from the top of the screen
+      top: height * 0.56, // 49% from the top of the screen
       fontStyle: 'normal',
       fontWeight: '300',
       fontSize: width * 0.03, // Font size is 3.2% of screen width (adjustable)
@@ -579,7 +716,7 @@ profileContainer: {
 inputContainer: {
   flexDirection: 'row', // Aligns children in a row
   alignItems: 'center', // Centers items vertically
-  top: height * 0.45, // 38% of the screen height (adjustable)
+  top: height * 0.55, // 38% of the screen height (adjustable)
   left: width * 0.12, // 12% from the left edge (adjustable)
 },
 numberInput: {
