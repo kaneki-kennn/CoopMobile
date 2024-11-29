@@ -5,7 +5,6 @@ import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
 import { useNavigation } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
-import { color } from '@rneui/themed/dist/config';
 
 
 
@@ -183,15 +182,11 @@ const Dashboard = () => {
                         style={styles.logo}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Bell clicked! Notifications.")}
-                    style={styles.bellContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/bell.png')}
-                        style={styles.bell}
-                    />
+                <TouchableOpacity onPress={() => navigation.navigate('Notification', { userId })}
+                style={styles.bellContainer}>
+                    <Image source={require('./../assets/images/bell.png')}style={styles.bell}/>
                 </TouchableOpacity>
+
                 <TouchableOpacity 
                     onPress={() => alert("Email clicked! Check your inbox.")}
                     style={styles.emailContainer}

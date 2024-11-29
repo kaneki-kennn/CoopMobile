@@ -27,6 +27,7 @@ export default function RootLayout() {
       <Stack.Screen name="Funds"/>
       <Stack.Screen name="History"/>
       <Stack.Screen name="Announcement"/>
+      <Stack.Screen name="Notification"/>
     </Stack>
   );
 }

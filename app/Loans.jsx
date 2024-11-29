@@ -8,7 +8,10 @@ import UUID from 'react-native-uuid';
 import { supabase } from './supabase';
 import { Dimensions } from 'react-native';
 
+
 const Loans = () => {
+    const handleRowPress = (index) => {
+      };
     const navigation = useNavigation();  // Now this will work
     const route = useRoute();
     const { userId } = route.params || {}; 
