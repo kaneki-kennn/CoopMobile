@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
+
 export default function Landing() {
   return (
     <View style={styles.container}>

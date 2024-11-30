@@ -9,7 +9,8 @@ import {
   import React, { useEffect, useState } from "react";
   import { Picker } from "@react-native-picker/picker";
   import { useRoute, useNavigation } from "@react-navigation/native";
-  import UUID from "react-native-uuid";
+  import UUID from 'react-native-uuid';
+  import { v4 as uuidv4 } from 'uuid';
   import { supabase } from "./supabase";
   import { Dimensions } from 'react-native';
   
@@ -42,10 +43,14 @@ import {
     const [loadingInterest, setLoadingInterest] = useState(false);
 const [errorInterest, setErrorInterest] = useState(null);
 const [interest, setInterest] = useState(null);
+const [savinterest, setsavInterest] = useState(null);
+const [loadingsavInterest, setLoadingsavInterest] = useState(false);
+const [errorsavInterest, setErrorsavInterest] = useState(null);
 
 const [loadingTotalRevenue, setLoadingTotalRevenue] = useState(false);
 const [errorTotalRevenue, setErrorTotalRevenue] = useState(null);
 const [totalRevenue, setTotalRevenue] = useState(null);
+const [totalsavRevenue, setTotalsavRevenue] = useState(null);
   
     const fetchUserCbu = async () => {
       setLoadingCbu(true);
@@ -60,36 +65,71 @@ const [totalRevenue, setTotalRevenue] = useState(null);
   
         if (error) throw error;
   
-        setCbu(data?.amount || 0);
+        const cbuAmount = data?.amount || 0;
+
+        setCbu(cbuAmount);
         setCbuId(data?.cbu_id);
+    
+        // Calculate and set the interest
+        const interest = calculateInterestcbu(cbuAmount);
+        setInterest(interest);
+    
+        // Calculate and set the total revenue (amount + interest)
+        const revenue = cbuAmount + interest;
+        setTotalRevenue(revenue); // Save total revenue to state
       } catch (err) {
-        setErrorCbu("Failed to fetch CBU.");
+        setErrorCbu("Failed to fetch Cbu.");
       } finally {
         setLoadingCbu(false);
       }
     };
   
-    const fetchUserSavings = async () => {
-      setLoadingSavings(true);
-      setErrorSavings(null);
-  
-      try {
-        const { data, error } = await supabase
-          .from("Savings")
-          .select("savings_id, amount")
-          .eq("user_id", userId)
-          .single();
-  
-        if (error) throw error;
-  
-        setSavings(data?.amount || 0);
-        setSavingsId(data?.savings_id);
-      } catch (err) {
-        setErrorSavings("Failed to fetch savings.");
-      } finally {
-        setLoadingSavings(false);
-      }
+const fetchUserSavings = async () => {
+  setLoadingSavings(true);
+  setErrorSavings(null);
+
+  try {
+    const { data, error } = await supabase
+      .from("Savings")
+      .select("savings_id, amount")
+      .eq("user_id", userId)
+      .single();
+
+    if (error) throw error;
+
+    const savingsAmount = data?.amount || 0;
+
+    setSavings(savingsAmount);
+    setSavingsId(data?.savings_id);
+
+    // Calculate and set the interest
+    const savinterest = calculateInterest(savingsAmount);
+    setsavInterest(savinterest);
+
+    // Calculate and set the total revenue (amount + interest)
+    const revenue = savingsAmount + savinterest;
+    setTotalsavRevenue(revenue); // Save total revenue to state
+  } catch (err) {
+    setErrorSavings("Failed to fetch savings.");
+  } finally {
+    setLoadingSavings(false);
+  }
+};
+
+    
+    // Function to calculate interest
+    const calculateInterest = (amount) => {
+      const interestRate = 0.002; // 0.2% as a decimal
+      return amount * interestRate;
     };
+
+    const calculateInterestcbu = (amount) => {
+      const interestRate = 0.02;
+      return amount * interestRate;
+    }
+
+    
+    
   
     useEffect(() => {
       if (userId) {
@@ -108,47 +148,88 @@ const [totalRevenue, setTotalRevenue] = useState(null);
     };
   
     const handleTransaction = async () => {
+      console.log("Starting transaction...");
+    
+      // Check if all fields are filled
       if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
-        console.error(
-          "Missing action, amount, payment mode, or selected option"
-        );
+        console.log("Validation failed: Missing fields", {
+          selectedAction,
+          amount,
+          selectedPaymentMode,
+          selectedOption,
+        });
+        alert("Please complete all fields.");
         return;
       }
-  
+    
+      // Check minimum amount
+      if (parseFloat(amount) < 500) {
+        console.log("Validation failed: Amount is less than 500", { amount });
+        alert("Minimum amount is 500.");
+        return;
+      }
+    
+      // Determine transaction table and keys
       const transactionee =
         selectedOption === "savings" ? "Savtransactions" : "Cbutransactions";
       const transactionIdKey =
         selectedOption === "savings" ? "savtransaction_id" : "cbutransaction_id";
-  
+    
+      console.log("Transaction table and key determined:", {
+        transactionee,
+        transactionIdKey,
+      });
+    
+      // Add additional data based on selection
       const additionalData =
         selectedOption === "savings" ? { savings_id: savingsId } : { cbu_id: cbuId };
-  
+    
+      console.log("Additional data for transaction:", additionalData);
+    
       try {
+        // Prepare transaction data
         const transactionData = {
-          [transactionIdKey]: UUID.v4(),
+          [transactionIdKey]:UUID.v4(), // Generate a unique ID
           user_id: userId,
           amount: parseFloat(amount),
           transaction_type: selectedAction,
           status: "pending",
           mode: selectedPaymentMode,
-          date_sent: new Date(),
+          date_sent: new Date().toISOString(), // Use ISO string for consistent date format
           ...additionalData,
         };
-  
+    
+        console.log("Transaction data prepared:", transactionData);
+    
+        // Insert data into the database
         const { data, error } = await supabase
-          .from(transactionTable)
+          .from(transactionee) // Pass the table name here
           .insert([transactionData]);
-  
-        if (error) throw error;
-  
+    
+        console.log("Supabase response:", { data, error });
+    
+        if (error) {
+          console.error("Supabase error:", error);
+          throw error;
+        }
+    
+        // Success handling
         alert(`${selectedAction} request of ${amount} submitted for approval.`);
+        console.log("Transaction submitted successfully.");
+    
+        // Reset state
         setSelectedAction(null);
         setAmount("");
+        setSelectedPaymentMode("gcash");
+        setSelectedOption(null);
+        console.log("State reset after transaction.");
       } catch (err) {
         console.error("Transaction submission error:", err);
         alert("Transaction request failed. Please try again.");
       }
     };
+    
+    
   
     const handleLogoClick = () => {
       alert("Coop clicked! The page will refresh.");
@@ -191,205 +272,178 @@ const [totalRevenue, setTotalRevenue] = useState(null);
             />
           </TouchableOpacity>
         </View>
-  
-          <View style={styles.radioButtonContainer}>
-          <View style={styles.savings}>
-  <TouchableOpacity onPress={() => handleSelect("savings")}>
-    {loadingSavings ? (
+
+        <View style={styles.savings}>
+        {loadingSavings ? (
       <ActivityIndicator size="small" color="#F9A602" style={styles.spinner} />
     ) : errorSavings ? ( 
       <Text style={{ color: "red" }}>{errorSavings}</Text>
     ) : ( 
-      <View
-        style={[
-          styles.radioButton,
-          selectedOption === "savings" && styles.selectedRadio,
-        ]}
-      >
+      <View>
         <Text style={styles.savingsText}>Savings</Text>
         <Text style={styles.savingsBal}>
           {savings !== null && !isNaN(savings)
             ? `${savings.toFixed(2)}`
             : "No savings found"}
         </Text>
+        <Text style={styles.interestText}>Interest</Text>
+                <Text style={styles.interestBal}>
+                  {savinterest !== null && !isNaN(savinterest)
+                    ? `${savinterest.toFixed(2)}`
+                    : "No interest found"}
+                </Text>
+        <Text style={styles.savrevText}>Monthly Revenue</Text>
+        <Text style={styles.savrevBal}>
+          {totalsavRevenue !== null && !isNaN(totalsavRevenue)
+            ? `${totalsavRevenue.toFixed(2)}`
+            : "No revenue found"}
+        </Text>
       </View>
     )}
-  </TouchableOpacity>
-</View>
+    </View>
 
-
-
-
-  <View style={styles.cbu}>
-  <TouchableOpacity onPress={() => handleSelect("cbu")}>
+    <View style={styles.cbu}>
     {loadingCbu ? (
       <ActivityIndicator size="small" color="#373F41" style={styles.activityIndicator2} />
     ) : errorCbu ? (
       <Text style={{ color: "red" }}>{errorCbu}</Text>
     ) : (
-      <View
-        style={[
-          styles.radioButton,
-          selectedOption === "cbu" && styles.selectedRadio,
-        ]}
-      >
+      <View>
         <Text style={styles.cbuText}>CBU</Text>
         <Text style={styles.cbuBal}>
           {cbu !== null && !isNaN(cbu)
             ? `${cbu.toFixed(2)}`
             : "No CBU found"}
         </Text>
-      </View>
-    )}
-  </TouchableOpacity>
-</View>
-
-<View style={styles.interest}>
-          <TouchableOpacity onPress={() => handleSelect("interest")}>
-            {loadingInterest ? (
-              <ActivityIndicator size="small" color="#FFA500" style={styles.spinner} />
-            ) : errorInterest ? (
-              <Text style={{ color: "red" }}>{errorInterest}</Text>
-            ) : (
-              <View
-                style={[
-                  styles.radioButton,
-                  selectedOption === "interest" && styles.selectedRadio,
-                ]}
-              >
-                <Text style={styles.interestText}>Interest</Text>
-                <Text style={styles.interestBal}>
+        <Text style={styles.interestcbuText}>Interest</Text>
+                <Text style={styles.interestcbuBal}>
                   {interest !== null && !isNaN(interest)
                     ? `${interest.toFixed(2)}`
                     : "No interest found"}
                 </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-  
-        <View style={styles.totalRevenue}>
-          <TouchableOpacity onPress={() => handleSelect("totalRevenue")}>
-            {loadingTotalRevenue ? (
-              <ActivityIndicator size="small" color="#800080" style={styles.spinner} />
-            ) : errorTotalRevenue ? (
-              <Text style={{ color: "red" }}>{errorTotalRevenue}</Text>
-            ) : (
-              <View
+        <Text style={styles.cburevText}>Yearly Revenue</Text>
+        <Text style={styles.cburevBal}>
+          {totalRevenue !== null && !isNaN(totalRevenue)
+            ? `${totalRevenue.toFixed(2)}`
+            : "No revenue found"}
+        </Text>
+      </View>
+    )}
+    </View>
+
+    <View style={styles.tabularform}>
+      <View style={styles.buttonContainer}>
+              <TouchableOpacity
                 style={[
-                  styles.radioButton,
-                  selectedOption === "totalRevenue" && styles.selectedRadio,
-                ]}
+        styles.cbubuttton,
+        selectedOption === "cbu" && styles.radioSelected, // Add selected style
+      ]}
+      onPress={() => setSelectedOption("cbu")}
               >
-                <Text style={styles.totalRevenueText}>Total Revenue</Text>
-                <Text style={styles.totalRevenueBal}>
-                  {totalRevenue !== null && !isNaN(totalRevenue)
-                    ? `${totalRevenue.toFixed(2)}`
-                    : "None"}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+                <Text style={styles.cbuText}>Cbu</Text>
+              </TouchableOpacity>
 
-</View>
-
-  
-        <View style={styles.tabularform}>
-          <View style={styles.radioButtonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.deposit,
-                selectedAction === "deposit" && styles.selected,
-              ]}
-              onPress={() => handleActionSelect("deposit")}
-            >
+              <TouchableOpacity
+                style={[
+                  styles.savingsbuttton,
+                  selectedOption === "savings" && styles.radioSelected, // Add selected style
+                ]}
+                onPress={() => setSelectedOption("savings")}
+              >
+                <Text style={styles.savingsText}>Savings</Text>
+              </TouchableOpacity>
+      </View>
+      <View style={styles.buttonactionContainer}>
+      <TouchableOpacity
+      style={[
+        styles.deposit,
+        selectedAction === "deposit" && styles.radioSelected, // Add selected style
+      ]}
+      onPress={() => handleActionSelect("deposit")}
+    >
               <Text style={styles.depositText}>Deposit</Text>
             </TouchableOpacity>
   
             <TouchableOpacity
-              style={[
-                styles.withdraw,
-                selectedAction === "withdraw" && styles.selected,
-              ]}
-              onPress={() => handleActionSelect("withdraw")}
-            >
+      style={[
+        styles.withdraw,
+        selectedAction === "withdraw" && styles.radioSelected, // Add selected style
+      ]}
+      onPress={() => handleActionSelect("withdraw")}
+    >
               <Text style={styles.withdrawText}>Withdraw</Text>
             </TouchableOpacity>
           </View>
-  
-                
-                <Text style={styles.choose}>Choose your amount</Text>
 
-                <View style={styles.buttonContainer}>
-                    <View style={styles.row}>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('1000')}>
-                            <Text style={styles.buttonText}>1000</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('2000')}>
-                            <Text style={styles.buttonText}>2000</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('3000')}>
-                            <Text style={styles.buttonText}>3000</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.row}>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('4000')}>
-                            <Text style={styles.buttonText}>4000</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('5000')}>
-                            <Text style={styles.buttonText}>5000</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('6000')}>
-                            <Text style={styles.buttonText}>6000</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <TouchableOpacity style={styles.confirm} onPress={handleTransaction}>
+        
+          <View style={styles.buttonamountContainer}>
+            <Text style={styles.choose}>Choose your amount</Text>
+            <View style={styles.row}>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('1000')}>
+                    <Text style={styles.buttonText}>1000</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('2000')}>
+                    <Text style={styles.buttonText}>2000</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('3000')}>
+                    <Text style={styles.buttonText}>3000</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.row}>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('4000')}>
+                    <Text style={styles.buttonText}>4000</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('5000')}>
+                    <Text style={styles.buttonText}>5000</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.inputbox} onPress={() => setAmount('6000')}>
+                    <Text style={styles.buttonText}>6000</Text>
+                </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text style={styles.desiredamount}>Enter your desired amount</Text>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.numberInput}
+              placeholder="Amount (min 500)"
+              keyboardType="numeric"
+              value={amount} // Bind to state
+              onChangeText={setAmount} // Optional for manual input
+            />
+            
+            <Text style={styles.mode}>Mode of Payment</Text>
+
+            <Picker
+              style={styles.dropdown}
+              selectedValue={selectedPaymentMode}
+              onValueChange={(itemValue) => setSelectedPaymentMode(itemValue)}
+            >
+              <Picker.Item label="Gcash" value="gcash" />
+              <Picker.Item label="Paypal" value="paypal" />
+              <Picker.Item label="PayMaya" value="paymaya" />
+              <Picker.Item label="Bank Transfer" value="bank_transfer" />
+            </Picker>
+          </View>
+
+
+            <TouchableOpacity style={styles.confirm} onPress={handleTransaction}>
                     <Text style={styles.confirmText}>Confirm</Text>
                 </TouchableOpacity>
-            </View>
 
-            <View style={styles.navbar}>
-                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
-                    <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
-                    <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
-                    <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
-                    <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
-                    <Image style={styles.history} source={require('./../assets/images/history.png')} />
-                </TouchableOpacity>
-            </View>
-            <Text style={styles.desiredamount}>Enter your desired amount</Text>
-            <View style={styles.dsrdamount}>
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.numberInput}
-                        placeholder="Amount (min 500)"
-                        keyboardType="numeric"
-                        value={amount} // Bind to state
-                        onChangeText={setAmount} // Optional for manual input
-                    />
-                    <Text style={styles.mode}>Mode of Payment</Text>
-                    <Picker
-                        style={styles.dropdown}
-                        selectedValue={selectedPaymentMode}
-                        onValueChange={(itemValue) => setSelectedPaymentMode(itemValue)}
-                    >
-                        <Picker.Item label="Gcash" value="gcash" />
-                        <Picker.Item label="Paypal" value="paypal" />
-                        <Picker.Item label="PayMaya" value="paymaya" />
-                        <Picker.Item label="Bank Transfer" value="bank_transfer" />
-                    </Picker>
-                </View>
-            </View>
+
+         
+
+
+          
+               
+
+
+
+    </View>
+
+    
         </View>
     );
 }
@@ -455,9 +509,9 @@ profileContainer: {
 },
     savings: {
       position: 'absolute',
-      width: width * 0.4, // 40% of the screen width
-      height: height * 0.08, // 8% of the screen height
-      left: width * 0.05, // 5% from the left edge of the screen
+      width: width * 0.5, // 40% of the screen width
+      height: height * 0.15, // 8% of the screen height
+      left: width * 0.01, 
       top: height * 0.05, // 12% from the top edge of the screen
       backgroundColor: '#373F41',
       borderWidth: 1,
@@ -473,7 +527,7 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.2, // 20% of screen width
       height: height * 0.03, // 3% of screen height
-      left: width * 0.03, // 3% from the left of the screen
+      left: width * 0.06, // 3% from the left of the screen
       top: height * 0.01, // 2% from the top of the screen
       fontStyle: 'normal',
       fontWeight: '600',
@@ -485,8 +539,8 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.3, // 30% of screen width
       height: height * 0.04, // 4% of screen height
-      left: width * 0.10, // 5% from the left of the screen
-      top: height * 0.03, // 8% from the top of the screen
+      left: width * 0.2, // 5% from the left of the screen
+      top: height * 0.01, // 8% from the top of the screen
       fontStyle: 'normal',
       fontWeight: '700',
       fontSize: width * 0.05, // Font size scales with screen width (5% of screen width)
@@ -503,9 +557,9 @@ profileContainer: {
     },
     cbu: {
       position: 'absolute',
-      width: width * 0.4, // 40% of the screen width
-      height: height * 0.08, // 8% of the screen height
-      left: width * 0.55, // 47% from the left edge of the screen (adjusted for positioning next to savings)
+      width: width * 0.49, // 40% of the screen width
+      height: height * 0.15, // 8% of the screen height
+      left: width * 0.505, // 47% from the left edge of the screen (adjusted for positioning next to savings)
       top: height * 0.05, // 12% from the top edge of the screen (same as savings for alignment)
       backgroundColor: '#F9A602',
       borderWidth: 1,
@@ -533,8 +587,8 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.25, // Adjust width to be 25% of screen width
       height: height * 0.04, // Adjust height based on screen height
-      left: width * 0.10, // Adjust left position to be 10% of screen width
-      top: height * 0.04, // Adjust top position to be 5% of screen height
+      left: width * 0.2, // Adjust left position to be 10% of screen width
+      top: height * 0.02, // Adjust top position to be 5% of screen height
       fontStyle: 'normal',
       fontWeight: '700',
       fontSize: width * 0.05, // Font size is 4% of screen width
@@ -561,8 +615,8 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.2, // 20% of screen width
       height: height * 0.03, // 3% of screen height
-      left: width * 0.03, // 3% from the left of the container
-      top: height * 0.01, // 2% from the top of the container
+      left: width * 0.06, // 3% from the left of the container
+      top: height * 0.06, // 2% from the top of the container
       fontStyle: 'normal',
       fontWeight: '600',
       fontSize: width * 0.04, // Scaled font size
@@ -573,8 +627,8 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.3, // 30% of screen width
       height: height * 0.04, // 4% of screen height
-      left: width * 0.10, // 10% from the left of the container
-      top: height * 0.03, // 3% from the top of the container
+      left: width * 0.2, // 10% from the left of the container
+      top: height * 0.06, // 3% from the top of the container
       fontStyle: 'normal',
       fontWeight: '700',
       fontSize: width * 0.05, // Scaled font size
@@ -624,20 +678,19 @@ profileContainer: {
     
     tabularform: {
       position: 'absolute',
-      width: width * 0.90, // 85% of the screen width
+      width: width * 0.9, // 85% of the screen width
       height: height * 0.50, // 35% of the screen height
       left: width * 0.05, // 5% of the screen width from the left
-      top: height * 0.3, // 20% from the top of the screen
+      top: height * 0.25, // 20% from the top of the screen
       backgroundColor: '#D9D9D9',
       borderRadius: 10,
     },
     deposit: {
       position: 'absolute',
-      width: width * 0.35, // 35% of the screen width
-      height: height * 0.04, // 5% of the screen height
-      left: width * 0.05, // 5% from the left
-      top: height * 0.03, // 5% from the top of the container
-      backgroundColor: '#F9A602',
+      width: width * 0.3, // 35% of the screen width
+    height: height * 0.05, // 5% of the screen height
+    backgroundColor: '#FFFFFF',
+  
       borderRadius: 5,
       justifyContent: 'center',
       alignItems: 'center',
@@ -649,41 +702,48 @@ profileContainer: {
     },
     withdraw: {
       position: 'absolute',
-      width: width * 0.35, // 35% of the screen width
-      height: height * 0.04, // 5% of the screen height
-      left: width * 0.49, // Position the withdraw button 55% from the left
-      top: height * 0.03, // 5% from the top of the container
-      backgroundColor: '#373F41',
+      width: width * 0.3, // 35% of the screen width
+      height: height * 0.05, // 5% of the screen height
+      backgroundColor: '#FFFFFF',
       borderRadius: 5,
       justifyContent: 'center',
       alignItems: 'center',
+      left: width * 0.49, // Position the withdraw button 55% from the left
+      top: height * 0.0005, // 5% from the top of the container
+     
     },
     withdrawText: {
-      color: '#FFFFFF',
+      color: '#373f41',
       fontSize: width * 0.05, // Font size is 4% of the screen width
       fontWeight: 'normal',
     },
     choose: {
-      position: 'absolute',
-      width: width * 0.3, // 30% of screen width for responsive size
-      height: height * 0.03, // 3% of screen height for text size
-      left: width * 0.06, // Position from the left, 10% of screen width
-      top: height * 0.08, // Position from the top, 7% of screen height
       fontStyle: 'normal',
       fontWeight: '400',
       fontSize: width * 0.03, // Font size as 3% of screen width
       lineHeight: height * 0.03, // Line height based on screen height
       color: '#777777',
+      marginBottom: height * 0.02,
     },
     buttonContainer: {
       position: 'absolute',
-      top: height * 0.12, // Position from the top, 12% of screen height
+      top: height * 0.01, // Position from the top, 12% of screen height
+      left: width * 0.05, // Position from the left, 5% of screen width
+    },
+    buttonamountContainer: {
+      position: 'absolute',
+      top: height * 0.13, // Position from the top, 12% of screen height
+      left: width * 0.05, // Position from the left, 5% of screen width
+    },
+    buttonactionContainer: {
+      position: 'absolute',
+      top: height * 0.07, // Position from the top, 12% of screen height
       left: width * 0.05, // Position from the left, 5% of screen width
     },
     row: {
       flexDirection: 'row',
       justifyContent: 'space-between', // Space buttons evenly
-      marginBottom: height * 0.02, // Vertical margin based on screen height
+      marginBottom: height * 0.02, 
     },
     inputbox: {
       width: width * 0.24, // 25% of screen width for responsive input width
@@ -706,7 +766,7 @@ profileContainer: {
       width: width * 0.5, // 50% of the screen width
       height: height * 0.02, // 2% of the screen height for font size
       left: width * 0.10, // 10% from the left edge of the screen
-      top: height * 0.56, // 49% from the top of the screen
+      top: height * 0.28, // 49% from the top of the screen
       fontStyle: 'normal',
       fontWeight: '300',
       fontSize: width * 0.03, // Font size is 3.2% of screen width (adjustable)
@@ -716,12 +776,12 @@ profileContainer: {
 inputContainer: {
   flexDirection: 'row', // Aligns children in a row
   alignItems: 'center', // Centers items vertically
-  top: height * 0.55, // 38% of the screen height (adjustable)
-  left: width * 0.12, // 12% from the left edge (adjustable)
+  top: height * 0.3, // 38% of the screen height (adjustable)
+  left: width * 0.08, // 12% from the left edge (adjustable)
 },
 numberInput: {
   boxSizing: 'border-box',
-  width: width * 0.3, // 40% of the screen width
+  width: width * 0.4, // 40% of the screen width
   height: height * 0.06, // 5% of the screen height
   backgroundColor: '#FFFFFF',
   borderColor: '#373F41',
@@ -729,18 +789,19 @@ numberInput: {
   marginRight: width * 0.03, // Space between input and dropdown, adjustable
   textAlign: 'center', // Center the text in the input
   top: height * 0.01, // Adjust the top position
-  left: width * -0.02, // Adjust the left position, making it responsive
+  left: width * -0.02, 
+  borderRadius: 4,// Adjust the left position, making it responsive
 },
     dropdown: {
       position: 'absolute', // Absolute positioning
       width: width * 0.4, // 40% of the screen width (adjust as needed)
       height: height * 0.05, // 5% of the screen height for dropdown height (adjustable)
-      left: width * 0.38, // 40% from the left edge of the screen (adjustable)
+      left: width * 0.4, // 40% from the left edge of the screen (adjustable)
       top: height * 0.01, // Adjusted to move the dropdown higher (1% from the top)
       backgroundColor: '#FFFFFF',
       borderColor: '#373F41',
       borderWidth: 0.5,
-      borderRadius: 30, // Increased border radius for rounder corners
+      borderRadius: 10, // Increased border radius for rounder corners
     },
      
     mode: {
@@ -748,7 +809,7 @@ numberInput: {
   width: width * 0.4, // 40% of the screen width (increased width for testing visibility)
   height: height * 0.04, // 4% of the screen height (slightly increased height)
   left: width * 0.47, // Adjusted to make sure it's within visible area
-  top: height * -0.05, // Adjust top position for better visibility
+  top: height * -0.03, // Adjust top position for better visibility
   fontStyle: 'normal',
   fontWeight: '300',
   fontSize: width * 0.03, // Increased font size for better visibility
@@ -826,5 +887,130 @@ numberInput: {
       flex: 0, // Ensures it does not grow or shrink
       left: width * -0.015, // Slight inward adjustment for alignment
   },  
+
+  savrevText: {
+    position: 'absolute',
+    height: height * 0.03, 
+    left: width * 0.06, 
+    top: height * 0.08, 
+    fontStyle: 'normal',
+    fontWeight: '600',
+    fontSize: width * 0.04, 
+    lineHeight: height * 0.03, 
+    color: '#F9A602',
+  // Text color for contrast
+  },
+
+  savrevBal: {
+    position: 'absolute',
+    width: width * 0.3, // 30% of screen width
+    height: height * 0.04, // 4% of screen height
+    left: width * 0.2, // 10% from the left of the container
+    top: height * 0.1, // 3% from the top of the container
+    fontStyle: 'normal',
+    fontWeight: '700',
+    fontSize: width * 0.05, // Scaled font size
+    lineHeight: height * 0.04, // Scaled line height
+    color: '#F9A602',
+  },
+
+  interestcbuText: {
+    position: 'absolute',
+    width: width * 0.2, // 20% of screen width
+    height: height * 0.03, // 3% of screen height
+    left: width * 0.06, // 3% from the left of the container
+    top: height * 0.06, // 2% from the top of the container
+    fontStyle: 'normal',
+    fontWeight: '600',
+    fontSize: width * 0.04, // Scaled font size
+    lineHeight: height * 0.03, // Line height scales with screen height
+    color: '#373F41', // Text color for contrast
+  },
+  interestcbuBal: {
+    position: 'absolute',
+    width: width * 0.3, // 30% of screen width
+    height: height * 0.04, // 4% of screen height
+    left: width * 0.2, // 10% from the left of the container
+    top: height * 0.06, // 3% from the top of the container
+    fontStyle: 'normal',
+    fontWeight: '700',
+    fontSize: width * 0.05, // Scaled font size
+    lineHeight: height * 0.04, // Scaled line height
+    color: '#373F41',
+  },
+
+  cburevText: {
+    position: 'absolute',
+    height: height * 0.03, 
+    left: width * 0.06, 
+    top: height * 0.08, 
+    fontStyle: 'normal',
+    fontWeight: '600',
+    fontSize: width * 0.04, 
+    lineHeight: height * 0.03, 
+    color: '#373F41',
+  // Text color for contrast
+  },
+
+  cburevBal: {
+    position: 'absolute',
+    width: width * 0.3, // 30% of screen width
+    height: height * 0.04, // 4% of screen height
+    left: width * 0.2, // 10% from the left of the container
+    top: height * 0.1, // 3% from the top of the container
+    fontStyle: 'normal',
+    fontWeight: '700',
+    fontSize: width * 0.05, // Scaled font size
+    lineHeight: height * 0.04, // Scaled line height
+    color: '#373F41',
+  },
+  cbubuttton: {
+    position: 'absolute',
+    width: width * 0.3, // 35% of the screen width
+    height: height * 0.05, // 5% of the screen height
+    // left: width * 0.05, // 5% from the left
+    // top: height * 0.01,// 5% from the top of the container
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cbuText: {
+    color: '#373F41',
+    fontSize: width * 0.05, // Font size is 4% of the screen width
+    fontWeight: 'normal',
+
+  },
+  savingsbuttton: {
+    position: 'absolute',
+    width: width * 0.3, // 35% of the screen width
+    height: height * 0.05, // 5% of the screen height
+    left: width * 0.5, // 5% from the left
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  savingsText: {
+    color: '#373F41',
+    fontSize: width * 0.05, 
+    fontWeight: 'normal',
+
+  },
+  radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#777",
+    marginRight: 10,
+    backgroundColor: "transparent",
+    // Default unselected color
+  },
+  radioSelected: {
+    backgroundColor: "#f9a602",
+    // Highlighted border for the selected button
+  },
+ 
 }
 export default Funds;

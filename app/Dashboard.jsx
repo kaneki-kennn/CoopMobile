@@ -175,37 +175,35 @@ const Dashboard = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleLogoClick}>
-                    <Image
-                        source={require('./../assets/images/COOP LOGO.png')}
-                        style={styles.logo}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Notification', { userId })}
-                style={styles.bellContainer}>
-                    <Image source={require('./../assets/images/bell.png')}style={styles.bell}/>
-                </TouchableOpacity>
+          <View style={styles.header}>
+  <TouchableOpacity onPress={handleLogoClick}>
+    <Image
+      source={require('./../assets/images/COOP LOGO.png')}
+      style={styles.logo}
+    />
+  </TouchableOpacity>
+  <TouchableOpacity
+    onPress={() => navigation.navigate('Notification', { userId })}
+    style={styles.bellContainer}
+  >
+    <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
+  </TouchableOpacity>
 
-                <TouchableOpacity 
-                    onPress={() => alert("Email clicked! Check your inbox.")}
-                    style={styles.emailContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/email.png')}
-                        style={styles.email}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={() => alert("Profile clicked! View your profile.")}
-                    style={styles.profileContainer}
-                >
-                    <Image
-                        source={require('./../assets/images/profile.png')}
-                        style={styles.profile}
-                    />
-                </TouchableOpacity>
-            </View>
+  <TouchableOpacity style={styles.emailContainer}>
+    <Image
+      source={require('./../assets/images/email.png')}
+      style={styles.email}
+    />
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.profileContainer}>
+    <Image
+      source={require('./../assets/images/profile.png')}
+      style={styles.profile}
+    />
+  </TouchableOpacity>
+</View>
+
 
             <View style={styles.welcome}>
                 <Text style={styles.welcomemess}>Welcome</Text>
@@ -619,14 +617,14 @@ const styles = {
         top: width * 0.3,
       },
       megaphone: {
-        width: width * 0.12, // 12% of the screen width for image width
-        height: height * 0.06, // 6% of the screen height for image height
+        width: width * 0.08, // 12% of the screen width for image width
+        height: height * 0.05, // 6% of the screen height for image height
         marginBottom: height * 0.01, // 1% of screen height for spacing
         tintColor: '#F9A602',
         resizeMode: 'contain',
         position: 'absolute',
         left: width * 0.05,
-        top: height * 0.01,
+        top: height * 0.0,
       },
       coopad: {
         fontWeight: '800',
