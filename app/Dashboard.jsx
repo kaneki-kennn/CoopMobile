@@ -1,5 +1,5 @@
 import { useEffect, useState, } from 'react';
-import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image, ScrollView} from 'react-native';
+import { View, Text, Alert, ActivityIndicator, TouchableOpacity, Image, ScrollView, Button, Modal} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
@@ -28,6 +28,22 @@ const Dashboard = () => {
     const [loans, setLoans] = useState(0);
     const [loadingLoans, setLoadingLoans] =useState(true);
     const [errorLoans, setErrorLoans] =useState (null);
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleProfileClick = () => {
+    setIsProfileMenuVisible(prevState => !prevState);
+  };
+
+  // Function to handle email icon click
+  const handleEmailClick = () => {
+    setIsModalVisible(true); // Show the modal
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setIsModalVisible(false); // Hide the modal
+  };
 
     const [refreshKey, setRefreshKey] = useState(0);
 
@@ -175,35 +191,57 @@ const Dashboard = () => {
 
     return (
         <View style={styles.container}>
-          <View style={styles.header}>
-  <TouchableOpacity onPress={handleLogoClick}>
-    <Image
-      source={require('./../assets/images/COOP LOGO.png')}
-      style={styles.logo}
-    />
-  </TouchableOpacity>
-  <TouchableOpacity
-    onPress={() => navigation.navigate('Notification', { userId })}
-    style={styles.bellContainer}
-  >
-    <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
-  </TouchableOpacity>
+         <View style={styles.header}>
+        {/* Logo */}
+        <TouchableOpacity onPress={handleLogoClick}>
+          <Image
+            source={require('./../assets/images/COOP LOGO.png')}
+            style={styles.logo}
+          />
+        </TouchableOpacity>
 
-  <TouchableOpacity style={styles.emailContainer}>
-    <Image
-      source={require('./../assets/images/email.png')}
-      style={styles.email}
-    />
-  </TouchableOpacity>
+        {/* Notification Bell Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notification', { userId })}
+          style={styles.bellContainer}
+        >
+          <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
+        </TouchableOpacity>
 
-  <TouchableOpacity style={styles.profileContainer}>
-    <Image
-      source={require('./../assets/images/profile.png')}
-      style={styles.profile}
-    />
-  </TouchableOpacity>
-</View>
+        {/* Email Icon */}
+        <TouchableOpacity onPress={handleEmailClick} style={styles.emailContainer}>
+          <Image
+            source={require('./../assets/images/email.png')}
+            style={styles.email}
+          />
+        </TouchableOpacity>
 
+        {/* Profile Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile', { userId })}
+          style={styles.profileContainer}
+        >
+          <Image
+            source={require('./../assets/images/profile.png')}
+            style={styles.profile}
+          />
+        </TouchableOpacity>
+
+        {/* Modal for Email Popup */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalBack}>
+            <View style={styles.modalCon}>
+              <Text style={styles.modalTxt}>Please open your Gmail App to view email.</Text>
+              <Button title="Open" onPress={closeModal} />
+            </View>
+          </View>
+        </Modal>
+      </View>
 
             <View style={styles.welcome}>
                 <Text style={styles.welcomemess}>Welcome</Text>
@@ -403,6 +441,27 @@ const styles = {
         left: width * 0.90, // Position dynamically based on screen width
         top: height * 0.03, // 2% of the screen height
     },
+    modalBack: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalCon: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: width * 0.8, // Set modal width to 80% of the screen width
+        height: height * 0.3, // Set modal height to 30% of the screen height
+        maxWidth: 350,  // Maximum width of modal
+        maxHeight: 150, // Maximum height of modal
+      },
+      modalTxt: {
+        marginBottom: 20,
+        fontSize: width > 350 ? 18 : 16, // Adjust font size based on screen width
+        textAlign: 'center',  // Make text centered
+      },
     welcome: {
         position: 'absolute', // Position it absolutely
         left: width * 0.08, // 8% from the left of the screen

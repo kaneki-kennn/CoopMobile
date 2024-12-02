@@ -28,7 +28,6 @@ export default function RootLayout() {
       <Stack.Screen name="History"/>
       <Stack.Screen name="Announcement"/>
       <Stack.Screen name="Notification"/>
-      <Stack.Screen name="Mailsend"/>
     </Stack>
   );
 }

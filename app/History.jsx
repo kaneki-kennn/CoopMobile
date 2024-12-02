@@ -1,140 +1,219 @@
 import {
-    View,
-    Image,
-    TouchableOpacity,
-    Text,
-    StyleSheet,
-    Alert,
-  } from "react-native";
-  import React, { useState } from "react";
-  import { Picker } from "@react-native-picker/picker";
-  import { useRouter } from "expo-router";
-  import { Dimensions } from 'react-native';
-  
-  export default function History() {
-    const router = useRouter(); // Using `useRouter` for navigation
-    const [selectedTimeFrame, setSelectedTimeFrame] = useState(""); // State for dropdown
-  
-    const dataRows = [
-      { id: "001", amount: "Php 1000", type: "Deposit", status: "Completed", date: "2023-10-01" },
-      { id: "002", amount: "Php 2000", type: "Withdraw", status: "Pending", date: "2023-10-02" },
-    ];
-  
-    const handleLogoClick = () => {
-      Alert.alert("Coop clicked!", "The page will refresh."); // Replace with your refresh logic
-    };
-  
-    return (
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleLogoClick}>
-            <Image
-              source={require("./../assets/images/COOP LOGO.png")}
-              style={styles.logo}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => Alert.alert("Bell clicked!", "Notifications.")}
-            style={styles.bellContainer}
-          >
-            <Image
-              source={require("./../assets/images/bell.png")}
-              style={styles.bell}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => Alert.alert("Email clicked!", "Check your inbox.")}
-            style={styles.emailContainer}
-          >
-            <Image
-              source={require("./../assets/images/email.png")}
-              style={styles.email}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => Alert.alert("Profile clicked!", "View your profile.")}
-            style={styles.profileContainer}
-          >
-            <Image
-              source={require("./../assets/images/profile.png")}
-              style={styles.profile}
-            />
-          </TouchableOpacity>
-        </View>
-  
-        {/* Dropdown */}
-        <View style={styles.dropdownContainer}>
-          <Picker
-            selectedValue={selectedTimeFrame}
-            onValueChange={(itemValue) => setSelectedTimeFrame(itemValue)}
-            style={styles.dropdown}
-          >
-            <Picker.Item label="Select Time Frame" value="" />
-            <Picker.Item label="Last hour" value="last_hour" />
-            <Picker.Item label="Last 24 hours" value="last_24" />
-            <Picker.Item label="Last 7 days" value="last_7" />
-            <Picker.Item label="Last 4 weeks" value="last_4" />
-            <Picker.Item label="All time" value="all_time" />
-          </Picker>
-        </View>
-  
-        {/* Table */}
-        <View style={styles.table}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerCell}>Request ID</Text>
-            <Text style={styles.headerCell}>Amount</Text>
-            <Text style={styles.headerCell}>Type</Text>
-            <Text style={styles.headerCell}>Status</Text>
-            <Text style={styles.headerCell}>Date</Text>
+  View,
+  Image,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Modal,
+  Button,
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
+
+export default function History() {
+  const route = useRoute();
+  const { userId } = route.params || {}; // Using `useRouter` for navigation
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState("");
+  const [transactions, setTransactions] = useState(null);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [errorTransactions, setErrorTransactions] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const navigation = useNavigation();
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleProfileClick = () => {
+    setIsProfileMenuVisible(prevState => !prevState);
+  };
+
+  // Function to handle email icon click
+  const handleEmailClick = () => {
+    setIsModalVisible(true); // Show the modal
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setIsModalVisible(false); // Hide the modal
+  };
+
+  const fetchTransactions = async () => {
+    setLoadingTransactions(true);
+    setErrorTransactions(null);
+
+    try {
+      // Fetch data from Loan Applications
+      const { data: loanApplications, error: loanError } = await supabase
+        .from("Loan_applications")
+        .select("application_id as request_id, application_status as status, loan_type as transaction_type, date_sent")
+        .eq("user_id", userId);
+
+      if (loanError) throw loanError;
+
+      // Fetch data from Savtransactions
+      const { data: savTransactions, error: savError } = await supabase
+        .from("Savtransactions")
+        .select("savtransaction_id as request_id, status, transaction_type, date_sent")
+        .eq("user_id", userId);
+
+      if (savError) throw savError;
+
+      // Fetch data from Cbutransactions
+      const { data: cbuTransactions, error: cbuError } = await supabase
+        .from("Cbutransactions")
+        .select("cbutransaction_id as request_id, status, transaction_type, date_sent")
+        .eq("user_id", userId);
+
+      if (cbuError) throw cbuError;
+
+      const combinedData = [
+        ...(loanApplications || []),
+        ...(savTransactions || []),
+        ...(cbuTransactions || []),
+      ];
+
+      combinedData.sort((a, b) => new Date(b.date_sent) - new Date(a.date_sent));
+      setTransactions(combinedData);
+    } catch (err) {
+      console.error("Error fetching user requests:", err);
+      setErrorTransactions("Failed to fetch user requests.");
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [refreshKey]);
+
+  const handleLogoClick = () => {
+    Alert.alert("Coop clicked!", "The page will refresh.");
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        {/* Logo */}
+        <TouchableOpacity onPress={handleLogoClick}>
+          <Image
+            source={require('./../assets/images/COOP LOGO.png')}
+            style={styles.logo}
+          />
+        </TouchableOpacity>
+
+        {/* Notification Bell Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notification', { userId })}
+          style={styles.bellContainer}
+        >
+          <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
+        </TouchableOpacity>
+
+        {/* Email Icon */}
+        <TouchableOpacity onPress={handleEmailClick} style={styles.emailContainer}>
+          <Image
+            source={require('./../assets/images/email.png')}
+            style={styles.email}
+          />
+        </TouchableOpacity>
+
+        {/* Profile Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile', { userId })}
+          style={styles.profileContainer}
+        >
+          <Image
+            source={require('./../assets/images/profile.png')}
+            style={styles.profile}
+          />
+        </TouchableOpacity>
+
+        {/* Modal for Email Popup */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalBack}>
+            <View style={styles.modalCon}>
+              <Text style={styles.modalTxt}>Please open your Gmail App to view email.</Text>
+              <Button title="Open" onPress={closeModal} />
+            </View>
           </View>
-          {dataRows.map((row, index) => (
-            <TouchableOpacity key={index} style={styles.dataRow}>
-              <Text style={styles.dataCell}>{row.id}</Text>
-              <Text style={styles.dataCell}>{row.amount}</Text>
-              <Text style={styles.dataCell}>{row.type}</Text>
-              <Text style={styles.dataCell}>{row.status}</Text>
-              <Text style={styles.dataCell}>{row.date}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-  
-        {/* Navbar */}
-        <View style={styles.navbar}>
-          <TouchableOpacity onPress={() => router.push("/Announcement")}>
-            <Image
-              style={styles.announcement}
-              source={require("./../assets/images/megaphone.png")}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/Funds")}>
-            <Image
-              style={styles.funds}
-              source={require("./../assets/images/dollar-bill.png")}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/Dashboard")}>
-            <Image
-              style={styles.dashboard}
-              source={require("./../assets/images/dashboard.png")}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/Loans")}>
-            <Image
-              style={styles.loans}
-              source={require("./../assets/images/personal.png")}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/History")}>
-            <Image
-              style={styles.history}
-              source={require("./../assets/images/history.png")}
-            />
-          </TouchableOpacity>
-        </View>
+        </Modal>
       </View>
-    );
-  }
+
+      {/* Dropdown */}
+      <View style={styles.dropdownContainer}>
+        <Picker
+          selectedValue={selectedTimeFrame}
+          onValueChange={(itemValue) => setSelectedTimeFrame(itemValue)}
+          style={styles.dropdown}
+        >
+          <Picker.Item label="Select Time Frame" value="" />
+          <Picker.Item label="Last hour" value="last_hour" />
+          <Picker.Item label="Last 24 hours" value="last_24" />
+          <Picker.Item label="Last 7 days" value="last_7" />
+          <Picker.Item label="Last 4 weeks" value="last_4" />
+          <Picker.Item label="All time" value="all_time" />
+        </Picker>
+      </View>
+
+      {/* Table */}
+      <View style={styles.table}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerCell}>Request ID</Text>
+          <Text style={styles.headerCell}>Amount</Text>
+          <Text style={styles.headerCell}>Type</Text>
+          <Text style={styles.headerCell}>Status</Text>
+          <Text style={styles.headerCell}>Date</Text>
+        </View>
+        {loadingTransactions ? (
+          <Text>Loading...</Text> // Display loading state
+        ) : errorTransactions ? (
+          <Text>{errorTransactions}</Text> // Display error message
+        ) : transactions && transactions.length > 0 ? (
+          transactions.map((transaction, index) => (
+            <TouchableOpacity key={index} style={styles.dataRow}>
+              <Text style={styles.dataCell}>{transaction.request_id}</Text>
+              <Text style={styles.dataCell}>{transaction.amount || "N/A"}</Text>
+              <Text style={styles.dataCell}>{transaction.transaction_type}</Text>
+              <Text style={styles.dataCell}>{transaction.status}</Text>
+              <Text style={styles.dataCell}>{transaction.date_sent}</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text>No transactions found.</Text> // If no transactions exist
+        )}
+      </View>
+
+      {/* Navbar */}
+      <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
+          <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
+          <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
+          <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
+          <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
+          <Image style={styles.history} source={require('./../assets/images/history.png')} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
   const { width, height } = Dimensions.get('window');
 const styles = {
@@ -194,6 +273,27 @@ profileContainer: {
     position: 'absolute',
     left: width * 0.90, // Position dynamically based on screen width
     top: height * 0.03, // 2% of the screen height
+},
+modalBack: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+modalCon: {
+  backgroundColor: 'white',
+  padding: 20,
+  borderRadius: 10,
+  alignItems: 'center',
+  width: width * 0.8, // Set modal width to 80% of the screen width
+  height: height * 0.3, // Set modal height to 30% of the screen height
+  maxWidth: 350,  // Maximum width of modal
+  maxHeight: 150, // Maximum height of modal
+},
+modalTxt: {
+  marginBottom: 20,
+  fontSize: width > 350 ? 18 : 16, // Adjust font size based on screen width
+  textAlign: 'center',  // Make text centered
 },
 dropdownContainer: {
   width: width * 0.45, // 60% of the screen width (adjustable)

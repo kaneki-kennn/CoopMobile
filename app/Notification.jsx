@@ -36,7 +36,7 @@ const Notification = () => {
 
   return (
     <View style={styles.container}>
-     <View style={styles.header}>
+      <View style={styles.header}>
   <TouchableOpacity onPress={handleLogoClick}>
     <Image
       source={require('./../assets/images/COOP LOGO.png')}
@@ -50,14 +50,18 @@ const Notification = () => {
     <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
   </TouchableOpacity>
 
-  <TouchableOpacity style={styles.emailContainer}>
+  <TouchableOpacity
+  onPress={() => navigation.navigate('MailSend', { userId })}
+   style={styles.emailContainer}>
     <Image
       source={require('./../assets/images/email.png')}
       style={styles.email}
     />
   </TouchableOpacity>
 
-  <TouchableOpacity style={styles.profileContainer}>
+  <TouchableOpacity
+  onPress={() => navigation.navigate('Profile', { userId })}
+   style={styles.profileContainer}>
     <Image
       source={require('./../assets/images/profile.png')}
       style={styles.profile}

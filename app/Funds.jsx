@@ -5,6 +5,8 @@ import {
     Text,
     TextInput,
     ActivityIndicator,
+    Button,
+    Modal,
   } from "react-native";
   import React, { useEffect, useState } from "react";
   import { Picker } from "@react-native-picker/picker";
@@ -18,6 +20,23 @@ import {
     const navigation = useNavigation();
     const route = useRoute();
     const { userId } = route.params || {};
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const handleProfileClick = () => {
+      setIsProfileMenuVisible(prevState => !prevState);
+    };
+  
+    // Function to handle email icon click
+    const handleEmailClick = () => {
+      setIsModalVisible(true); // Show the modal
+    };
+  
+    // Function to close the modal
+    const closeModal = () => {
+      setIsModalVisible(false); // Hide the modal
+    };
+
   
     if (!userId) {
       console.log("User ID is not available in route params");
@@ -237,41 +256,57 @@ const fetchUserSavings = async () => {
   
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleLogoClick}>
-            <Image
-              source={require("./../assets/images/COOP LOGO.png")}
-              style={styles.logo}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => alert("Bell clicked! Notifications.")}
-            style={styles.bellContainer}
-          >
-            <Image
-              source={require("./../assets/images/bell.png")}
-              style={styles.bell}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => alert("Email clicked! Check your inbox.")}
-            style={styles.emailContainer}
-          >
-            <Image
-              source={require("./../assets/images/email.png")}
-              style={styles.email}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => alert("Profile clicked! View your profile.")}
-            style={styles.profileContainer}
-          >
-            <Image
-              source={require("./../assets/images/profile.png")}
-              style={styles.profile}
-            />
-          </TouchableOpacity>
-        </View>
+            <View style={styles.header}>
+        {/* Logo */}
+        <TouchableOpacity onPress={handleLogoClick}>
+          <Image
+            source={require('./../assets/images/COOP LOGO.png')}
+            style={styles.logo}
+          />
+        </TouchableOpacity>
+
+        {/* Notification Bell Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notification', { userId })}
+          style={styles.bellContainer}
+        >
+          <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
+        </TouchableOpacity>
+
+        {/* Email Icon */}
+        <TouchableOpacity onPress={handleEmailClick} style={styles.emailContainer}>
+          <Image
+            source={require('./../assets/images/email.png')}
+            style={styles.email}
+          />
+        </TouchableOpacity>
+
+        {/* Profile Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile', { userId })}
+          style={styles.profileContainer}
+        >
+          <Image
+            source={require('./../assets/images/profile.png')}
+            style={styles.profile}
+          />
+        </TouchableOpacity>
+
+        {/* Modal for Email Popup */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalBack}>
+            <View style={styles.modalCon}>
+              <Text style={styles.modalTxt}>Please open your Gmail App to view email.</Text>
+              <Button title="Open" onPress={closeModal} />
+            </View>
+          </View>
+        </Modal>
+      </View>
 
         <View style={styles.savings}>
         {loadingSavings ? (
@@ -280,7 +315,7 @@ const fetchUserSavings = async () => {
       <Text style={{ color: "red" }}>{errorSavings}</Text>
     ) : ( 
       <View>
-        <Text style={styles.savingsText}>Savings</Text>
+        {/* <Text style={styles.savingsText}>Savings</Text> */}
         <Text style={styles.savingsBal}>
           {savings !== null && !isNaN(savings)
             ? `${savings.toFixed(2)}`
@@ -300,6 +335,7 @@ const fetchUserSavings = async () => {
         </Text>
       </View>
     )}
+    <Text style={styles.saveText}>Savings</Text>
     </View>
 
     <View style={styles.cbu}>
@@ -309,7 +345,7 @@ const fetchUserSavings = async () => {
       <Text style={{ color: "red" }}>{errorCbu}</Text>
     ) : (
       <View>
-        <Text style={styles.cbuText}>CBU</Text>
+        {/* <Text style={styles.cbuText}>CBU</Text> */}
         <Text style={styles.cbuBal}>
           {cbu !== null && !isNaN(cbu)
             ? `${cbu.toFixed(2)}`
@@ -329,6 +365,7 @@ const fetchUserSavings = async () => {
         </Text>
       </View>
     )}
+     <Text style={styles.cbusText}>CBU</Text>
     </View>
 
     <View style={styles.tabularform}>
@@ -443,6 +480,24 @@ const fetchUserSavings = async () => {
 
     </View>
 
+    <View style={styles.navbar}>
+                <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
+                    <Image style={styles.announcement} source={require('./../assets/images/megaphone.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Funds', { userId })}>
+                    <Image style={styles.funds} source={require('./../assets/images/dollar-bill.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard', { userId })}>
+                    <Image style={styles.dashboard} source={require('./../assets/images/dashboard.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Loans', { userId })}>
+                    <Image style={styles.loans} source={require('./../assets/images/personal.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('History', { userId })}>
+                    <Image style={styles.history} source={require('./../assets/images/history.png')} />
+                </TouchableOpacity>
+    </View>
+
     
         </View>
     );
@@ -507,12 +562,33 @@ profileContainer: {
     left: width * 0.90, // Position dynamically based on screen width
     top: height * 0.03, // 2% of the screen height
 },
+modalBack: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+modalCon: {
+  backgroundColor: 'white',
+  padding: 20,
+  borderRadius: 10,
+  alignItems: 'center',
+  width: width * 0.8, // Set modal width to 80% of the screen width
+  height: height * 0.3, // Set modal height to 30% of the screen height
+  maxWidth: 350,  // Maximum width of modal
+  maxHeight: 150, // Maximum height of modal
+},
+modalTxt: {
+  marginBottom: 20,
+  fontSize: width > 350 ? 18 : 16, // Adjust font size based on screen width
+  textAlign: 'center',  // Make text centered
+},
     savings: {
       position: 'absolute',
-      width: width * 0.5, // 40% of the screen width
-      height: height * 0.15, // 8% of the screen height
-      left: width * 0.01, 
-      top: height * 0.05, // 12% from the top edge of the screen
+      width: width * 0.43, // 40% of the screen width
+      height: height * 0.17, // 8% of the screen height
+      left: width * 0.05, 
+      top: height * 0.06, // 12% from the top edge of the screen
       backgroundColor: '#373F41',
       borderWidth: 1,
       borderColor: '#FFFFFF',
@@ -523,23 +599,21 @@ profileContainer: {
       borderRadius: 10,
       elevation: 5, // for Android shadow
     },
-    savingsText: {
+    saveText: {
       position: 'absolute',
-      width: width * 0.2, // 20% of screen width
-      height: height * 0.03, // 3% of screen height
-      left: width * 0.06, // 3% from the left of the screen
-      top: height * 0.01, // 2% from the top of the screen
+      left: width * 0.14,
+      top: height * 0.17,
       fontStyle: 'normal',
       fontWeight: '600',
-      fontSize: width * 0.04, // Font size scales with screen width (4% of screen width)
-      lineHeight: height * 0.03, // Line height scales with screen height (3% of screen height)
-      color: '#F9A602',
+      fontSize: width * 0.05,
+      lineHeight: height * 0.04,
+      color: '#373F41',
     },
     savingsBal: {
       position: 'absolute',
       width: width * 0.3, // 30% of screen width
       height: height * 0.04, // 4% of screen height
-      left: width * 0.2, // 5% from the left of the screen
+      left: width * 0.11, // 5% from the left of the screen
       top: height * 0.01, // 8% from the top of the screen
       fontStyle: 'normal',
       fontWeight: '700',
@@ -547,20 +621,16 @@ profileContainer: {
       lineHeight: height * 0.04, // Line height scales with screen height (4% of screen height)
       color: '#F9A602',
     },
-    activityIndicator2: {
-      alignSelf: 'center', // Center the ActivityIndicator horizontally
-      marginTop: height * 0.02, // Adjust marginTop to be 2% of screen height
-    },
-    spinner: {
-      alignSelf: 'center', // Center the spinner horizontally
-      marginTop: height * 0.02, // Adjust marginTop to be 2% of screen height
-    },
+    // spinner: {
+    //   alignSelf: 'center', // Center the spinner horizontally
+    //   marginTop: height * 0.02, // Adjust marginTop to be 2% of screen height
+    // },
     cbu: {
       position: 'absolute',
-      width: width * 0.49, // 40% of the screen width
-      height: height * 0.15, // 8% of the screen height
-      left: width * 0.505, // 47% from the left edge of the screen (adjusted for positioning next to savings)
-      top: height * 0.05, // 12% from the top edge of the screen (same as savings for alignment)
+      width: width * 0.43, // 40% of the screen width
+      height: height * 0.17, // 8% of the screen height
+      left: width * 0.52, // 47% from the left edge of the screen (adjusted for positioning next to savings)
+      top: height * 0.06, // 12% from the top edge of the screen (same as savings for alignment)
       backgroundColor: '#F9A602',
       borderWidth: 1,
       borderColor: '#FFFFFF',
@@ -571,23 +641,23 @@ profileContainer: {
       borderRadius: 10,
       elevation: 5, // for Android shadow
     },
-    cbuText: {
+    cbusText: {
       position: 'absolute',
       width: width * 0.15, // Adjust width to be 15% of screen width
       height: height * 0.03, // Adjust height based on screen height
-      left: width * 0.03, // Adjust left position to be 2% of screen width
-      top: height * 0.01, // Adjust top position to be 2% of screen height
+      left: width * 0.16, // Adjust left position to be 2% of screen width
+      top: height * 0.18, // Adjust top position to be 2% of screen height
       fontStyle: 'normal',
       fontWeight: '600',
-      fontSize: width * 0.035, // Font size is 3.5% of screen width
-      lineHeight: width * 0.045, // Line height is 4.5% of screen width
+      fontSize: width * 0.05, // Font size is 3.5% of screen width
+      lineHeight: width * 0.049, // Line height is 4.5% of screen width
       color: '#373F41',
     },
     cbuBal: {
       position: 'absolute',
       width: width * 0.25, // Adjust width to be 25% of screen width
       height: height * 0.04, // Adjust height based on screen height
-      left: width * 0.2, // Adjust left position to be 10% of screen width
+      left: width * 0.13, // Adjust left position to be 10% of screen width
       top: height * 0.02, // Adjust top position to be 5% of screen height
       fontStyle: 'normal',
       fontWeight: '700',
@@ -615,8 +685,8 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.2, // 20% of screen width
       height: height * 0.03, // 3% of screen height
-      left: width * 0.06, // 3% from the left of the container
-      top: height * 0.06, // 2% from the top of the container
+      left: width * 0.15, // 3% from the left of the container
+      top: height * 0.04, // 2% from the top of the container
       fontStyle: 'normal',
       fontWeight: '600',
       fontSize: width * 0.04, // Scaled font size
@@ -627,7 +697,7 @@ profileContainer: {
       position: 'absolute',
       width: width * 0.3, // 30% of screen width
       height: height * 0.04, // 4% of screen height
-      left: width * 0.2, // 10% from the left of the container
+      left: width * 0.15, // 10% from the left of the container
       top: height * 0.06, // 3% from the top of the container
       fontStyle: 'normal',
       fontWeight: '700',
@@ -651,37 +721,13 @@ profileContainer: {
       borderRadius: 10,
       elevation: 5,
     },
-    totalRevenueText: {
-      position: 'absolute',
-      width: width * 0.3, // 20% of screen width
-      height: height * 0.03, // 3% of screen height
-      left: width * 0.03, // 3% from the left of the container
-      top: height * 0.01, // 2% from the top of the container
-      fontStyle: 'normal',
-      fontWeight: '600',
-      fontSize: width * 0.04, // Scaled font size
-      lineHeight: height * 0.03, // Scaled line height
-      color: '#FFFFFF', // Text color for contrast
-    },
-    totalRevenueBal: {
-      position: 'absolute',
-      width: width * 0.5, // 30% of screen width
-      height: height * 0.04, // 4% of screen height
-      left: width * 0.14, // 10% from the left of the container
-      top: height * 0.03, // 3% from the top of the container
-      fontStyle: 'normal',
-      fontWeight: '700',
-      fontSize: width * 0.05, // Scaled font size
-      lineHeight: height * 0.04, // Scaled line height
-      color: '#FFFFFF',
-    },
     
     tabularform: {
       position: 'absolute',
       width: width * 0.9, // 85% of the screen width
       height: height * 0.50, // 35% of the screen height
       left: width * 0.05, // 5% of the screen width from the left
-      top: height * 0.25, // 20% from the top of the screen
+      top: height * 0.30, // 20% from the top of the screen
       backgroundColor: '#D9D9D9',
       borderRadius: 10,
     },
@@ -891,8 +937,8 @@ numberInput: {
   savrevText: {
     position: 'absolute',
     height: height * 0.03, 
-    left: width * 0.06, 
-    top: height * 0.08, 
+    left: width * 0.10, 
+    top: height * 0.10, 
     fontStyle: 'normal',
     fontWeight: '600',
     fontSize: width * 0.04, 
@@ -905,8 +951,8 @@ numberInput: {
     position: 'absolute',
     width: width * 0.3, // 30% of screen width
     height: height * 0.04, // 4% of screen height
-    left: width * 0.2, // 10% from the left of the container
-    top: height * 0.1, // 3% from the top of the container
+    left: width * 0.13, // 10% from the left of the container
+    top: height * 0.12, // 3% from the top of the container
     fontStyle: 'normal',
     fontWeight: '700',
     fontSize: width * 0.05, // Scaled font size
@@ -918,8 +964,8 @@ numberInput: {
     position: 'absolute',
     width: width * 0.2, // 20% of screen width
     height: height * 0.03, // 3% of screen height
-    left: width * 0.06, // 3% from the left of the container
-    top: height * 0.06, // 2% from the top of the container
+    left: width * 0.15, // 3% from the left of the container
+    top: height * 0.04, // 2% from the top of the container
     fontStyle: 'normal',
     fontWeight: '600',
     fontSize: width * 0.04, // Scaled font size
@@ -930,7 +976,7 @@ numberInput: {
     position: 'absolute',
     width: width * 0.3, // 30% of screen width
     height: height * 0.04, // 4% of screen height
-    left: width * 0.2, // 10% from the left of the container
+    left: width * 0.15, // 10% from the left of the container
     top: height * 0.06, // 3% from the top of the container
     fontStyle: 'normal',
     fontWeight: '700',
@@ -942,8 +988,8 @@ numberInput: {
   cburevText: {
     position: 'absolute',
     height: height * 0.03, 
-    left: width * 0.06, 
-    top: height * 0.08, 
+    left: width * 0.08, 
+    top: height * 0.10, 
     fontStyle: 'normal',
     fontWeight: '600',
     fontSize: width * 0.04, 
@@ -956,8 +1002,8 @@ numberInput: {
     position: 'absolute',
     width: width * 0.3, // 30% of screen width
     height: height * 0.04, // 4% of screen height
-    left: width * 0.2, // 10% from the left of the container
-    top: height * 0.1, // 3% from the top of the container
+    left: width * 0.13, // 10% from the left of the container
+    top: height * 0.12, // 3% from the top of the container
     fontStyle: 'normal',
     fontWeight: '700',
     fontSize: width * 0.05, // Scaled font size

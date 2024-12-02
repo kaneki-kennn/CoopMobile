@@ -1,118 +1,201 @@
-import { View, Image, TouchableOpacity, Text, TextInput, StyleSheet, handleRowPress } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';  // <-- Add this import
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+  Modal,
+  Dimensions,
+  Button,
+  handleLogoClick, 
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import UUID from 'react-native-uuid';
 import { supabase } from './supabase';
-import { Dimensions } from 'react-native';
-
 
 const Loans = () => {
-    const handleRowPress = (index) => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { userId } = route.params || {};
+
+  const [loanType, setLoanType] = useState('regular');
+  const [amount, setAmount] = useState('');
+  const [interest, setInterest] = useState('');
+  const [loanTerms, setLoanTerms] = useState('6 months');
+  const [monthlyPayment, setMonthlyPayment] = useState('');
+  const [loans, setUserLoans] = useState(null);
+  const [loadingUserLoans, setLoadingUserLoans] = useState(true);
+  const [errorUserLoans, setErrorUserLoans] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedLoan, setSelectedLoan] = useState(null); // Store loan details for the modal
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+
+  const handleEmailClick = () => {
+    setIsModalVisible(true); // Show the modal
+  };
+
+  const handleLogoClick = () => {
+    alert('Coop clicked! The page will refresh.');
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+
+  const calculateMonthlyPayment = () => {
+    if (!amount || !interest || !loanTerms) return '';
+
+    const principal = parseFloat(amount);
+    const rate = parseFloat(interest) / 100 / 12; // Convert annual interest to monthly
+    const terms = parseInt(loanTerms.split(' ')[0]); // Number of payments
+
+    if (isNaN(principal) || isNaN(rate) || isNaN(terms)) return ''; // Validate numbers
+
+    const calculatedPayment =
+      (principal * rate * Math.pow(1 + rate, terms)) /
+      (Math.pow(1 + rate, terms) - 1);
+
+    return calculatedPayment.toFixed(2); // Return formatted monthly payment
+  };
+
+  useEffect(() => {
+    const payment = calculateMonthlyPayment();
+    setMonthlyPayment(payment);
+  }, [amount, interest, loanTerms]);
+
+  const applyLoan = async () => {
+    if (!loanType || !amount || !interest || !loanTerms) {
+      console.error('Missing loan type, amount, interest, or loan terms');
+      return;
+    }
+
+    try {
+      const loanApplicationData = {
+        application_id: UUID.v4(),
+        user_id: userId,
+        application_status: 'pending',
+        loan_type: loanType,
+        interest: parseFloat(interest),
+        amount: parseFloat(amount),
+        monthly_payment: parseFloat(monthlyPayment),
+        loan_term: loanTerms,
+        number_of_payments: parseInt(loanTerms.split(' ')[0]),
+        date_sent: new Date(),
       };
-    const navigation = useNavigation();  // Now this will work
-    const route = useRoute();
-    const { userId } = route.params || {}; 
 
-    const [loanType, setLoanType] = useState("regular");
-    const [amount, setAmount] = useState("");
-    const [interest, setInterest] = useState("");
-    const [loanTerms, setLoanTerms] = useState("6 months");
-    const [monthlyPayment, setMonthlyPayment] = useState(""); 
+      const { data, error } = await supabase
+        .from('Loan_applications')
+        .insert([loanApplicationData]);
 
-    const handleLogoClick = () => {
-        alert("Coop clicked! The page will refresh.");
-    };
+      if (error) throw error;
 
-    const calculateMonthlyPayment = () => {
-        if (!amount || !interest || !loanTerms) return ""; 
+      alert(`Loan application for ${amount} submitted for approval.`);
+      setLoanType('regular');
+      setAmount('');
+      setInterest('');
+      setLoanTerms('6 months');
+      setMonthlyPayment('');
+    } catch (err) {
+      console.error('Loan application submission error:', err);
+      alert('Loan application request failed. Please try again.');
+    }
+  };
 
-        const principal = parseFloat(amount);
-        const rate = parseFloat(interest) / 100 / 12;  
-        const terms = parseInt(loanTerms.split(" ")[0]); // Number of payments
+  const fetchUserLoans = async () => {
+    setLoadingUserLoans(true);
+    setErrorUserLoans(null);
 
-        if (isNaN(principal) || isNaN(rate) || isNaN(terms)) return ""; // Validate numbers
+    try {
+      const { data, error } = await supabase
+        .from('Loans')
+        .select(
+          'loan_id, loan_type, loan_amount, interest, start_date, end_date, loan_term')
+        .eq('user_id', userId)
+        .eq('loan_status', 'active');
 
-        const calculatedPayment = (principal * rate * Math.pow(1 + rate, terms)) /
-            (Math.pow(1 + rate, terms) - 1);
-        
-        return calculatedPayment.toFixed(2); // Return formatted monthly payment
-    };
+      if (error) {
+        console.error('Error fetching Loans:', error);
+        throw error;
+      }
 
-    // Update monthlyPayment whenever amount, interest, or loanTerms changes
-    useEffect(() => {
-        const payment = calculateMonthlyPayment();
-        setMonthlyPayment(payment);
-    }, [amount, interest, loanTerms]);
+      setUserLoans(data || []); // Set loans or an empty array if no data
+    } catch (err) {
+      setErrorUserLoans('Failed to fetch Loans.');
+      console.error(err);
+    } finally {
+      setLoadingUserLoans(false);
+    }
+  };
 
-    const applyLoan = async () => {
-        if (!loanType || !amount || !interest || !loanTerms) {
-            console.error('Missing loan type, amount, interest, or loan terms');
-            return;
-        }
+  useEffect(() => {
+    fetchUserLoans();
+  }, [refreshKey]);
 
-        try {
-            const loanApplicationData = {
-                application_id: UUID.v4(),
-                user_id: userId,
-                application_status: 'pending',
-                loan_type: loanType,
-                interest: parseFloat(interest),
-                amount: parseFloat(amount),
-                monthly_payment: parseFloat(monthlyPayment),
-                loan_term: loanTerms,
-                number_of_payments: parseInt(loanTerms.split(" ")[0]),
-                date_sent: new Date(),
-            };
+  const handleRowPress = (loan) => {
+    setSelectedLoan(loan); // Set selected loan data
+    setIsModalVisible(true); // Show modal
+  };
 
-            const { data, error } = await supabase
-                .from('Loan_applications')
-                .insert([loanApplicationData]);
-
-            if (error) throw error;
-
-            alert(`Loan application for ${amount} submitted for approval.`);
-            setLoanType("regular");
-            setAmount("");
-            setInterest("");
-            setLoanTerms("6 months");
-            setMonthlyPayment(""); // Reset monthly payment
-        } catch (err) {
-            console.error("Loan application submission error:", err);
-            alert("Loan application request failed. Please try again.");
-        }
-    };
+  const closeModal = () => {
+    setSelectedLoan(null);
+    setIsModalVisible(false);
+  };
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleLogoClick}>
-                    <Image
-                        source={require('./../assets/images/COOP LOGO.png')}
-                        style={styles.logo}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => alert("Bell clicked! Notifications.")} style={styles.bellContainer}>
-                    <Image
-                        source={require('./../assets/images/bell.png')}
-                        style={styles.bell}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => alert("Email clicked! Check your inbox.")} style={styles.emailContainer}>
-                    <Image
-                        source={require('./../assets/images/email.png')}
-                        style={styles.email}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => alert("Profile clicked! View your profile.")} style={styles.profileContainer}>
-                    <Image
-                        source={require('./../assets/images/profile.png')}
-                        style={styles.profile}
-                    />
-                </TouchableOpacity>
+ <View style={styles.header}>
+        {/* Logo */}
+        <TouchableOpacity onPress={handleLogoClick}>
+          <Image
+            source={require('./../assets/images/COOP LOGO.png')}
+            style={styles.logo}
+          />
+        </TouchableOpacity>
+
+        {/* Notification Bell Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notification', { userId })}
+          style={styles.bellContainer}
+        >
+          <Image source={require('./../assets/images/bell.png')} style={styles.bell} />
+        </TouchableOpacity>
+
+        {/* Email Icon */}
+        <TouchableOpacity onPress={handleEmailClick} style={styles.emailContainer}>
+          <Image
+            source={require('./../assets/images/email.png')}
+            style={styles.email}
+          />
+        </TouchableOpacity>
+
+        {/* Profile Icon */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile', { userId })}
+          style={styles.profileContainer}
+        >
+          <Image
+            source={require('./../assets/images/profile.png')}
+            style={styles.profile}
+          />
+        </TouchableOpacity>
+
+        {/* Modal for Email Popup */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalBack}>
+            <View style={styles.modalCon}>
+              <Text style={styles.modalTxt}>Please open your Gmail App to view email.</Text>
+              <Button title="Open" onPress={closeModal} />
             </View>
+          </View>
+        </Modal>
+      </View>
+
 
             <View style={styles.loaninfo}>
             <View style={styles.loanguide}>
@@ -173,27 +256,88 @@ const Loans = () => {
             </TouchableOpacity>
         </View>
 
-            <View style={styles.table}>
-                {/* Header Row */}
-                <View style={styles.headerRow}>
-                    <Text style={styles.headerText}>Loan ID</Text>
-                    <Text style={styles.headerText}>Type</Text>
-                    <Text style={styles.headerText}>Start Date</Text>
-                    <Text style={styles.headerText}>End Date</Text>
-                </View>
-
-                {/* Data Rows */}
-                {Array.from({ length: 4 }).map((_, index) => (
-                    <TouchableOpacity key={index} onPress={() => handleRowPress(index)}>
-                        <View style={styles.dataRow}>
-                            <Text style={styles.dataText}>Data {index + 1}</Text>
-                            <Text style={styles.dataText}>Type {index + 1}</Text>
-                            <Text style={styles.dataText}>Start {index + 1}</Text>
-                            <Text style={styles.dataText}>End {index + 1}</Text>
-                        </View>
-                    </TouchableOpacity>
-                ))}
+        <View style={styles.table}>
+        {loadingUserLoans ? (
+          <ActivityIndicator size="large" color="#F9A602" />
+        ) : errorUserLoans ? (
+          <Text style={{ color: 'red' }}>{errorUserLoans}</Text>
+        ) : loans.length === 0 ? (
+          <Text style={styles.dataText}>There are no loans</Text>
+        ) : (
+          <>
+            {/* Header Row */}
+            <View style={styles.headerRow}>
+              <Text style={styles.headerText}>Loan ID</Text>
+              <Text style={styles.headerText}>Type</Text>
+              <Text style={styles.headerText}>Start Date</Text>
+              <Text style={styles.headerText}>End Date</Text>
             </View>
+
+            {/* Data Rows */}
+            {loans.map((loan) => (
+              <TouchableOpacity
+                key={loan.loan_id}
+                onPress={() => handleRowPress(loan)}
+              >
+                <View style={styles.dataRow}>
+                  <Text style={styles.dataText}>{loan.loan_id}</Text>
+                  <Text style={styles.dataText}>{loan.loan_type}</Text>
+                  <Text style={styles.dataText}>{loan.start_date}</Text>
+                  <Text style={styles.dataText}>{loan.end_date}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
+      </View>
+
+      {/* Modal for Loan Details */}
+      {selectedLoan && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Loan Details</Text>
+              <Text style={styles.modalText}>
+                Name: {userId} {/* Replace with actual user name if available */}
+              </Text>
+              <Text style={styles.modalText}>
+                Loan Amount: {selectedLoan.loan_amount}
+              </Text>
+              <Text style={styles.modalText}>
+                Loan Interest Rate: {selectedLoan.interest}%
+              </Text>
+              <Text style={styles.modalText}>
+                Loan Term: {selectedLoan.loan_term}
+              </Text>
+              <Text style={styles.modalText}>
+                Monthly Payment: {selectedLoan.monthly_payment}
+              </Text>
+              <Text style={styles.modalText}>
+                Total Amount to be Paid:{' '}
+                {(
+                  selectedLoan.monthly_payment *
+                  selectedLoan.loan_term.split(' ')[0]
+                ).toFixed(2)}
+              </Text>
+              <Text style={styles.modalText}>
+                Loan Period: {selectedLoan.start_date} - {selectedLoan.end_date}
+              </Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={closeModal}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
 
             <View style={styles.navbar}>
                 <TouchableOpacity onPress={() => navigation.navigate('Announcement', { userId })}>
@@ -274,6 +418,27 @@ const styles = StyleSheet.create({
         left: width * 0.90, // Position dynamically based on screen width
         top: height * 0.03, // 2% of the screen height
     },
+    modalBack: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalCon: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: width * 0.8, // Set modal width to 80% of the screen width
+        height: height * 0.3, // Set modal height to 30% of the screen height
+        maxWidth: 350,  // Maximum width of modal
+        maxHeight: 150, // Maximum height of modal
+      },
+      modalTxt: {
+        marginBottom: 20,
+        fontSize: width > 350 ? 18 : 16, // Adjust font size based on screen width
+        textAlign: 'center',  // Make text centered
+      },
     loaninfo: {
         position: 'absolute',
         width: width * 0.9, // 80% of the screen width
@@ -405,6 +570,44 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: width * 0.035, // Font size scales with screen width
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background
+      },
+      modalContent: {
+        backgroundColor: 'white',
+        padding: width * 0.05, // 5% of screen width for padding
+        borderRadius: 10,
+        width: width * 0.8, // 80% of screen width
+        maxHeight: height * 0.8, // 80% of screen height to prevent overflow
+        alignItems: 'center',
+        position: 'absolute',
+        top: height * 0.2, // 10% from top of the screen
+      },
+      modalTitle: {
+        fontSize: width * 0.07, // 7% of screen width for title font size
+        fontWeight: 'bold',
+        marginBottom: height * 0.02, // 2% of screen height for bottom margin
+      },
+      modalText: {
+        fontSize: width * 0.05, // 5% of screen width for text font size
+        marginBottom: height * 0.02, // 2% of screen height for bottom margin
+        color: '#333',
+      },
+       closeButton: {
+    marginTop: height * 0.03, // 3% of screen height for spacing
+    backgroundColor: '#F9A602',
+    paddingVertical: height * 0.015, // 1.5% of screen height
+    paddingHorizontal: width * 0.1, // 10% of screen width for padding
+    borderRadius: 5,
+  },
+      closeButtonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+      },
     navbar: {
         position: 'absolute',
         width: width, // Full screen width
