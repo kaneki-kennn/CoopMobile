@@ -20,71 +20,71 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 // Client for admin operations
 const adminSupabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-export async function migrateUsers() {
-  try {
-    console.log("Starting migration...");
+// export async function migrateUsers() {
+//   try {
+//     console.log("Starting migration...");
 
-    const { data: users, error: fetchError } = await supabase
-      .from('Users')
-      .select('*');
+//     const { data: users, error: fetchError } = await supabase
+//       .from('Users')
+//       .select('*');
 
-    if (fetchError) {
-      console.error('Error fetching users:', fetchError);
-      return;
-    }
+//     if (fetchError) {
+//       console.error('Error fetching users:', fetchError);
+//       return;
+//     }
 
-    console.log("Users fetched:", users);
+//     console.log("Users fetched:", users);
 
-    for (const user of users) {
-      console.log(`Processing user: ${user.email}`);
+//     for (const user of users) {
+//       console.log(`Processing user: ${user.email}`);
 
-      // Use the admin API to list users and check structure
-      const { data: allUsers, error: userCheckError } = await adminSupabase.auth.admin.listUsers();
+//       // Use the admin API to list users and check structure
+//       const { data: allUsers, error: userCheckError } = await adminSupabase.auth.admin.listUsers();
 
-      if (userCheckError) {
-        console.error(`Error fetching users from Auth API:`, userCheckError);
-        continue;
-      }
+//       if (userCheckError) {
+//         console.error(`Error fetching users from Auth API:`, userCheckError);
+//         continue;
+//       }
 
-      if (!allUsers || !Array.isArray(allUsers.users)) {
-        console.error("Unexpected format of allUsers:", allUsers);
-        continue;
-      }
+//       if (!allUsers || !Array.isArray(allUsers.users)) {
+//         console.error("Unexpected format of allUsers:", allUsers);
+//         continue;
+//       }
 
-      const existingUser = allUsers.users.find((authUser) => authUser.email === user.email);
+//       const existingUser = allUsers.users.find((authUser) => authUser.email === user.email);
 
-      if (existingUser) {
-        console.log(`User already exists: ${user.email}`);
-        continue;
-      }
+//       if (existingUser) {
+//         console.log(`User already exists: ${user.email}`);
+//         continue;
+//       }
 
-      const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
-        email: user.email,
-        email_confirm: true,
-        password: user.password, // Ensure the hashed password is suitable for your use case
-      });
+//       const { data: authData, error: authError } = await adminSupabase.auth.admin.createUser({
+//         email: user.email,
+//         email_confirm: true,
+//         password: user.password, // Ensure the hashed password is suitable for your use case
+//       });
 
-      if (authError) {
-        console.error(`Error creating user ${user.email}:`, authError);
-        continue;
-      }
+//       if (authError) {
+//         console.error(`Error creating user ${user.email}:`, authError);
+//         continue;
+//       }
 
-      console.log(`User created in Supabase Auth: ${user.email}`);
+//       console.log(`User created in Supabase Auth: ${user.email}`);
 
-      const { error: updateError } = await supabase
-        .from('Users')
-        .update({ supabase_auth_id: authData.user.id })
-        .eq('user_id', user.user_id);
+//       const { error: updateError } = await supabase
+//         .from('Users')
+//         .update({ supabase_auth_id: authData.user.id })
+//         .eq('user_id', user.user_id);
 
-      if (updateError) {
-        console.error(`Error updating user ${user.email} with Supabase Auth ID:`, updateError);
-      } else {
-        console.log(`User migrated: ${user.email}, Supabase Auth ID: ${authData.user.id}`);
-      }
-    }
-  } catch (error) {
-    console.error("Migration failed with an unexpected error:", error);
-  }
-}
+//       if (updateError) {
+//         console.error(`Error updating user ${user.email} with Supabase Auth ID:`, updateError);
+//       } else {
+//         console.log(`User migrated: ${user.email}, Supabase Auth ID: ${authData.user.id}`);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Migration failed with an unexpected error:", error);
+//   }
+// }
 
-migrateUsers();
+// migrateUsers();

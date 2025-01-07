@@ -15,10 +15,26 @@ import {
   import { v4 as uuidv4 } from 'uuid';
   import { supabase } from "./supabase";
   import { Dimensions } from 'react-native';
+  import AsyncStorage from '@react-native-async-storage/async-storage';
   
   const Funds = () => {
     const navigation = useNavigation();
     const route = useRoute();
+    const handleLogout = async () => {
+      try {
+        // Supabase sign-out
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+  
+        // Clear session data
+        await AsyncStorage.clear();
+  
+        // Redirect to login
+        navigation.replace('Login');
+      } catch (err) {
+        console.error('Error during logout:', err);
+      }
+    };
     const { userId } = route.params || {};
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -70,6 +86,7 @@ const [loadingTotalRevenue, setLoadingTotalRevenue] = useState(false);
 const [errorTotalRevenue, setErrorTotalRevenue] = useState(null);
 const [totalRevenue, setTotalRevenue] = useState(null);
 const [totalsavRevenue, setTotalsavRevenue] = useState(null);
+
   
     const fetchUserCbu = async () => {
       setLoadingCbu(true);
@@ -168,7 +185,7 @@ const fetchUserSavings = async () => {
   
     const handleTransaction = async () => {
       console.log("Starting transaction...");
-    
+      
       // Check if all fields are filled
       if (!selectedAction || !amount || !selectedPaymentMode || !selectedOption) {
         console.log("Validation failed: Missing fields", {
@@ -180,62 +197,72 @@ const fetchUserSavings = async () => {
         alert("Please complete all fields.");
         return;
       }
-    
+      
       // Check minimum amount
-      if (parseFloat(amount) < 500) {
+      if (isNaN(amount) || parseFloat(amount) < 500) {
         console.log("Validation failed: Amount is less than 500", { amount });
         alert("Minimum amount is 500.");
         return;
       }
+      
+      // Log field values for debugging
+      console.log({
+        selectedAction,
+        amount,
+        selectedPaymentMode,
+        selectedOption,
+        savingsId,
+        cbuId
+      });
     
       // Determine transaction table and keys
       const transactionee =
         selectedOption === "savings" ? "Savtransactions" : "Cbutransactions";
       const transactionIdKey =
         selectedOption === "savings" ? "savtransaction_id" : "cbutransaction_id";
-    
+      
       console.log("Transaction table and key determined:", {
         transactionee,
         transactionIdKey,
       });
-    
+      
       // Add additional data based on selection
       const additionalData =
         selectedOption === "savings" ? { savings_id: savingsId } : { cbu_id: cbuId };
-    
+      
       console.log("Additional data for transaction:", additionalData);
-    
+      
       try {
         // Prepare transaction data
         const transactionData = {
-          [transactionIdKey]:UUID.v4(), // Generate a unique ID
+          [transactionIdKey]: UUID.v4(), // Generate a unique ID
           user_id: userId,
           amount: parseFloat(amount),
           transaction_type: selectedAction,
           status: "pending",
           mode: selectedPaymentMode,
-          date_sent: new Date().toISOString(), // Use ISO string for consistent date format
+          date_sent: new Date().toISOString(),
           ...additionalData,
         };
-    
+      
         console.log("Transaction data prepared:", transactionData);
-    
+      
         // Insert data into the database
         const { data, error } = await supabase
           .from(transactionee) // Pass the table name here
           .insert([transactionData]);
-    
+      
         console.log("Supabase response:", { data, error });
-    
+      
         if (error) {
           console.error("Supabase error:", error);
           throw error;
         }
-    
+      
         // Success handling
         alert(`${selectedAction} request of ${amount} submitted for approval.`);
         console.log("Transaction submitted successfully.");
-    
+      
         // Reset state
         setSelectedAction(null);
         setAmount("");
@@ -283,7 +310,7 @@ const fetchUserSavings = async () => {
 
         {/* Profile Icon */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile', { userId })}
+          onPress={handleLogout}
           style={styles.profileContainer}
         >
           <Image

@@ -1,10 +1,85 @@
 import { View, Text, Image, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import React, { useState } from 'react'; // Import useState
 import { Link } from 'expo-router';
+import { supabase } from './supabase';
 
 export default function CreateAccount() {
-    const [passwordVisible, setPasswordVisible] = useState(false); // Toggle for password visibility
-    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password visibility
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+    const [passwordsMatch, setPasswordsMatch] = useState(true);       
+
+    
+
+    const checkPasswordsMatch = () => {
+        if (password !== confirmPassword) {
+          setPasswordsMatch(false);
+        } else {
+          setPasswordsMatch(true);
+        }
+      };
+
+      const signUpWithUserId = async (user_id, password, confirmPassword) => {
+        setLoading(true); // Start loading indicator
+      
+        try {
+          // Fetch user data from Supabase based on user_id
+          const { data: user, error } = await supabase
+            .from('Users')
+            .select('user_id, password, registered')
+            .eq('user_id', user_id)
+            .single();
+      
+          console.log('Fetched user data:', user);
+      
+          if (error || !user) {
+            console.error('User not found or error fetching user:', error);
+            if (error.code === 'PGRST001') {
+              Alert.alert('Connection Timeout', 'Please check your ID or password');
+            } else {
+              Alert.alert('Registration Failed', 'Please check your ID or password');
+            }
+            setLoading(false);
+            return;
+          }
+      
+          // Check if the password and confirm password match
+          if (password !== confirmPassword) {
+            Alert.alert('Password Mismatch', 'The passwords do not match. Please try again.');
+            setLoading(false);
+            return;
+          }
+      
+          // If user already registered, prompt with message
+          if (user.registered) {
+            Alert.alert('User Already Registered', 'This user ID is already registered.');
+            setLoading(false);
+            return;
+          }
+      
+          // Proceed with the registration process
+          const { data, error: signupError } = await supabase
+            .from('Users')
+            .update({ password: password, registered: true })
+            .eq('user_id', user_id);
+      
+          if (signupError) {
+            console.error('Error updating registration:', signupError);
+            Alert.alert('Registration Failed', 'There was an error during registration.');
+            setLoading(false);
+            return;
+          }
+      
+          // Successful registration
+          Alert.alert('Registration Successful', 'Your account has been successfully created!');
+          setLoading(false);
+        } catch (err) {
+          console.error('Unexpected error:', err);
+          Alert.alert('An error occurred', 'Please try again later.');
+          setLoading(false);
+        }
+      };
 
     return (
         <View style={styles.container}>
@@ -31,47 +106,68 @@ export default function CreateAccount() {
                     placeholderTextColor="#AAAAAA"
                 />
                 {/* Password Input */}
-                <View style={styles.inputplace}>
-                    <Text style={styles.firstpassword}>Enter your Password</Text>
-                    <View style={styles.passwordContainer}>
-                        <TextInput
-                            style={styles.inputcontain}
-                            placeholder="Enter your Password"
-                            placeholderTextColor="#AAAAAA"
-                            secureTextEntry={!passwordVisible} // Toggle visibility
-                        />
-                        <TouchableOpacity
-                            onPress={() => setPasswordVisible(!passwordVisible)}
-                            style={styles.eyeIcon}
-                        >
-                            <Text style={styles.eyeText1}>
-                                {passwordVisible ? 'Hide' : 'Show'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                {/* Confirm Password Input */}
-                <View style={styles.input}>
-                    <Text style={styles.confirmpassword}>Confirm Password</Text>
-                    <View style={styles.passwordContainer}>
-                        <TextInput
-                            style={styles.inputcont}
-                            placeholder="Confirm your Password"
-                            placeholderTextColor="#AAAAAA"
-                            secureTextEntry={!confirmPasswordVisible} // Toggle visibility
-                        />
-                        <TouchableOpacity
-                            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-                            style={styles.eyeIcon}
-                        >
-                            <Text style={styles.eyeText2}>
-                                {confirmPasswordVisible ? 'Hide' : 'Show'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                <View>
+      {/* Password Input */}
+            <View style={styles.inputplace}>
+                <Text style={styles.firstpassword}>Enter your Password</Text>
+                <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.inputcontain}
+                    placeholder="Enter your Password"
+                    placeholderTextColor="#AAAAAA"
+                    secureTextEntry={!passwordVisible}
+                    value={password} // Set value for password
+                    onChangeText={(text) => {
+                    setPassword(text);
+                    checkPasswordsMatch(); // Check password match as the user types
+                    }}
+                />
+                <TouchableOpacity
+                    onPress={() => setPasswordVisible(!passwordVisible)}
+                    style={styles.eyeIcon}
+                >
+                    <Text style={styles.eyeText1}>
+                    {passwordVisible ? 'Hide' : 'Show'}
+                    </Text>
+                </TouchableOpacity>
                 </View>
             </View>
-            <TouchableOpacity style={styles.buttonCreateAccountContainer}>
+
+            {/* Confirm Password Input */}
+            <View style={styles.input}>
+                <Text style={styles.confirmpassword}>Confirm Password</Text>
+                <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.inputcont}
+                    placeholder="Confirm your Password"
+                    placeholderTextColor="#AAAAAA"
+                    secureTextEntry={!confirmPasswordVisible}
+                    value={confirmPassword} // Set value for confirm password
+                    onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    checkPasswordsMatch(); // Check password match as the user types
+                    }}
+                />
+                <TouchableOpacity
+                    onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                    style={styles.eyeIcon}
+                >
+                    <Text style={styles.eyeText2}>
+                    {confirmPasswordVisible ? 'Hide' : 'Show'}
+                    </Text>
+                </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* Error Message if passwords don't match */}
+            {!passwordsMatch && (
+                <Text style={styles.errorText}>Passwords do not match!</Text>
+            )}
+            </View>
+
+            </View>
+            <TouchableOpacity signUpWithUserId
+             style={styles.buttonCreateAccountContainer}>
                 <Link style={styles.buttonCreateAccountText} href={'./Login'}>
                     Create Account
                 </Link>

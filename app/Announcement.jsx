@@ -3,8 +3,24 @@ import React, { useEffect, useState } from 'react';
 import { DataTable } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Announcement = () => {
+  const handleLogout = async () => {
+    try {
+      // Supabase sign-out
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Clear session data
+      await AsyncStorage.clear();
+
+      // Redirect to login
+      navigation.replace('Login');
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
+  };
   const route = useRoute();
   const { userId } = route.params || {};
   const [announcements, setAnnouncements] = useState([]);
@@ -98,7 +114,7 @@ const Announcement = () => {
 
         {/* Profile Icon */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile', { userId })}
+           onPress={handleLogout}
           style={styles.profileContainer}
         >
           <Image

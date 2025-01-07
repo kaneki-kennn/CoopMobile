@@ -13,10 +13,28 @@ import { Picker } from "@react-native-picker/picker";
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
+import { supabase } from './supabase';
+import { FlatList } from "react-native-web";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function History() {
   const route = useRoute();
   const { userId } = route.params || {}; // Using `useRouter` for navigation
+  const handleLogout = async () => {
+    try {
+      // Supabase sign-out
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Clear session data
+      await AsyncStorage.clear();
+
+      // Redirect to login
+      navigation.replace('Login');
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
+  };
   const [selectedTimeFrame, setSelectedTimeFrame] = useState("");
   const [transactions, setTransactions] = useState(null);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
@@ -43,40 +61,60 @@ export default function History() {
   const fetchTransactions = async () => {
     setLoadingTransactions(true);
     setErrorTransactions(null);
-
+  
     try {
       // Fetch data from Loan Applications
-      const { data: loanApplications, error: loanError } = await supabase
-        .from("Loan_applications")
-        .select("application_id as request_id, application_status as status, loan_type as transaction_type, date_sent")
-        .eq("user_id", userId);
-
-      if (loanError) throw loanError;
-
-      // Fetch data from Savtransactions
-      const { data: savTransactions, error: savError } = await supabase
-        .from("Savtransactions")
-        .select("savtransaction_id as request_id, status, transaction_type, date_sent")
-        .eq("user_id", userId);
-
-      if (savError) throw savError;
-
-      // Fetch data from Cbutransactions
       const { data: cbuTransactions, error: cbuError } = await supabase
-        .from("Cbutransactions")
-        .select("cbutransaction_id as request_id, status, transaction_type, date_sent")
-        .eq("user_id", userId);
+      .from("Cbutransactions")
+      .select("cbutransaction_id, amount, transaction_type, status, date_sent")
+      .eq("user_id", userId);
 
-      if (cbuError) throw cbuError;
+    if (cbuError) throw cbuError;
 
-      const combinedData = [
-        ...(loanApplications || []),
-        ...(savTransactions || []),
-        ...(cbuTransactions || []),
-      ];
+    // Fetch Savings transactions
+    const { data: savingsTransactions, error: savError } = await supabase
+      .from("Savtransactions")
+      .select("savtransaction_id, amount, transaction_type, status, date_sent")
+      .eq("user_id", userId);
 
-      combinedData.sort((a, b) => new Date(b.date_sent) - new Date(a.date_sent));
-      setTransactions(combinedData);
+    if (savError) throw savError;
+
+    // Fetch Loan applications
+    const { data: loanApplications, error: loanError } = await supabase
+      .from("Loan_applications")
+      .select("application_id, amount, application_status, date_sent")
+      .eq("user_id", userId);
+
+    if (loanError) throw loanError;
+  
+      // Combine and sort data
+      const transactions = [
+        ...(cbuTransactions || []).map(cbu => ({
+          id: cbu.cbutransaction_id,
+          amount: cbu.amount,
+          transaction_type: cbu.transaction_type,
+          status: cbu.status,
+          date: cbu.date_sent,
+          type: "CBU Transactions",
+        })),
+        ...(savingsTransactions || []).map(savings => ({
+          id: savings.savtransaction_id,
+          amount: savings.amount,
+          transaction_type: savings.transaction_type,
+          status: savings.status,
+          date: savings.date_sent,
+          type: "Savings Transactions",
+        })),
+        ...(loanApplications || []).map(loanApp => ({
+          id: loanApp.application_id,
+          amount: loanApp.amount,
+          status: loanApp.application_status,
+          date: loanApp.date_sent,
+          type: "Loan Application",
+        }))]
+  
+      transactions.sort((a, b) => new Date(b.date_sent) - new Date(a.date_sent));
+      setTransactions(transactions);
     } catch (err) {
       console.error("Error fetching user requests:", err);
       setErrorTransactions("Failed to fetch user requests.");
@@ -84,10 +122,11 @@ export default function History() {
       setLoadingTransactions(false);
     }
   };
-
+  
   useEffect(() => {
     fetchTransactions();
   }, [refreshKey]);
+  
 
   const handleLogoClick = () => {
     Alert.alert("Coop clicked!", "The page will refresh.");
@@ -124,7 +163,7 @@ export default function History() {
 
         {/* Profile Icon */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile', { userId })}
+           onPress={handleLogout}
           style={styles.profileContainer}
         >
           <Image
@@ -180,14 +219,17 @@ export default function History() {
           <Text>{errorTransactions}</Text> // Display error message
         ) : transactions && transactions.length > 0 ? (
           transactions.map((transaction, index) => (
-            <TouchableOpacity key={index} style={styles.dataRow}>
-              <Text style={styles.dataCell}>{transaction.request_id}</Text>
+        <TouchableOpacity key={index} style={styles.dataRow}>
+         
+          <Text style={styles.dataCell}>{transaction.id}</Text>
               <Text style={styles.dataCell}>{transaction.amount || "N/A"}</Text>
               <Text style={styles.dataCell}>{transaction.transaction_type}</Text>
               <Text style={styles.dataCell}>{transaction.status}</Text>
-              <Text style={styles.dataCell}>{transaction.date_sent}</Text>
+              <Text style={styles.dataCell}>{transaction.date}</Text>
+   
+              
             </TouchableOpacity>
-          ))
+          ))    
         ) : (
           <Text>No transactions found.</Text> // If no transactions exist
         )}

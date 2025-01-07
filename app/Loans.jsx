@@ -16,11 +16,27 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import UUID from 'react-native-uuid';
 import { supabase } from './supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Loans = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { userId } = route.params || {};
+  const handleLogout = async () => {
+    try {
+      // Supabase sign-out
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Clear session data
+      await AsyncStorage.clear();
+
+      // Redirect to login
+      navigation.replace('Login');
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
+  };
 
   const [loanType, setLoanType] = useState('regular');
   const [amount, setAmount] = useState('');
@@ -171,7 +187,7 @@ const Loans = () => {
 
         {/* Profile Icon */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile', { userId })}
+           onPress={handleLogout}
           style={styles.profileContainer}
         >
           <Image

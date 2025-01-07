@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, Dimensions, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Notification = () => {
   const navigation = useNavigation();
@@ -60,7 +61,7 @@ const Notification = () => {
   </TouchableOpacity>
 
   <TouchableOpacity
-  onPress={() => navigation.navigate('Profile', { userId })}
+   onPress={handleLogout}
    style={styles.profileContainer}>
     <Image
       source={require('./../assets/images/profile.png')}

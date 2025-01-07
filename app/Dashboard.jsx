@@ -5,7 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import { supabase } from './supabase';
 import { useNavigation } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Dashboard = () => {
@@ -189,6 +189,22 @@ const Dashboard = () => {
         setRefreshKey(prevKey => prevKey + 1); 
     };
 
+    const handleLogout = async () => {
+        try {
+          // Supabase sign-out
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+    
+          // Clear session data
+          await AsyncStorage.clear();
+    
+          // Redirect to login
+          navigation.replace('Login');
+        } catch (err) {
+          console.error('Error during logout:', err);
+        }
+      };
+
     return (
         <View style={styles.container}>
          <View style={styles.header}>
@@ -218,7 +234,7 @@ const Dashboard = () => {
 
         {/* Profile Icon */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Profile', { userId })}
+           onPress={handleLogout}
           style={styles.profileContainer}
         >
           <Image
